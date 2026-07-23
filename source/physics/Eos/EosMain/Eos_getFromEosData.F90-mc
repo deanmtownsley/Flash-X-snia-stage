@@ -21,30 +21,37 @@
 !!
 !!
 !!***
-!!NOVARIANTS
+!!
 #include "Eos.h"
 #include "Eos_map.h"
 #include "constants.h"
 #include "Simulation.h"
   
 
+!!VARIANTS(GPU): Eos_getFromEosData, &
+!!               Driver_abort
 ! solnData depends on the ordering on unk
 !!REORDER(4): solnData
 
 
-subroutine Eos_getFromEosData( vecB, vecE, eosData,range, solnData)
+subroutine Eos_getFromEosData(vecB, vecE, eosData,range, lo, solnData)
 
   use Eos_data, ONLY: eos_mapLookup
   use Driver_interface, ONLY : Driver_abort
+
+  @M eos_DIR_routine(vector)
+
   implicit none
 
   integer, intent(in) :: vecB
   integer,intent(inout) :: vecE
   integer, dimension(LOW:HIGH,MDIM), intent(in) :: range
   real, dimension(vecB:vecE,EOS_VARS),intent(in) :: eosData
-  real,pointer,dimension(:,:,:,:), intent(in) :: solnData
-
+  integer, dimension(MDIM) :: lo
+  real,dimension(1:,lo(1):,lo(2):,lo(3):), intent(inout) :: solnData
+  !!real,dimension(:,:,:,:), pointer :: solnData
   integer :: i,j,k,n
+  integer :: ilo, ihi, jlo, jhi, klo, khi, base_n
   real :: @M eos_args, ekin
   @M eos_map_declare
   !! ---------------------------------------------------------------------------------
@@ -52,11 +59,23 @@ subroutine Eos_getFromEosData( vecB, vecE, eosData,range, solnData)
   
   !! get the map of eos indices to state variable indices
   @M eos_map
-  n = vecB-1
+  base_n = vecB-1
+  !! for readability
+  ilo = range(LOW,  IAXIS)
+  ihi = range(HIGH, IAXIS)
+  jlo = range(LOW,  JAXIS)
+  jhi = range(HIGH, JAXIS)
+  klo = range(LOW,  KAXIS)
+  khi = range(HIGH, KAXIS)
   !! DEV: If / when we add a ptr dummy argument for passing in an offset, this will be n = ptr
-  @M loop_3d(range)
+  @M eos_DIR_parallel_loop(3) &
+  @M eos_DIR_private([pres, temp, dens, gamc, eint, entr, abar, zbar, ye, ekin])
+  @M loop_3d(range,i,j,k)
   !! account for kinetic energy
-            n=n+1
+             n = base_n + &
+                 ((k - klo) * (jhi - jlo + 1) * (ihi - ilo + 1)) + &
+                 ((j - jlo) * (ihi - ilo + 1)) + &
+                 (i - ilo) + 1
              @M eos_unpack(eosData,n)
              @M eos_postprocess
             !! consolidate the data at the point into eosData

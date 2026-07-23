@@ -62,7 +62,7 @@ PP      = -D
 OPENMP = -fopenmp
 
 FFLAGS_OPT = -ggdb -c -O2 -fdefault-real-8 -fdefault-double-8 \
--Wuninitialized -fallow-argument-mismatch -I${MESA_DIR}/include -I${MESASDK_ROOT}/include
+-Wuninitialized -fallow-argument-mismatch -I${MESA_DIR}/include -I${MESASDK_ROOT}/include ${OPENMP}
 
 
 #I explictly add -O0 because I found that compiling source files without
@@ -74,9 +74,9 @@ FFLAGS_DEBUG = -ggdb -c -O0 -fdefault-real-8 -fdefault-double-8 \
 -pedantic -Wall -Waliasing \
 -Wsurprising -Wconversion -Wunderflow \
 -ffpe-trap=invalid,zero,overflow -fbounds-check \
--fimplicit-none -fstack-protector-all
+-fimplicit-none -fstack-protector-all ${OPENMP}
 
-FFLAGS_TEST = -ggdb -c -O0 -fdefault-real-8 -fdefault-double-8
+FFLAGS_TEST = -ggdb -c -O0 -fdefault-real-8 -fdefault-double-8 ${OPENMP}
 
 FFLAGS_HYPRE = -I${HYPRE_PATH}/include
 
@@ -109,9 +109,9 @@ CFLAGS_NCMPI = -I${NCMPI_PATH}/include
 #  _DEBUG, and _TEST cases.
 #----------------------------------------------------------------------------
 
-LFLAGS_OPT   = -ggdb -o
-LFLAGS_DEBUG = -ggdb -O0 -o
-LFLAGS_TEST  = -ggdb -O0 -o
+LFLAGS_OPT   = -ggdb ${OPENMP} -o
+LFLAGS_DEBUG = -ggdb -O0 ${OPENMP} -o
+LFLAGS_TEST  = -ggdb -O0 ${OPENMP} -o
 
 
 #----------------------------------------------------------------------------

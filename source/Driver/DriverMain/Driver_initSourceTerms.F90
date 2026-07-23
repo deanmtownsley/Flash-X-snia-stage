@@ -36,6 +36,7 @@ subroutine Driver_initSourceTerms(restart)
     use Burn_interface, ONLY: Burn_init
     use RadTrans_interface, ONLY: RadTrans_init
     use Deleptonize_interface, ONLY: Deleptonize_init
+    use Stir_interface, ONLY: Stir_init
 
     implicit none
 
@@ -44,5 +45,6 @@ subroutine Driver_initSourceTerms(restart)
     call Burn_init()
     call RadTrans_init()
     call Deleptonize_init()
+    call Stir_init(restart)
 
 end subroutine Driver_initSourceTerms

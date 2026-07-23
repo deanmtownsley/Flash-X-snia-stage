@@ -24,14 +24,13 @@
 !!   10/17/2018
 !!
 
-!!NOVARIANTS
+!!
 
 #include "constants.h"
 #include "Simulation.h"
 #include "Eos.h"
 
-
-SUBROUTINE eos_weaklib(mode,vecLen,eosData, massFrac,derivs)
+SUBROUTINE eos_weakLib(mode,vecLen,eosData, massFrac,derivs)
 
   USE Driver_interface, ONLY : Driver_abort
   USE eos_weaklib_inter, ONLY: eos_weaklib_short
@@ -81,6 +80,6 @@ SUBROUTINE eos_weaklib(mode,vecLen,eosData, massFrac,derivs)
 
   RETURN
 
-END SUBROUTINE eos_weaklib
+END SUBROUTINE eos_weakLib
 
 

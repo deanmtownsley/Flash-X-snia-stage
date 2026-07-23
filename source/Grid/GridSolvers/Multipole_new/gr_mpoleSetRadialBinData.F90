@@ -155,7 +155,7 @@ subroutine gr_mpoleSetRadialBinData ()
          rlocal  = scalar * (real (Qlocal) ** exponent) * gr_mpoleDr
      else if (type == ZONE_LOGARITHMIC) then
          lognorm = gr_mpoleZoneLogNorm (zone)
-         rlocal  = scalar * scalar * gr_mpoleDr * lognorm * (exp (exponent * real (Qlocal)) - ONE)
+         rlocal  = scalar * gr_mpoleDr * lognorm * (exp (exponent * real (Qlocal)) - ONE)
      end if
 
      rglobal = gr_mpoleZoneRmax (zone - 1) + rlocal

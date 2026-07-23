@@ -1,3 +1,4 @@
+
 !!****if* source/physics/sourceTerms/Outlet/Outlet_interface
 !!
 !! NOTICE
@@ -41,11 +42,14 @@ Module Outlet_interface
    end interface
 
    interface
-      subroutine Outlet_setForcing(tileDesc, dt)
-         use Grid_tile, ONLY: Grid_tile_t
-         implicit none
-         type(Grid_tile_t), intent(in) :: tileDesc
-         real, intent(in) :: dt
+      subroutine Outlet_setForcing(solnData, facexData, faceyData, facezData,&
+           xC, yC,zC, boundBox, del, lo, hi, dt)
+        real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
+        real, dimension(:),intent(IN) :: xC,yC,zC
+        integer, dimension(MDIM),intent(IN)   :: lo, hi
+        real,dimension(MDIM),intent(IN)    :: del
+        real, intent(in) :: dt
+        real, dimension(LOW:HIGH, 1:MDIM),intent(IN)    :: boundBox
       end subroutine Outlet_setForcing
    end interface
 

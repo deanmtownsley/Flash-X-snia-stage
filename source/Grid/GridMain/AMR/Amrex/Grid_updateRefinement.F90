@@ -270,7 +270,7 @@ include "Flashx_mpi.h"
                                   tileDesc%blkLimitsGC(HIGH, :), &
                                   NUNK_VARS)
 
-          call Eos_multiDim(gr_eosMode, tileDesc%grownLimits, solnData)
+          call Eos_multiDim(gr_eosMode, tileDesc%grownLimits, tileDesc%blkLimitsGC(LOW,:),solnData)
  
           call tileDesc%releaseDataPtr(solnData, CENTER)
           call itor%next()
@@ -299,7 +299,7 @@ include "Flashx_mpi.h"
                                   NUNK_VARS)
           end if
 
-          call Eos_multiDim(gr_eosMode, tileDesc%grownLimits, solnData)
+          call Eos_multiDim(gr_eosMode, tileDesc%grownLimits, tileDesc%blkLimitsGC(LOW,:),solnData)
 
           call tileDesc%releaseDataPtr(solnData, CENTER)
           call itor%next()
@@ -327,7 +327,7 @@ include "Flashx_mpi.h"
           call itor%currentTile(tileDesc)
 
           call tileDesc%getDataPtr(solnData, CENTER)
-          call Eos_multiDim(gr_eosMode, tileDesc%grownLimits, solnData)
+          call Eos_multiDim(gr_eosMode, tileDesc%grownLimits, tileDesc%blkLimitsGC(LOW,:),solnData)
           call tileDesc%releaseDataPtr(solnData, CENTER)
 
           call itor%next()

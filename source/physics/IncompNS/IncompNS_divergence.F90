@@ -15,8 +15,10 @@
 !!
 !!
 !!***
-subroutine IncompNS_divergence(tileDesc)
-   use Grid_tile, ONLY: Grid_tile_t
+#include "constants.h"
+subroutine IncompNS_divergence(solnData, facexData, faceyData, facezData, del, lo, hi)
    implicit none
-   type(Grid_tile_t), INTENT(IN) :: tileDesc
+   real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
+   integer, dimension(MDIM) :: lo, hi
+   real,dimension(MDIM),intent(IN) :: del
 end subroutine IncompNS_divergence

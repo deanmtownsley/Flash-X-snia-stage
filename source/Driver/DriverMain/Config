@@ -15,6 +15,11 @@ IF AsyncHDF5
   PPDEFINE FLASH_IO_ASYNC_HDF5
 ENDIF
 
+USESETUPVARS Milhoja
+IF Milhoja
+  REQUESTS Driver/DriverMain/GPU
+ENDIF
+
 EXCLUSIVE Split Unsplit Incomp
 REQUIRES RuntimeParameters
 REQUIRES TimeAdvance

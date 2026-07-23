@@ -254,9 +254,8 @@ subroutine gr_updateRefinement( gridChanged,force_rebalance)
      call Grid_getTileIterator(itor, LEAF, tiling=.FALSE.)
      do while (itor%isValid())
         call itor%currentTile(tileDesc)
-
         call tileDesc%getDataPtr(solnData, CENTER)
-        call Eos_multiDim(gr_eosMode, tileDesc%limits, solnData)
+        call Eos_multiDim(gr_eosMode, tileDesc%limits,tileDesc%blkLimitsGC(LOW,:), solnData)
         call tileDesc%releaseDataPtr(solnData, CENTER)
 
         call itor%next()

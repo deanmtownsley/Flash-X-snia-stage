@@ -77,12 +77,14 @@ def generateFlashDefines(configInfo):
     tpl['nflux'] = len(configInfo['FLUX'])
     tpl['nrealprops'] = configInfo['n_real_props']
     tpl['nscratchvars'] = len(configInfo['SCRATCHVAR'])
-    if 'NSCRATCHCENTERVARS' in configInfo and configInfo['NSCRATCHCENTERVARS']!=None and configInfo['NSCRATCHCENTERVARS'].isdecimal():
-        tpl['nscratchcentervars'] = max(len(configInfo['SCRATCHCENTERVAR']),int(configInfo['NSCRATCHCENTERVARS']))
-    elif 'NSCRATCHCENTERVARS' in configInfo and configInfo['NSCRATCHCENTERVARS']!=None and configInfo['NSCRATCHCENTERVARS'].isidentifier() and len(configInfo['SCRATCHCENTERVAR']) > 0:
-        tpl['nscratchcentervars'] = "max(%s,%s)" % (len(configInfo['SCRATCHCENTERVAR']),configInfo['NSCRATCHCENTERVARS'])
-    elif 'NSCRATCHCENTERVARS' in configInfo and configInfo['NSCRATCHCENTERVARS']!=None and configInfo['NSCRATCHCENTERVARS'].isidentifier():
-        tpl['nscratchcentervars'] = configInfo['NSCRATCHCENTERVARS']
+    if configInfo.get('NSCRATCHCENTERVARS') is not None:
+        if configInfo['NSCRATCHCENTERVARS'].isdecimal():
+            tpl['nscratchcentervars'] = max(len(configInfo['SCRATCHCENTERVAR']),int(configInfo['NSCRATCHCENTERVARS']))
+        elif ((len(configInfo['SCRATCHCENTERVAR']) == 0) or
+              (("max(%s," % len(configInfo['SCRATCHCENTERVAR'])) in configInfo['NSCRATCHCENTERVARS'])):
+            tpl['nscratchcentervars'] = configInfo['NSCRATCHCENTERVARS']
+        else:
+            tpl['nscratchcentervars'] = "max(%s,%s)" % (len(configInfo['SCRATCHCENTERVAR']),configInfo['NSCRATCHCENTERVARS'])
     else:
         tpl['nscratchcentervars'] = len(configInfo['SCRATCHCENTERVAR'])
     tpl['nscratchfacexvars'] = len(configInfo['SCRATCHFACEXVAR'])
@@ -586,6 +588,9 @@ CPPCOMP=tau_cxx.sh -tau_makefile=$(TAU_MAKEFILE) -tau_options=$(TAU_OPTIONS)"""
     makefiles = glob.glob('Makefile.*')
     #FIXME remove this once all those makefile dependencies are fixed.
     makefiles.sort()
+    # injecting Makefile.Milhoja for Milhoja-generated files
+    if GVars.setupVars.get("Milhoja"):
+        makefiles.append("Makefile.Milhoja")
     ", ".join(makefiles)
 
     try:

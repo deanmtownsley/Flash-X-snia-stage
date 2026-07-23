@@ -1,4 +1,5 @@
 # Programmatically generated parfile for flashx
+gr_pmrpNfieldDivf
 amrexFaceInterpolator = "face_div_free"
 enableMaskedGCFill = .true.
 gr_gcFillSingleVarRange = .false.

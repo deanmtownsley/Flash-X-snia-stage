@@ -14,9 +14,11 @@
 !!
 !!
 !!***
-subroutine Multiphase_velForcing(tileDesc, dt)
-   use Grid_tile, ONLY: Grid_tile_t
+#include "constants.h"
+subroutine Multiphase_velForcing(solnData, facexData, faceyData, facezData, del, lo, hi, dt)
    implicit none
-   type(Grid_tile_t), intent(in) :: tileDesc
-   real, intent(in) :: dt
+   real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
+   real, dimension(MDIM), intent(in) :: del
+   integer, dimension(MDIM), intent(in) :: lo, hi
+   real, INTENT(IN) :: dt
 end subroutine Multiphase_velForcing

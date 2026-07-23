@@ -1,7 +1,8 @@
 
 # Bunch of small functions doing useful stuff
 
-__all__ = [ "updateAndMergeVariablePropertyTuples", "getRelPath", "dirGlob", "stripComments", "determineMachine", 
+__all__ = [ "updateAndMergeVariablePropertyTuples", "getRelPath", "sourcePathShow",
+            "dirGlob", "stripComments", "determineMachine",
             "is_upper",  "strictlyCaseSensitiveFilenames", "cmp"
           ] 
 
@@ -11,7 +12,7 @@ import globals
 from globals import *  # GVars and SetupError
 from lazyFile import * # for LazyFile
 
-import sys,os.path, string, glob, socket, re
+import sys,os, string, glob, socket, re
 
 def is_upper(letter):
     return letter == letter.upper()
@@ -124,6 +125,12 @@ def getRelPath(filename,basedir):
     else: prefix = c*(".."+sep)
     return os.path.join(prefix+tgt,os.path.basename(filename))
 
+def sourcePathShow(dirname):
+    """
+    Show a path, presumably for a file or directory under the source directory,
+    with uninteresting parts stripped from the beginning,
+    """
+    return os.path.relpath(dirname, GVars.sourceDir)
 
 # Takes a pattern (absolute or relative to current directory)
 # and returns a list of directories matching pattern. The match is 
@@ -179,6 +186,11 @@ def getHostName(sitesDir):
     namesToTry = [temp[0]]
     namesToTry.append(socket.gethostname())
     namesToTry.extend(temp[1]) # list of addl names for the current host
+
+    if "LMOD_SYSTEM_NAME" in os.environ:
+        lmod_name = os.getenv("LMOD_SYSTEM_NAME").strip()
+        if lmod_name:
+            namesToTry.append(lmod_name)
 
     # Read the alias file into memory
     aliasLines = []

@@ -2,6 +2,6 @@
 # comments start with "#"
 
 UnitTest/Eos/helmholtz_weaklib/3d/pm4dev:
-  setupOptions: -auto +pm4dev -3d +noio
+  setupOptions: -auto +pm4dev -3d +noio CompareInvertedTemps=True
   parfiles: <defaultParfile>
   transfers: object/helm_table.dat object/tables

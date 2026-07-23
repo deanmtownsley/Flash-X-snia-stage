@@ -40,6 +40,7 @@ subroutine Driver_sourceTerms(dt, pass)
   use Driver_data, ONLY: dr_simTime
   use Burn_interface, ONLY : Burn
   use Deleptonize_interface, ONLY: Deleptonize
+  use Stir_interface, ONLY : Stir
 
   implicit none
 
@@ -48,6 +49,7 @@ subroutine Driver_sourceTerms(dt, pass)
 
   call Burn(dt)
   call Deleptonize(.false., dt, dr_simTime)
+  call Stir(dt, pass)
 
   return
 end subroutine Driver_sourceTerms

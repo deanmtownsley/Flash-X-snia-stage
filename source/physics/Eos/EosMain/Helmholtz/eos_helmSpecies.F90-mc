@@ -48,7 +48,7 @@
 !!
 !!
 !!
-!!NOVARIANTS
+!!
 
 #include "Eos.h"
 #include "constants.h"
@@ -58,20 +58,25 @@
 #include "Multispecies.h"
 #endif
 
-subroutine eos_helmSpecies(mode,@M eos_args, massFrac,derivs)
+!!VARIANTS(GPU): eos_helmSpecies, &
+!!               eos_helm, &
+!!               Driver_abort
+
+subroutine eos_helmSpecies(mode, @M eos_args, massFrac, derivs)
 
   use Driver_interface, ONLY : Driver_abort
-  use Multispecies_interface, ONLY : Multispecies_getSumInv, &
-       Multispecies_getSumFrac
-  use Logfile_interface, ONLY:  Logfile_stampMessage
+  use eos_localInterface, ONLY: eos_helm
 
   use eos_helmData, ONLY: eos_tol, eos_maxNewton,&
-       eos_forceConstantInput, eos_useMultiSpecies
+       eos_forceConstantInput, eos_useMultiSpecies, &
+       eos_msA, eos_msZ
   use Eos_data, ONLY : eos_smallt, eos_meshMe, eos_singleSpeciesA, eos_singleSpeciesZ,eos_doYe
-  use eos_helmData, ONLY:  tempRow, denRow, etotRow, abarRow, zbarRow, &
-       gamcRow, ptotRow, deaRow, dezRow, stotRow, dsdRow, dstRow, &
-       detRow, dptRow, dpdRow, dedRow, pelRow, neRow, etaRow, detatRow, cvRow, cpRow
-  !$ use omp_lib
+
+  @M eos_helm_DIR_routine( )
+
+  @M eos_helm_DIR_routine_none(Driver_abort)
+  @M eos_helm_DIR_routine_none(eos_helm)
+
   implicit none
 
   !     Arguments
@@ -85,6 +90,10 @@ subroutine eos_helmSpecies(mode,@M eos_args, massFrac,derivs)
   integer ::  dst, dsd
   integer :: dpt, dpd, det, ded, dea, dez, pel, ne, eta, detat, c_v, c_p
   real    :: abarInv, zbarFrac
+
+  real :: tempRow, denRow, etotRow, abarRow, zbarRow
+  real :: gamcRow, ptotRow, deaRow, dezRow, stotRow, dsdRow, dstRow
+  real :: detRow, dptRow, dpdRow, dedRow, pelRow, neRow, etaRow, detatRow, cvRow, cpRow
 
   ! declare some local storage for the results of the Newton iteration
   real ::  ewantRow, tnew, error,pwantRow
@@ -101,7 +110,7 @@ subroutine eos_helmSpecies(mode,@M eos_args, massFrac,derivs)
 
   if(eos_useMultiSpecies) then 
      if(.not.present(massFrac)) then
-        call Driver_abort("[Eos] Helmholtz with species needs mass fractions")
+        call Driver_abort ("[Eos] Helmholtz with species needs mass fractions")
      end if
   end if
 
@@ -120,10 +129,12 @@ subroutine eos_helmSpecies(mode,@M eos_args, massFrac,derivs)
   else
 #ifdef FLASH_MULTISPECIES
      !Calculate the inverse in a way that allows for zero mass fractions
-     call Multispecies_getSumInv(A, abarInv,massFrac(1:NSPECIES))
+     ! call Multispecies_getSumInv(A, abarInv,massFrac(1:NSPECIES))
+     abarInv = SUM(massFrac/eos_msA)
      abarRow = 1.e0 / abarInv
-     
-     call Multispecies_getSumFrac(Z, zbarFrac, massFrac(1:NSPECIES))
+
+     ! call Multispecies_getSumFrac(Z, zbarFrac, massFrac(1:NSPECIES))
+     zbarFrac = SUM(massFrac*eos_msZ/eos_msA)
      zbarRow = abarRow * zbarFrac
 #else
      ! No multispecies defined, use default values (same as Gamma formulation)
@@ -143,7 +154,10 @@ subroutine eos_helmSpecies(mode,@M eos_args, massFrac,derivs)
   
   if (mode==MODE_DENS_TEMP) then
      
-     call eos_helm()
+     call eos_helm(ptotRow, tempRow, denRow, gamcRow, etotRow, stotRow, abarRow, zbarRow, &
+                   dpdRow, dptRow, dstRow, dedRow, detRow, dsdRow, &
+                   deaRow, dezRow, &
+                   pelRow, neRow, etaRow, detatRow, cvRow, cpRow)
      pres=ptotRow
      eint=etotRow
      gamc=gamcRow
@@ -173,7 +187,10 @@ subroutine eos_helmSpecies(mode,@M eos_args, massFrac,derivs)
         esaveRow = ewantRow
      end if
      !  ewantRow is our desired EI input
-     call eos_helm()
+     call eos_helm(ptotRow, tempRow, denRow, gamcRow, etotRow, stotRow, abarRow, zbarRow, &
+                   dpdRow, dptRow, dstRow, dedRow, detRow, dsdRow, &
+                   deaRow, dezRow, &
+                   pelRow, neRow, etaRow, detatRow, cvRow, cpRow)
      
      tnew = tempRow - (etotRow - ewantRow)  & 
           &           / detRow
@@ -201,7 +218,10 @@ subroutine eos_helmSpecies(mode,@M eos_args, massFrac,derivs)
      do i = 2, eos_maxNewton
         if (error< eos_tol) goto 70
         
-        call eos_helm()
+        call eos_helm(ptotRow, tempRow, denRow, gamcRow, etotRow, stotRow, abarRow, zbarRow, &
+                      dpdRow, dptRow, dstRow, dedRow, detRow, dsdRow, &
+                      deaRow, dezRow, &
+                      pelRow, neRow, etaRow, detatRow, cvRow, cpRow)
         
         tnew = tempRow - (etotRow - ewantRow)  & 
              &              / detRow
@@ -245,7 +265,7 @@ subroutine eos_helmSpecies(mode,@M eos_args, massFrac,derivs)
      print *, ' ewant= ', ewantRow
      
         
-     call Driver_abort('[Eos] Error: too many iterations in Helmholtz Eos')
+     call Driver_abort ('[Eos] Error: too many iterations in Helmholtz Eos')
      
      
      ! Land here if the Newton iteration converged
@@ -255,7 +275,10 @@ subroutine eos_helmSpecies(mode,@M eos_args, massFrac,derivs)
      
      
      ! Crank through the entire eos one last time
-     call eos_helm()
+     call eos_helm(ptotRow, tempRow, denRow, gamcRow, etotRow, stotRow, abarRow, zbarRow, &
+                   dpdRow, dptRow, dstRow, dedRow, detRow, dsdRow, &
+                   deaRow, dezRow, &
+                   pelRow, neRow, etaRow, detatRow, cvRow, cpRow)
      !  In MODE_DENS_EI, we should be generating temperature and pressure (plus gamma and entropy)
      temp=tempRow
      pres=ptotRow
@@ -285,7 +308,10 @@ subroutine eos_helmSpecies(mode,@M eos_args, massFrac,derivs)
         psaveRow = pwantRow
      end if
      ! Initialize the errors
-     call eos_helm()
+     call eos_helm(ptotRow, tempRow, denRow, gamcRow, etotRow, stotRow, abarRow, zbarRow, &
+                   dpdRow, dptRow, dstRow, dedRow, detRow, dsdRow, &
+                   deaRow, dezRow, &
+                   pelRow, neRow, etaRow, detatRow, cvRow, cpRow)
      
      tnew = tempRow - (ptotRow - pwantRow)  & 
           &           / dptRow
@@ -315,7 +341,10 @@ subroutine eos_helmSpecies(mode,@M eos_args, massFrac,derivs)
         if (error .LT. eos_tol) goto 170
         
         ! do eos only over this single item
-        call eos_helm()
+        call eos_helm(ptotRow, tempRow, denRow, gamcRow, etotRow, stotRow, abarRow, zbarRow, &
+                      dpdRow, dptRow, dstRow, dedRow, detRow, dsdRow, &
+                      deaRow, dezRow, &
+                      pelRow, neRow, etaRow, detatRow, cvRow, cpRow)
         
         tnew = tempRow - (ptotRow - pwantRow)  & 
              &              / dptRow
@@ -358,7 +387,7 @@ subroutine eos_helmSpecies(mode,@M eos_args, massFrac,derivs)
      print *, ' pres = ', ptotRow
      print *, ' pwant= ', pwantRow
      
-     call Driver_abort('[Eos] Error: too many Newton-Raphson iterations in Eos')
+     call Driver_abort ('[Eos] Error: too many Newton-Raphson iterations in Eos')
      
      
      ! Land here if the Newton iteration converged
@@ -367,7 +396,10 @@ subroutine eos_helmSpecies(mode,@M eos_args, massFrac,derivs)
      
      
      ! Crank through the entire eos one last time
-     call eos_helm()
+     call eos_helm(ptotRow, tempRow, denRow, gamcRow, etotRow, stotRow, abarRow, zbarRow, &
+                   dpdRow, dptRow, dstRow, dedRow, detRow, dsdRow, &
+                   deaRow, dezRow, &
+                   pelRow, neRow, etaRow, detatRow, cvRow, cpRow)
      
      ! Fill the FLASH arrays with the results.  
      temp=tempRow
@@ -416,8 +448,5 @@ subroutine eos_helmSpecies(mode,@M eos_args, massFrac,derivs)
   return
 
 end subroutine eos_helmSpecies
-
-
-
 
 

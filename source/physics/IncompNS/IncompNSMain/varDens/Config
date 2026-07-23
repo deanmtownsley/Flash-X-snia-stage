@@ -34,3 +34,6 @@ FACEVAR  sigm
 
 D pgn2_facevar Variable to store pressure jump at timestep n-2
 FACEVAR  pgn2
+
+D rhof_flux Face density fluxes
+FLUX rhof

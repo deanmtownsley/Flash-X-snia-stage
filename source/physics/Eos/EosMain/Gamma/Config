@@ -16,3 +16,11 @@ PPDEFINE FLASH_EOS_GAMMA
 # be used in the non-hybrid Eos.F90 to perform a compile time check
 # that only this implementation has been loaded if the Hybrid EOS has not
 PPDEFINE EOS_GAMMA_INCLUDED
+
+VARIANTS Null
+
+USESETUPVARS Milhoja
+IF Milhoja
+  VARIANTS GPU
+  REQUIRES physics/Eos/EosMain/Gamma/GPU_interface
+ENDIF

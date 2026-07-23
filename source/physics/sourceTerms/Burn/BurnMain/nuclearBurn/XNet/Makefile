@@ -8,7 +8,7 @@ Burn += bn_initNetwork.o bn_xnetData.o bn_xnetFinalize.o bn_xnetInit.o \
 	xnet_screening.o xnet_timers.o xnet_types.o xnet_util.o
 
 Burn.o : bn_interface.o bn_xnetData.o Burn_data.o Driver_interface.o Eos_interface.o Grid_interface.o Hydro_interface.o Simulation_interface.o Timers_interface.o
-bn_burner.o : Burn_dataEOS.o Burn_data.o bn_interface.o xnet_abundances.o xnet_conditions.o xnet_constants.o xnet_controls.o xnet_evolve.o xnet_timers.o
+bn_burner.o : Burn_data.o bn_interface.o xnet_abundances.o xnet_conditions.o xnet_constants.o xnet_controls.o xnet_evolve.o xnet_timers.o
 bn_initNetwork.o : Burn_data.o RuntimeParameters_interface.o bn_xnetData.o bn_interface.o
 bn_finalizeNetwork.o : bn_interface.o
 bn_xnetData.o : xnet_controls.o xnet_data.o xnet_eos.o

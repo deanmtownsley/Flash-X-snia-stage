@@ -34,12 +34,15 @@
 subroutine TimeAdvance(dt, dtold, time)
 
    use Hydro_interface, ONLY: Hydro, Hydro_gravPotIsAlreadyUpdated
-   use Gravity_interface, ONLY: Gravity_potential
+   use Gravity_interface, ONLY: Gravity_potential, &
+        Gravity_beginPotential, Gravity_finishPotential
    use RadTrans_interface, ONLY: RadTrans
    use Particles_interface, ONLY: Particles_advance, Particles_dump
    use Burn_interface, ONLY: Burn
    use Deleptonize_interface, ONLY: Deleptonize
    use Timers_interface, ONLY: Timers_start, Timers_stop
+   use Stir_interface, ONLY : Stir
+   use TimeAdvance_data, ONLY : ta_useAsyncGrav
    implicit none
 
    real, intent(IN) :: dt, dtold, time
@@ -48,6 +51,14 @@ subroutine TimeAdvance(dt, dtold, time)
 #ifdef DEBUG_ADVANCE
    print *, 'returned from hydro '
 #endif
+
+   if (.NOT. Hydro_gravPotIsAlreadyUpdated()) then
+      if (ta_useAsyncGrav) then
+         call Timers_start("Gravity pot prep")
+         call Gravity_beginPotential()
+         call Timers_stop("Gravity pot prep")
+      end if
+   end if
 
 #ifndef DRIVER_DIFFULAST
    ! 3. Diffusive processes:
@@ -61,7 +72,7 @@ subroutine TimeAdvance(dt, dtold, time)
    call Timers_start("sourceTerms")
    call Burn(dt)
    call Deleptonize(.false., dt, time)
-
+   call Stir(dt)
    call Timers_stop("sourceTerms")
 #ifdef DEBUG_ADVANCE
    print *, 'returned from sourceTerms'
@@ -82,10 +93,14 @@ subroutine TimeAdvance(dt, dtold, time)
 #endif
 
    !Allows evolution of gravitational potential for Spark Hydro
-   ! #. Calculate gravitational potentials
+   ! #. Calculate gravitational potentials - 2nd Operation
    if (.NOT. Hydro_gravPotIsAlreadyUpdated()) then
       call Timers_start("Gravity potential")
-      call Gravity_potential()
+      if (ta_useAsyncGrav) then
+         call Gravity_finishPotential()
+      else
+         call Gravity_potential()
+      end if
       call Timers_stop("Gravity potential")
 #ifdef DEBUG_ADVANCE
       print *, 'return from Gravity_potential '  ! DEBUG

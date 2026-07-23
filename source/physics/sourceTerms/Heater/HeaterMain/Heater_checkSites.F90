@@ -18,67 +18,131 @@
 #include "Simulation.h"
 #include "constants.h"
 
-subroutine Heater_checkSites(tileDesc, blockCount)
+subroutine Heater_checkSites(solnData,del,xcell,ycell,zcell,bndBox,logc,higc, lblock)
 
-   use Grid_interface, ONLY: Grid_getCellCoords
-   use Grid_tile, ONLY: Grid_tile_t
-   use htr_interface, ONLY: htr_checkSitesBlk2d, htr_checkSitesBlk3d
-   use Timers_interface, ONLY: Timers_start, Timers_stop
-
-!----------------------------------------------------------------------------------------
-   implicit none
-   type(Grid_tile_t), intent(in) :: tileDesc
-   integer, intent(in) :: blockCount
-
-   real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
-   integer, dimension(2, MDIM)        :: blkLimits, blkLimitsGC
-   integer, dimension(MDIM)          :: lo, hi
-   real, dimension(GRID_IHI_GC)      :: xCenter
-   real, dimension(GRID_JHI_GC)      :: yCenter
-   real, dimension(GRID_KHI_GC)      :: zCenter
-   real    :: del(MDIM)
-   real    :: boundBox(LOW:HIGH, 1:MDIM)
-
-!----------------------------------------------------------------------------------------
-   nullify (solnData, facexData, faceyData, facezData)
-
-   call Timers_start("Heater_checkSites")
-
-#ifdef MULTIPHASE_EVAPORATION
-   blkLimits = tileDesc%limits
-   blkLimitsGC = tileDesc%blkLimitsGC
-   call tileDesc%deltas(del)
-   call tileDesc%boundBox(boundBox)
-   call tileDesc%getDataPtr(solnData, CENTER)
-
-   lo = blkLimitsGC(LOW, :)
-   hi = blkLimitsGC(HIGH, :)
-
-   xCenter = 0.0
-   yCenter = 0.0
-   zCenter = 0.0
-   call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, lo, hi, xCenter)
-   call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, lo, hi, yCenter)
-   if (NDIM == MDIM) call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, lo, hi, zCenter)
-
+  use Timers_interface, ONLY: Timers_start, Timers_stop
+  
+  use Heater_data
+  use Heater_type, ONLY: Heater_type_t
+  use Driver_interface, ONLY: Driver_abort
+  
+  implicit none
+  
+  real, dimension(:, :, :, :) :: solnData
+  real, dimension(MDIM),intent(IN) :: del
+  real, dimension(:), intent(in)          :: xcell, ycell, zcell
+  real, dimension(LOW:HIGH,MDIM), intent(in)        :: bndBox
+  integer, dimension(MDIM),intent(in) :: logc, higc
+  integer, intent(in) :: lblock
+  
+  
+  type(Heater_type_t), pointer :: heater
+  integer :: i, j, k, isite, htr, isiteblk
+  real    :: xi, xp, yi, yp, zi, zp
+  real    :: phiFSW, phiFSE, phiFNW, phiFNE
+  real    :: phiBSW, phiBSE, phiBNW, phiBNE
+  real    :: phiSW, phiSE,phiNW, phiNE
+              
+  real    :: phiSite
+  integer :: ix1, ix2, jy1, jy2, kz1, kz2  
+  
+  !----------------------------------------------------------------------------------------
+  
+  !----------------------------------------------------------------------------------------
+  
+  call Timers_start("Heater_checkSites")
+  ix1=logc(IAXIS); ix2=higc(IAXIS)
+  jy1=logc(JAXIS); jy2=higc(JAXIS)
+  kz1=logc(KAXIS); kz2=higc(KAXIS)    
+   
+  do htr = 1, htr_numHeaters
+     
+     heater => htr_heaterInfo(htr)
+     
+     if (bndBox(HIGH, IAXIS) .le. heater%xMin .or. bndBox(LOW, IAXIS) .ge. heater%xMax .or. &
+          bndBox(HIGH, JAXIS) .le. heater%yMin .or. bndBox(LOW, JAXIS) .ge. heater%yMax) cycle
 #if NDIM < MDIM
-   call htr_checkSitesBlk2d(solnData(DFUN_VAR, :, :, :), &
-                            xCenter, yCenter, boundBox, &
-                            GRID_ILO_GC, GRID_IHI_GC, &
-                            GRID_JLO_GC, GRID_JHI_GC, blockCount)
+     k = 1
+     do j = jy1, jy2-1
+        do i = ix1, ix2-1
+           do isiteblk = 1, heater%numSitesBlk(lblock)
+              isite = heater%siteMapOnProc(lblock, isiteblk)
+              
+              if (isite < 1) call Driver_abort("[htr_checkSitesBlk2d] isite < 1")
+              
+              xi = xcell(i)
+              xp = xcell(i+1)
+              yi = ycell(j)
+              yp = ycell(j+1)
+              
+              phiSW = solnData(DFUN_VAR,i, j, k)
+              phiSE = solnData(DFUN_VAR,i+1, j, k)
+              phiNW = solnData(DFUN_VAR,i, j+1, k)
+              phiNE = solnData(DFUN_VAR,i+1, j+1, k)
+              
+              phiSite = (phiSW+phiSE+phiNW+phiNE)/4.
+              
+              if (xi .le. heater%xSiteProc(isite) .and. xp .ge. heater%xSiteProc(isite) .and. &
+                   yi .le. heater%ySiteProc(isite) .and. yp .ge. heater%ySiteProc(isite)) then
+                 
+                 if (phiSite .ge. 0.0) then
+                    heater%siteIsAttachedCurr(isite) = heater%siteIsAttachedCurr(isite) .or. .true.
+                 else
+                    heater%siteIsAttachedCurr(isite) = heater%siteIsAttachedCurr(isite) .or. .false.
+                 end if
+              end if
+           end do
+        end do
+     end do
 #else
-   call htr_checkSitesBlk3d(solnData(DFUN_VAR, :, :, :), &
-                            xCenter, yCenter, zCenter, boundBox, &
-                            GRID_ILO_GC, GRID_IHI_GC, &
-                            GRID_JLO_GC, GRID_JHI_GC, &
-                            GRID_KLO_GC, GRID_KHI_GC, blockCount)
+     if (bndBox(HIGH, IAXIS) .le. heater%xMin .or. bndBox(LOW, IAXIS) .ge. heater%xMax .or. &
+          bndBox(HIGH, JAXIS) .le. heater%yMin .or. bndBox(LOW, JAXIS) .ge. heater%yMax .or. &
+          bndBox(HIGH, KAXIS) .le. heater%zMin .or. bndBox(LOW, KAXIS) .ge. heater%zMax) cycle
+     
+     do k = kz1, kz2-1
+        do j = jy1, jy2-1
+           do i = ix1, ix2-1
+              do isiteblk = 1, heater%numSitesBlk(lblock)
+                 isite = heater%siteMapOnProc(lblock, isiteblk)
+                 
+                 if (isite < 1) call Driver_abort("[htr_checkSitesBlk3d] isite < 1")
+                 
+                 xi = xcell(i)
+                 xp = xcell(i+1)
+                 yi = ycell(j)
+                 yp = ycell(j+1)
+                 zi = zcell(k)
+                 zp = zcell(k+1)
+                 
+                 phiFSW = solnData(DFUN_VAR,i, j, k)
+                 phiFSE = solnData(DFUN_VAR,i+1, j, k)
+                 phiFNW = solnData(DFUN_VAR,i, j+1, k)
+                 phiFNE = solnData(DFUN_VAR,i+1, j+1, k)
+                 
+                 phiBSW = solnData(DFUN_VAR,i, j, k+1)
+                 phiBSE = solnData(DFUN_VAR,i+1, j, k+1)
+                 phiBNW = solnData(DFUN_VAR,i, j+1, k+1)
+                 phiBNE = solnData(DFUN_VAR,i+1, j+1, k+1)
+                 
+                 phiSite = (phiFSW+phiFSE+phiFNW+phiFNE+phiBSW+phiBSE+phiBNW+phiBNE)/8.
+                 
+                 if (xi .le. heater%xSiteProc(isite) .and. xp .ge. heater%xSiteProc(isite) .and. &
+                      yi .le. heater%ySiteProc(isite) .and. yp .ge. heater%ySiteProc(isite) .and. &
+                      zi .le. heater%zSiteProc(isite) .and. zp .ge. heater%zSiteProc(isite)) then
+                    
+                    if (phiSite .ge. 0.0) then
+                       heater%siteIsAttachedCurr(isite) = heater%siteIsAttachedCurr(isite) .or. .true.
+                    else
+                       heater%siteIsAttachedCurr(isite) = heater%siteIsAttachedCurr(isite) .or. .false.
+                    end if
+                 end if
+              end do
+           end do
+        end do
+     end do
 #endif
-
-   ! Release pointers:
-   call tileDesc%releaseDataPtr(solnData, CENTER)
-#endif
-
-   call Timers_stop("Heater_checkSites")
-
-   return
+  end do
+  call Timers_stop("Heater_checkSites")
+  
+  return
 end subroutine Heater_checkSites

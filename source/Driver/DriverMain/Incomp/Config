@@ -3,7 +3,6 @@
 REQUIRES physics/IncompNS/IncompNSMain
 
 USESETUPVARS Grid
-USESETUPVARS InsPresLaplacian
 
 # Currently these simulations have not been tested with
 # uniform grid so throw a setup error if it is requested.
@@ -19,11 +18,6 @@ CONFLICTS Grid/GridMain/UG
 IF Grid in ["","PM4DEV","PM40","PM3","PM2"]
     REQUIRES Grid/GridMain/AMR/Paramesh4/Incomp
     REQUESTS Grid/GridSolvers/HYPRE
-
-    IF InsPresLaplacian
-        SETUPERROR Paramesh with HYPRE only supports Poisson solvers
-    ENDIF
-
 ENDIF
 
 # Add dependencies for amrex-native multigrid poisson solver.

@@ -28,7 +28,6 @@
 !!    
 !!    input is the temperature temp, density bden, 
 !!    mean number of nucleons abar, and mean charge zbar.
-!!    the input comes from data structure Burn_dataEOS
 !!    
 !!    output into Burn_data is the 
 !!    pair neutrino contributions spair,
@@ -44,17 +43,19 @@
 !!
 !!***
 
-subroutine bn_sneutx
+subroutine bn_sneutx(btemp,bden,abar,zbar, &
+                     sneut)
 
-  use Burn_dataEOS, ONLY:  btemp,bden,abar,zbar,z2bar,ytot1,bye
-  use Burn_data, ONLY: sneut,sphot,spair,splas,sbrem,srecomb
   use bn_interface, ONLY: bn_ifermi12
 
   implicit none
-  
-!!    
-!!    declare local variables
-!!  real :: bn_ifermi12    ! external function not needed after interfaces added
+
+  ! Arguments
+  real, intent(IN) :: btemp,bden,abar,zbar
+  real, intent(OUT) :: sneut
+
+  ! declare local variables
+  real :: sphot,spair,splas,sbrem,srecomb,bye
   real :: xmue,t9,xl,xlp5,xl2,xl3,xl4,xl5,xl6,xl8,xl9, & 
        &                 xlm1,xlm2,xlm3,rm,xnum,xden,fpair,fphoto,gl, & 
        &                 zeta,zeta2,zeta3,qpair,gl2,gl12,gl32,gl72,gl6, & 

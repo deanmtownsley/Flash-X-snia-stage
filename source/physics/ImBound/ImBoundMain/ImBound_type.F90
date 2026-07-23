@@ -45,7 +45,7 @@ module ImBound_type
       integer :: numElems
       integer :: dims
       type(ib_elem), dimension(:), allocatable :: elems
-      real, dimension(MDIM) :: velc, theta
+      real, dimension(MDIM) :: velc=0., theta=0.
       real :: boundBox(LOW:HIGH, IAXIS:KAXIS)
       type(c_ptr) :: kdTree = c_null_ptr
    end type ImBound_type_t

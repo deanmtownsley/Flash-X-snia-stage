@@ -55,7 +55,7 @@ subroutine Deleptonize(dotiling, dt, time)
     real, intent(IN) :: dt, time
     logical, intent(IN) :: dotiling
 
-    @M iter_declare(blkLimits, blkLimitsGC, grownLimits)
+    @M iter_declare(blkLimits, blkLimitsGC, grownLimits,Uin)
     integer :: i, j, k, n
     integer :: err
     real :: xDens, xTemp, xEner, xEntr, xYe, outYe
@@ -67,7 +67,7 @@ subroutine Deleptonize(dotiling, dt, time)
     real :: tauNu
     integer :: eosMode
     Logical :: threadBlockList
-!!$    integer, dimension(blockCount) :: doEOS
+
     real, parameter :: dydt_max = 20.
     logical :: flag
 
@@ -118,10 +118,10 @@ subroutine Deleptonize(dotiling, dt, time)
     !$omp xdedt,xdpderho)
 
     nullify (Uin)
-    @M iter_all_begin(LEAF, .false., blkLimits, blkLimitsGC)
+    @M iter_all_begin(LEAF, .false., blkLimits, blkLimitsGC,grownLimits,Uin)
 
     !$omp do schedule(static) reduction(+:flag)
-    @M loop_3d(blkLimits)
+    @M loop_3d(blkLimits,i,j,k)
 
     xDens = Uin(DENS_VAR, i, j, k)
     xTemp = Uin(TEMP_VAR, i, j, k)
@@ -171,9 +171,9 @@ subroutine Deleptonize(dotiling, dt, time)
     !$omp end do
 
     !$omp single
-    if (flag) call Eos_multiDim(eosMode, blkLimits, Uin)
+    if (flag) call Eos_multiDim(eosMode, blkLimits, blkLimitsGC(LOW,:) Uin)
     !$omp end single
-    @M iter_end
+    @M iter_end(Uin)
     !$omp end parallel
 
     call Timers_stop("delep")

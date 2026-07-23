@@ -1,0 +1,6 @@
+#	Config file for the INS module.
+#       Note: This is a staggered finite difference mesh algorithm.
+
+REQUIRES physics/Multiphase/MultiphaseMain
+
+PARAMETER sim_numBubbles INTEGER 25

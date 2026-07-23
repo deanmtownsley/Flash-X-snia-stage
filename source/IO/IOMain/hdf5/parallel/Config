@@ -2,7 +2,7 @@
 
 DEFAULT PM
 
-USESETUPVARS Grid, fixedBlockSize, typeIO
+USESETUPVARS Grid, fixedBlockSize, typeIO, unifyFS
 PPDEFINE IO_HDF5_PARALLEL
 
 IF Grid=='UG'
@@ -19,4 +19,9 @@ ENDIF
 # The derived datatype I/O works with UG, NoFBS UG and PM.
 IF typeIO
    DEFAULT PM_argonne
+ENDIF
+
+# UnifyFS requires additional flags for compiling/linking.
+IF unifyFS
+   LIBRARY UNIFYFS
 ENDIF
