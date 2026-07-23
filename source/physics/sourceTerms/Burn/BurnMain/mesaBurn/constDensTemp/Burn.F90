@@ -76,7 +76,6 @@ subroutine Burn (dt)
   integer,dimension(LOW:HIGH,MDIM) :: grownTileLimits
   integer, parameter :: shock_mode = 1
   real, parameter :: shock_thresh = 0.33
-  real, allocatable, dimension(:,:,:) :: shock
 
   real, dimension(NSPECIES):: fabund, mabund
   real, dimension(1,NSPECIES) :: fabund_buff
@@ -149,9 +148,6 @@ subroutine Burn (dt)
 
      grownTileLimits = tileDesc%grownLimits
      ! shock detect if burning is turned off in shocks
-     allocate( shock( grownTileLimits(LOW,IAXIS):grownTileLimits(HIGH,IAXIS), &
-                      grownTileLimits(LOW,JAXIS):grownTileLimits(HIGH,JAXIS), &
-                      grownTileLimits(LOW,KAXIS):grownTileLimits(HIGH,KAXIS) ) )
      if (.NOT. bn_useShockBurn) then
         ! get coordinate positions, used for shock detection
         allocate(xCoord(grownTileLimits(LOW,IAXIS):grownTileLimits(HIGH,IAXIS)))
@@ -170,25 +166,16 @@ subroutine Burn (dt)
                           grownTileLimits(HIGH, :), &
                           zCoord)
 
-        call Hydro_shockStrength(solnData, shock, tileDesc%limits(LOW,:), tileDesc%limits(HIGH,:), &
+        solnData(SHOK_VAR,:,:,:)=0.0
+        call Hydro_shockStrength(solnData, tileDesc%limits(LOW,:), tileDesc%limits(HIGH,:), &
                                                   grownTileLimits(LOW,:), grownTileLimits(HIGH,:), &
                                                   xCoord,yCoord,zCoord, shock_thresh, shock_mode)
 
         deallocate(xCoord)
         deallocate(yCoord)
         deallocate(zCoord)
-     else
-        shock(:,:,:) = 0
      endif
 
-#ifdef SHK_VAR
-     solnData(SHK_VAR,tileDesc%limits(LOW,IAXIS):tileDesc%limits(HIGH,IAXIS),   &
-                      tileDesc%limits(LOW,JAXIS):tileDesc%limits(HIGH,JAXIS),   &
-                      tileDesc%limits(LOW,KAXIS):,tileDesc%limits(HIGH,KAXIS)) = &
-                shock(tileDesc%limits(LOW,IAXIS):tileDesc%limits(HIGH,IAXIS),   &
-                      tileDesc%limits(LOW,JAXIS):tileDesc%limits(HIGH,JAXIS),   &
-                      tileDesc%limits(LOW,KAXIS):tileDesc%limits(HIGH,KAXIS))
-#endif
 
      ! --------------------------------
      ! 2.2 loop over all interior zones and apply evolution
@@ -209,7 +196,7 @@ subroutine Burn (dt)
 #endif
            do i = tileDesc%limits(LOW,IAXIS), tileDesc%limits(HIGH,IAXIS)
               ! skip this cell if shock burning is turned off (normally) and it is in a shock
-              if ( (.not. bn_useShockBurn) .and. ( shock(i,j,k) > 0.0 ) ) then
+              if ( (.not. bn_useShockBurn) .and. ( SolnData(SHOK_VAR,i,j,k) > 0.0 ) ) then
                  solnData(ENUC_VAR,i,j,k) = 0.0
                  cycle
               endif
@@ -275,9 +262,8 @@ subroutine Burn (dt)
      ! 2.3 Finish up:
      !     Update interior EOS quantities for this block and release stuff
      ! --------------------------------
-     call Eos_multiDim(MODE_DENS_EI,tileDesc%limits,solnData)
+     call Eos_multiDim(MODE_DENS_EI,tileDesc%limits,tileDesc%grownLimits(LOW,:),solnData)
 
-     deallocate(shock)
      !call Grid_releaseBlkPtr(blockID,solnData)
      call tileDesc%releaseDataPtr(solnData, CENTER)
      call itor%next()
