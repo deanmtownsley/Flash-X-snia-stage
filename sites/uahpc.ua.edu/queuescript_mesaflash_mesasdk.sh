@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --mem-per-cpu 900
+#SBATCH --mem-per-cpu 4096
 #SBATCH -n 2
 #SBATCH --cpus-per-task 4
 #SBATCH -o stdeo.txt
