@@ -75,22 +75,22 @@ x1=dd1['index','x']
 x2=dd2['index','x']
 x4=dd4['index','x']
 
-dx0 = range(len(x0))
-dx1 = range(len(x1))
-dx2 = range(len(x2))
-dx4 = range(len(x4))
-dx0[0] = x0[1]-x0[0]
-dx1[0] = x1[1]-x1[0]
-dx2[0] = x2[1]-x2[0]
-dx4[0] = x4[1]-x4[0]
+dx0 = list()
+dx1 = list()
+dx2 = list()
+dx4 = list()
+dx0.append(x0[1]-x0[0])
+dx1.append(x1[1]-x1[0])
+dx2.append(x2[1]-x2[0])
+dx4.append(x4[1]-x4[0])
 for i in range(1,len(x0)) :
-	dx0[i] = x0[i]-x0[i-1]
+	dx0.append( x0[i]-x0[i-1] )
 for i in range(1,len(x1)) :
-	dx1[i] = x1[i]-x1[i-1]
+	dx1.append( x1[i]-x1[i-1] )
 for i in range(1,len(x2)) :
-	dx2[i] = x2[i]-x2[i-1]
+	dx2.append( x2[i]-x2[i-1] )
 for i in range(1,len(x4)) :
-	dx4[i] = x4[i]-x4[i-1]
+	dx4.append( x4[i]-x4[i-1] )
 
 axbot.plot(x0,dx0, linestyle=':')
 axbot.plot(x1,dx1, linestyle='-.')
