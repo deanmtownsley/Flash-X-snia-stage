@@ -134,6 +134,8 @@ LIB_MA28  = ../../ma28/object/libma28.a
 
 LIB_HYPRE = -L${HYPRE_PATH}/lib -lHYPRE
 
+LIB_STDCXX= -lstdc++
+
 # Uncomment the following line to use electic fence memory debugger.
 # export EF_ALLOW_MALLOC_0=1
 #CONFIG_LIB = -L/usr/lib64 -lefence

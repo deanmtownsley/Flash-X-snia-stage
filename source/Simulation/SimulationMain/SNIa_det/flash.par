@@ -4,11 +4,11 @@
 #   pure detonation SNIa.
 #
 #   This problem should be set up with
-#   ./setup SNIa_ddt -1d -auto -nxb=16 +spherical +splithydro +newmpole -with-unit=Particles/ParticlesMain
-#   leaving off the particles -with-unit will exclude Lagrangian
+#   ./setup SNIa_ddt -1d -auto -nxb=16 +spherical +newmpole withParticles=True Bittree=True
+#   leaving off withParticles and Bittree will exclude Lagrangian
 #   tracer particles.
 #
-#   Dean M. Townsley 2017
+#   Dean M. Townsley 2017-2026
 #
 #####################################################################
 

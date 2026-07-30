@@ -8,11 +8,11 @@ REQUIRES physics/Eos/EosMain/Helmholtz
 USESETUPVARS withParticles
 
 IF withParticles
-   PARTICLETYPE passive INITMETHOD with_density MAPMETHOD weighted
-   REQUIRES Particles/ParticlesMain
-   REQUIRES Particles/ParticlesInitialization/WithDensity/CellMassBins
-   REQUIRES Particles/ParticlesMapping/meshWeighting/CIC
-   REQUESTS IO/IOMain/
+   PARTICLETYPE passive INITMETHOD with_density MAPMETHOD weighted ADVMETHOD rungekutta
+   REQUIRES Particles
+   REQUIRES Particles/ParticlesInitialization/ParticlesOwned/WithDensity/CellMassBins
+   REQUIRES Particles/ParticlesMapping/ParticlesOwned/meshWeighting/CIC
+   REQUESTS IO/IOMain
    REQUESTS IO/IOParticles
 ENDIF
 
