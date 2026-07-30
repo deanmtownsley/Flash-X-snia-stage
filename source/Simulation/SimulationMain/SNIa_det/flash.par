@@ -190,7 +190,7 @@ eintSwitch		= 0.e0
 ##  SWITCHES SPECIFIC TO THE UNSPLIT HYDRO SOLVER               ##
 #       I. INTERPOLATION SCHEME:
 order           = 2      # Interpolation order (first/second/third/fifth order)
-slopeLimiter    = "mc"   # Slope limiters (minmod, mc, vanLeer, hybrid, limited)
+slopeLimiter    = "limited" # Slope limiters (minmod, mc, vanLeer, hybrid, limited)
 LimitedSlopeBeta= 1.     # Slope parameter for the "limited" slope by Toro
 charLimiting    = .true. # Characteristic limiting vs. Primitive limiting
 
