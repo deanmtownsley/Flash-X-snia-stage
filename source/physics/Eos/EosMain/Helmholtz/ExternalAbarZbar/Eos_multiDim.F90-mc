@@ -1,0 +1,294 @@
+!!****if* source/physics/Eos/EosMain/Helmholtz/ExternalAbarZbar/Eos_wrapped
+!! NAME
+!!
+!!  Eos_wrapped
+!! 
+!! SYNOPSIS
+!!
+!!  call Eos_wrapped(  integer(IN) :: mode,
+!!                     integer(IN) :: range(HIGH, MDIM),
+!!                     integer(IN) :: blockID,
+!!            optional,integer(IN) :: gridDataStruct )
+!!
+!! DESCRIPTION
+!!
+!! Josh Martin 2025
+!!
+!! This function is provided for the user's convenience and acts as a simple
+!! wrapper to the Eos interface. The Eos interface uses a single, flexible data
+!! structure "eosData" to pass the thermodynamic quantities in and out of the
+!! funtion (see Eos). The wrapper hides formation and use of eosData
+!! from the users.
+!!
+!! While Eos does not know anything about blocks, Eos_wrapped takes its
+!! input thermodynamic state variables from a given block's storage area.
+!! It works by taking a selected section of a block described by array
+!! "range" and translating it to eosData before calling the Eos routine.
+!! Upon return from Eos, Eos_wrapper updates certain state variables in
+!! the same section of the block's storage area. Which variables are taken
+!! as input, and which are updated, depends on the "mode" argument.
+!!
+!! If you want to return the derived quantities defined from EOS_VAR+1:EOS_NUM
+!! in Eos.h, then you must use the direct interface Eos().
+!!
+!!
+!!  ARGUMENTS 
+!!
+!!   
+!!   mode : determines which variables are used as Eos input.
+!!          The valid values are MODE_DENS_EI (where density and internal
+!!          energy are inputs), MODE_DENS_PRES (density and pressure as inputs)
+!!          MODE_DENS_TEMP (density and temperature are inputs).
+!!          These quantities are defined in constants.h, the argument is 
+!!          forwarded unchanged to the Eos function call.
+!!          Note that internal energy is grid variable EINT_VAR, not ENER_VAR.
+!!
+!! 
+!!   range: an array that holds the lower and upper indices of the section
+!!          of block on which Eos is to be applies. The example shows how
+!!          the array describes the block section.
+!!
+!!   blockID: current block number
+!!
+!!   gridDataStruct : the grid data structure on whose data Eos is to be applied
+!!
+!!
+!!  EXAMPLE 
+!!      if range(LOW,IAXIS)=1,range(HIGH,IAXIS)=iguard,
+!!         range(LOW,JAXIS)=1,range(HIGH,JAXIS)=jguard,
+!!         range(LOW,KAXIS)=1,range(HIGH,KAXIS)=kguard,
+!!      then Eos is applied to the lower left hand corner of the guard
+!!      cells in the block. 
+!!
+!!      However, if the value were
+!!         range(LOW,IAXIS)=iguard+1,range(HIGH,IAXIS)=iguard+nxb,
+!!         range(LOW,JAXIS)=jguard+1,range(HIGH,JAXIS)=jguard+nyb,
+!!         range(LOW,KAXIS)=kguard+1,range(HIGH,KAXIS)=kguard+nzb,
+!!      then Eos is applied to all the interior cells in the block.
+!!
+!!  NOTES
+!!      This interface is defined in Fortran Module 
+!!      Eos_interface. All functions calling this routine should include
+!!      a statement like
+!!      use Eos_interface, ONLY : Eos_wrapped
+!!
+!!      This routine cannot use "INTERIOR" mode of indexing the range.  In the
+!!      second example given above, although only the interior cells are being
+!!      calculated with EOS, the range indices still must include the guard cells.
+!!      See, for example, IsentropicVortex/Simulation_initBlock where the data is
+!!      generated on INTERIOR cells with Grid_putRowData, but the same indices can't
+!!      be used for the EOS call.
+!!
+!!  SEE ALSO
+!!
+!!     Eos
+!!     Eos.h
+!!
+!! @file
+!> @ingroup physics_Eos
+!!
+!! @brief general implementation of the API call for a computing
+!!     equation of state on cells in a multidimensional array
+!! 
+!! @subref{Eos_multiDim}
+!!
+!!NOVARIANTS
+
+! solnData depends on the ordering on unk
+!!REORDER(4): solnData
+
+
+subroutine Eos_multiDim(mode,range,solnData)
+
+   use Eos_data, ONLY: eos_eintSwitch, eos_smalle, eos_meshMe
+   use Driver_interface, ONLY : Driver_abort
+   use Logfile_interface, ONLY: Logfile_stampMessage 
+   use Eos_interface, ONLY : Eos_vector
+   use eos_localInterface, ONLY : eos_externalComputeAbarZbar
+ 
+   implicit none
+ 
+ #include "Eos.h"
+ #include "constants.h"
+ #include "Simulation.h"
+ 
+   integer, intent(in) :: mode
+   integer, dimension(2,MDIM), intent(in) :: range
+ 
+   real, pointer:: solnData(:,:,:,:)
+ 
+   real, allocatable, dimension(:):: energyKinetic,energyInternal
+   real, allocatable :: eosData(:,:)
+   integer, allocatable,dimension(:) :: iFlag
+ 
+ 
+   integer :: ierr, dataStruct
+   !integer :: i,j,k, vecLen,pres,dens,gamc,temp,abar,zbar,eint,entr
+   integer :: i,j,k, vecLen
+   integer :: @M eos_args
+ 
+   integer :: index, index_start, index_end
+ 
+ !! ---------------------------------------------------------------------------------
+   ! Test calling arguments
+ #ifdef DEBUG
+   ierr = 1
+   select case (mode)
+   case (MODE_DENS_PRES)
+      ierr = 0
+   case (MODE_DENS_TEMP)
+      ierr = 0
+   case (MODE_DENS_EI)
+      ierr = 0
+   end select
+ 
+   if(ierr /= 0) then
+      call Driver_abort("[Eos_wrapped] invalid mode: must be MODE_DENS_PRES, MODE_DENS_TEMP, or MODE_DENSE_EI")
+   end if
+ #endif
+ 
+   if (mode==MODE_EOS_NOP) return ! * Return immediately for MODE_EOS_NOP! *
+ 
+   ! Initializations:   grab the solution data from UNK and determine
+   !   the length of the data being operated upon
+ 
+   !VecLen is the number of rows in eosData
+    vecLen = (range(HIGH,IAXIS)-range(LOW,IAXIS)+1)*& !JM
+             (range(HIGH,JAXIS)-range(LOW,JAXIS)+1)*& !JM
+             (range(HIGH,KAXIS)-range(LOW,KAXIS)+1) !JM
+ 
+    if (vecLen==0) return ! Return immediately for empty IAXIS range! (for efficiency and avoiding index range errors)
+
+ allocate(energyInternal(vecLen))
+ allocate(energyKinetic(vecLen))
+ allocate(eosData(vecLen, EOS_VARS))
+ allocate(iFlag(vecLen))
+ 
+ ! Creating an index to iterate through the for loops. index is actually local cell number.
+ index = 1
+ 
+ do k = range(LOW,KAXIS), range(HIGH,KAXIS)
+    do j = range(LOW,JAXIS), range(HIGH,JAXIS)
+       index_start = index
+ 
+       do i = range(LOW,IAXIS), range(HIGH,IAXIS)
+                   
+          energyKinetic(index) = 0.5*(solnData(VELX_VAR,i,j,k)**2 + &
+          &                              solnData(VELY_VAR,i,j,k)**2 + &
+          &                              solnData(VELZ_VAR,i,j,k)**2)
+ #ifdef EINT_VAR
+             if (solnData(ENER_VAR,i,j,k) > &
+                (1.+ eos_eintSwitch)*energyKinetic(index)) then
+                energyInternal(index) = solnData(ENER_VAR,i,j,k) - energyKinetic(index)
+             else 
+                energyInternal(index) = solnData(EINT_VAR,i,j,k)
+             end if
+             ! Bringing Eint up to an Efloor if necessary
+             energyInternal(index) = max(energyInternal(index), eos_smalle)
+ #else
+             ! So now if we don't have the EINT_VAR stored, we just
+             ! simply do the E_T - E_kin and then check that E_int is
+             ! above the energy floor of our choosing.
+             energyInternal(index) = solnData(ENER_VAR,i,j,k) - energyKinetic(index)
+             energyInternal(index) = max(energyInternal(index), eos_smalle)
+ #endif
+ 
+          ! Now grabbing all the grid data and populating eosData
+          eosData(index, EOS_PRES) = solnData(PRES_VAR,i,j,k)
+          eosData(index, EOS_DENS) = solnData(DENS_VAR,i,j,k)
+          eosData(index, EOS_TEMP) = solnData(TEMP_VAR,i,j,k)
+          eosData(index, EOS_GAMC) = solnData(GAMC_VAR,i,j,k)
+          eosData(index, EOS_EINT) = energyInternal(index)
+          
+          index = index + 1
+ 
+       end do
+ 
+       index_end = index - 1
+ 
+       ! Call out for external computation of abar and zbar based on
+       ! other scalars.  This calls the callback for whoever
+       ! requested the ExternalAbarZbar implementation.
+ 
+       call eos_externalComputeAbarZbar(solnData(SPECIES_BEGIN:UNK_VARS_END,&
+       range(LOW,IAXIS):range(HIGH,IAXIS),j,k), &
+       eosData(index_start:index_end, EOS_ABAR), eosData(index_start:index_end, EOS_ZBAR) )
+ 
+    end do
+ end do
+ 
+ ! Now that eosData has obtained all necessary data from grid, we
+ ! call Eos_vector
+ 
+ call Eos_vector(mode,vecLen,eosData)
+ 
+ ! Now that Eos_vector has been called, we need to write
+ ! the completed Eos variable calculations (eosData) back
+ ! to the grid (which is solnData).
+ 
+ index = 1
+ iFlag = 0
+ 
+ do k = range(LOW,KAXIS), range(HIGH,KAXIS)
+    do j = range(LOW,JAXIS), range(HIGH,JAXIS)
+       do i = range(LOW,IAXIS), range(HIGH,IAXIS)
+          
+          solnData(PRES_VAR,i,j,k) = eosData(index, EOS_PRES)
+          solnData(TEMP_VAR,i,j,k) = eosData(index, EOS_TEMP)
+          solnData(GAMC_VAR,i,j,k) = eosData(index, EOS_GAMC)
+ 
+ #ifdef EINT_VAR
+          solnData(EINT_VAR,i,j,k) = eosData(index, EOS_EINT)
+ #endif
+          solnData(ENER_VAR,i,j,k) = eosData(index, EOS_EINT) + energyKinetic(index)
+ #ifdef ENTR_VAR
+          solnData(ENTR_VAR,i,j,k) = eosData(index, EOS_ENTR)
+ #endif
+ 
+          ! check for zero values before calculating gamma
+          if ( (eosData(index, EOS_EINT) .eq. 0.) .or. (eosData(index, EOS_DENS) .eq. 0.)) then
+             iFlag(index) = 1
+          end if
+ 
+          index = index + 1
+          
+       end do
+    end do
+ end do
+ 
+ !maybe there was a wrong flag set
+ if (maxval(iFlag) .gt. 0) then
+    if (eos_meshMe .EQ. MASTER_PE) then
+       write(*,*) "ERROR After calling Eos, eosData(EOS_EINT) or eosData(EOS_DENS) are zero"
+       write(*,*) "  Perhaps the initialization routine is wrong..... or"
+       write(*,*) "  perhaps the runtime parameter eosMode is wrong."
+       write(*,*) "  This routine Eos_wrapped was called with mode= ", mode
+       write(*,*) "     Check constants.h to determine value of MODE_DENS_??"
+    endif
+ call Logfile_stampMessage('[Eos_wrapped] ERROR Density or Internal Energy are zero after a call to EOS!')
+ call Driver_abort('[Eos_wrapped] ERROR Density or Internal Energy are zero after a call to EOS!')
+ end if
+ 
+ 
+ index = 1
+ 
+ do k = range(LOW,KAXIS), range(HIGH,KAXIS)
+    do j = range(LOW,JAXIS), range(HIGH,JAXIS)
+       do i = range(LOW,IAXIS), range(HIGH,IAXIS)
+ 
+          !JM calculating gamma_e
+          solnData(GAME_VAR,i,j,k) = eosData(index, EOS_PRES)/&
+          (eosData(index, EOS_EINT) *eosData(index, EOS_DENS)) + 1.0
+ 
+          index = index + 1
+ 
+       end do
+    end do
+ end do
+
+deallocate(energyKinetic)
+deallocate(energyInternal)
+deallocate(eosData)
+deallocate(iFlag)
+
+end subroutine Eos_multiDim
