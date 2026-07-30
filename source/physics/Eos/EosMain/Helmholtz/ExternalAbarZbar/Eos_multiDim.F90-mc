@@ -108,9 +108,9 @@ subroutine Eos_multiDim(mode,range,solnData)
  
    implicit none
  
- #include "Eos.h"
- #include "constants.h"
- #include "Simulation.h"
+#include "Eos.h"
+#include "constants.h"
+#include "Simulation.h"
  
    integer, intent(in) :: mode
    integer, dimension(2,MDIM), intent(in) :: range
@@ -131,7 +131,7 @@ subroutine Eos_multiDim(mode,range,solnData)
  
  !! ---------------------------------------------------------------------------------
    ! Test calling arguments
- #ifdef DEBUG
+#ifdef DEBUG
    ierr = 1
    select case (mode)
    case (MODE_DENS_PRES)
@@ -145,7 +145,7 @@ subroutine Eos_multiDim(mode,range,solnData)
    if(ierr /= 0) then
       call Driver_abort("[Eos_wrapped] invalid mode: must be MODE_DENS_PRES, MODE_DENS_TEMP, or MODE_DENSE_EI")
    end if
- #endif
+#endif
  
    if (mode==MODE_EOS_NOP) return ! * Return immediately for MODE_EOS_NOP! *
  
@@ -176,7 +176,7 @@ subroutine Eos_multiDim(mode,range,solnData)
           energyKinetic(index) = 0.5*(solnData(VELX_VAR,i,j,k)**2 + &
           &                              solnData(VELY_VAR,i,j,k)**2 + &
           &                              solnData(VELZ_VAR,i,j,k)**2)
- #ifdef EINT_VAR
+#ifdef EINT_VAR
              if (solnData(ENER_VAR,i,j,k) > &
                 (1.+ eos_eintSwitch)*energyKinetic(index)) then
                 energyInternal(index) = solnData(ENER_VAR,i,j,k) - energyKinetic(index)
@@ -185,13 +185,13 @@ subroutine Eos_multiDim(mode,range,solnData)
              end if
              ! Bringing Eint up to an Efloor if necessary
              energyInternal(index) = max(energyInternal(index), eos_smalle)
- #else
+#else
              ! So now if we don't have the EINT_VAR stored, we just
              ! simply do the E_T - E_kin and then check that E_int is
              ! above the energy floor of our choosing.
              energyInternal(index) = solnData(ENER_VAR,i,j,k) - energyKinetic(index)
              energyInternal(index) = max(energyInternal(index), eos_smalle)
- #endif
+#endif
  
           ! Now grabbing all the grid data and populating eosData
           eosData(index, EOS_PRES) = solnData(PRES_VAR,i,j,k)
@@ -237,13 +237,13 @@ subroutine Eos_multiDim(mode,range,solnData)
           solnData(TEMP_VAR,i,j,k) = eosData(index, EOS_TEMP)
           solnData(GAMC_VAR,i,j,k) = eosData(index, EOS_GAMC)
  
- #ifdef EINT_VAR
+#ifdef EINT_VAR
           solnData(EINT_VAR,i,j,k) = eosData(index, EOS_EINT)
- #endif
+#endif
           solnData(ENER_VAR,i,j,k) = eosData(index, EOS_EINT) + energyKinetic(index)
- #ifdef ENTR_VAR
+#ifdef ENTR_VAR
           solnData(ENTR_VAR,i,j,k) = eosData(index, EOS_ENTR)
- #endif
+#endif
  
           ! check for zero values before calculating gamma
           if ( (eosData(index, EOS_EINT) .eq. 0.) .or. (eosData(index, EOS_DENS) .eq. 0.)) then
