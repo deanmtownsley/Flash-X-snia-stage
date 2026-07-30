@@ -183,10 +183,10 @@ subroutine Driver_evolveAll()
      
      if (.not. useSTS_local) then
         call IO_output(dr_simTime, &
-             dr_dt, dr_nstep+1, dr_nbegin, endRunPl, PLOTFILE_ONLY)
+             dr_dt, dr_nstep+1, dr_nbegin, endRunPl, PLOTFILE_AND_PARTICLEFILE)
      else
         call IO_output(dr_simTime, &
-             dr_dtSTS, dr_nstep+1, dr_nbegin, endRunPl, PLOTFILE_ONLY)
+             dr_dtSTS, dr_nstep+1, dr_nbegin, endRunPl, PLOTFILE_AND_PARTICLEFILE)
      endif
 
      call Timers_stop("IO_output")
