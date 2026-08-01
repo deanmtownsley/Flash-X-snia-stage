@@ -17,7 +17,7 @@ subroutine Burn ( blockCount, blockList, dt )
                              Grid_getDeltas, Grid_getCellCoords !JM
 
   use Eos_interface, ONLY   : Eos_multiDim
-  use Hydro_interface, ONLY : Hydro_detectShock
+  use Hydro_interface, ONLY : Hydro_shockStrength
   use Timers_interface, ONLY : Timers_start, Timers_stop
   use bn_paraInterface, ONLY : bn_paraBurn, bn_paraSpark, bn_paraAllSpark, &
                                bn_paraAllIgnite
