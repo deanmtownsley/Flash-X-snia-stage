@@ -13,8 +13,8 @@ subroutine Burn ( blockCount, blockList, dt )
   use Grid_iterator, ONLY : Grid_iterator_t !JM
   use Grid_tile,      ONLY : Grid_tile_t !JM 
   use Grid_interface, ONLY : Grid_getTileIterator,Grid_fillGuardCells, &
-                             Grid_getBlkIndexLimits, &
-                             Grid_getDeltas, Grid_getCellCoords !JM
+                             Grid_getBlkIndexLimits, Grid_getCellVolumes, &
+                             Grid_getDeltas, Grid_getCellCoords, Grid_releaseTileIterator !JM
 
   use Eos_interface, ONLY   : Eos_multiDim
   use Hydro_interface, ONLY : Hydro_shockStrength
@@ -63,7 +63,8 @@ subroutine Burn ( blockCount, blockList, dt )
 
   !JM real, dimension(GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC) :: shock
   real, allocatable :: shock(:,:,:)
-  real, dimension(GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC) :: react_proximity
+  !JM real, dimension(GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC) :: react_proximity
+  real, allocatable :: react_proximity(:,:,:)
   real, pointer, dimension(:,:,:,:)                    :: solnData
 
   real :: flamewidth
@@ -296,6 +297,8 @@ subroutine Burn ( blockCount, blockList, dt )
 
      enddo
 
+     call Grid_releaseTileIterator(itor)
+
      ! -------------------------------------------------------
      ! 3.  communicate ignition points
      ! -------------------------------------------------------
@@ -417,11 +420,11 @@ subroutine Burn ( blockCount, blockList, dt )
                              ! so invalidate detonation point
                              ignition_conditions(l) = .false.
 
-                             ! we are done so finish up with this block
-                             !JM call Grid_releaseBlkPtr(blockID,solnData)
-                             !JM deallocate(xCoord)
-                             !JM deallocate(yCoord)
-                             !JM deallocate(zCoord)
+                             deallocate(xCoord)
+                             deallocate(yCoord)
+                             deallocate(zCoord)
+                             call tileDesc%releaseDataPtr(solnData, CENTER)
+                             call Grid_releaseTileIterator(itor)
 
                              ! move to the next detonation point
                              cycle det_search !DQ
@@ -446,6 +449,8 @@ subroutine Burn ( blockCount, blockList, dt )
             call itor%next()  
 
            enddo
+
+           call Grid_releaseTileIterator(itor)
 
         enddo det_search
 
@@ -594,7 +599,11 @@ subroutine Burn ( blockCount, blockList, dt )
                      tileDesc%limits(LOW,JAXIS):tileDesc%limits(HIGH,JAXIS),   &
                      tileDesc%limits(LOW,KAXIS):tileDesc%limits(HIGH,KAXIS))
 #endif
-     
+
+allocate( react_proximity( tileDesc%limits(LOW,IAXIS):tileDesc%limits(HIGH,IAXIS), &
+                           tileDesc%limits(LOW,JAXIS):tileDesc%limits(HIGH,JAXIS), &
+                           tileDesc%limits(LOW,KAXIS):tileDesc%limits(HIGH,KAXIS) ) )
+
      !  Check for proximity of a reacting region for each cell
      !  this is used to help control thermal burning inside flame
      !JM do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
@@ -760,6 +769,8 @@ subroutine Burn ( blockCount, blockList, dt )
       deallocate(xCoord)
       deallocate(yCoord)
       deallocate(zCoord)
+      deallocate(shock)
+      deallocate(react_proximity)
 
       call tileDesc%releaseDataPtr(solnData, CENTER)
 
@@ -782,6 +793,8 @@ subroutine Burn ( blockCount, blockList, dt )
      endif
 
   endif
+
+  call Grid_releaseTileIterator(itor)
 
   call Timers_stop("burn")
   

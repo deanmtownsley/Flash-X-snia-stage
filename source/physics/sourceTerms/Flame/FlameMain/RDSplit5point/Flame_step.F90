@@ -53,7 +53,7 @@ subroutine Flame_step( dt )
 
   use Grid_iterator, ONLY : Grid_iterator_t
   use Grid_tile,      ONLY : Grid_tile_t
-  use Grid_interface, ONLY : Grid_getTileIterator,Grid_fillGuardCells
+  use Grid_interface, ONLY : Grid_getTileIterator,Grid_fillGuardCells,Grid_releaseTileIterator
   use fl_fsInterface, only : fl_flameSpeed
   use fl_effInterface, only: fl_effects
   use fl_interface, only : fl_laplacian
@@ -180,6 +180,9 @@ subroutine Flame_step( dt )
      call itor%next() !JM
 
   enddo
+
+  call Grid_releaseTileIterator(itor)
+
   !JM print *, "Calling Timers_stop"
   call Timers_stop("flame")
 
