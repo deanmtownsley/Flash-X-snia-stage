@@ -4,7 +4,7 @@
 !   Dean Townsley 2008
 !
 
-subroutine Burn ( blockCount, blockList, dt )
+subroutine Burn ( dt )
   
   !JM use Grid_interface, ONLY  : Grid_fillGuardCells, &
   !JM      Grid_getBlkIndexLimits, Grid_getCellCoords, Grid_getBlkPtr, &
@@ -38,8 +38,6 @@ subroutine Burn ( blockCount, blockList, dt )
 #include "Simulation.h"
 #include "Eos.h"
 
-  integer, INTENT(in)                        :: blockCount
-  integer, INTENT(in), DIMENSION(blockCount) :: blockList
   real,    INTENT(in)                        :: dt
 
   type(Grid_iterator_t) :: itor !JM
