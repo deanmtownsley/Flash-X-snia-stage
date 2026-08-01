@@ -64,10 +64,6 @@ subroutine fl_laplacian(lapl, flam, h, tileDesc)
 
   h2 = 2*h
 
-!JM print *, 'flam bounds inside fl_laplacian:'
-!JM print *, 'LBOUND(flam):', LBOUND(flam)
-!JM print *, 'UBOUND(flam):', UBOUND(flam)
-
   if (h2 > NGUARD) call Driver_abort("Step size in fl_laplacian is too large for the number of guard cells")
 
   call Grid_getGeometry(geom)

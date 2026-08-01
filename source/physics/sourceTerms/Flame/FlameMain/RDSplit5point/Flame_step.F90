@@ -149,16 +149,8 @@ subroutine Flame_step( dt )
         enddo
      enddo
 
-      !JM print *, 'flam bounds before calling fl_laplacian:'
-      !JM print *, 'LBOUND(flam):', LBOUND(flam) !JM
-      !JM print *, 'UBOUND(flam):', UBOUND(flam) !JM
-
      ! 1 specifies the step size should be 1 grid cell
      ! cannot be any larger because flam is filled with only 2 guard cell layers
-     !JM print *, "About to call fl_laplacian"
-     !JM print *, "lapl bounds:", lbound(lapl), ubound(lapl)
-     !JM print *, "flam bounds:", lbound(flam), ubound(flam) 
-     !JM print *, "tileDesc limits:", tileDesc%limits
      call fl_laplacian(lapl, flam, 1, tileDesc)
 
      do k = tileDesc%limits(LOW,KAXIS), tileDesc%limits(HIGH,KAXIS)
@@ -174,10 +166,6 @@ subroutine Flame_step( dt )
      deallocate(lapl)
      deallocate(flamespeed)
      deallocate(flam)
-
-     !JM print *, 'flam bounds before calling fl_effects:'
-     !JM print *, 'LBOUND(flamdot):', LBOUND(flamdot) !JM
-     !JM print *, 'UBOUND(flamdot):', UBOUND(flamdot) !JM
 
 
      !JM print *, "Calling fl_effects"

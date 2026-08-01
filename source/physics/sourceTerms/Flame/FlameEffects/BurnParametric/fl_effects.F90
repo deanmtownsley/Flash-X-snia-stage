@@ -38,28 +38,24 @@
 #include "Simulation.h"
 #include "constants.h"
 #include "FortranLangFeatures.fh"
-subroutine fl_effects( solnData, flamdot, dt, blockID)
+subroutine fl_effects( solnData, flamdot, dt, tileDesc)
 
-  use Grid_interface, only : Grid_getBlkIndexLimits
+  use Grid_tile, only: Grid_tile_t
 
   implicit none
 
-  real, dimension(:,:,:,:),POINTER_INTENT_IN  :: solnData
-  real,dimension(:,:,:), intent(in)     :: flamdot
-  real,intent(in)                       :: dt
-  integer, intent(in)                   :: blockID
-
-  integer, dimension(LOW:HIGH,MDIM)     :: blkLimits, blkLimitsGC
-
-  call Grid_getBlkIndexLimits(blockID, blkLimits, blkLimitsGC)
+  real, dimension(:,:,:,:),pointer,intent(in)      :: solnData
+  real,dimension(:,:,:), intent(in), allocatable   :: flamdot
+  real,intent(in)                                  :: dt
+  type(Grid_tile_t), intent(in)                    :: tileDesc
 
   ! only need interior cells
-  solnData(FLDT_VAR,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),   &
-                    blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),   &
-                    blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)) = &
-                         flamdot(blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),   &
-                                 blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),   &
-                                 blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS))
+  solnData(FLDT_VAR,tileDesc%limits(LOW,IAXIS):tileDesc%limits(HIGH,IAXIS),   &
+                    tileDesc%limits(LOW,JAXIS):tileDesc%limits(HIGH,JAXIS),   &
+                    tileDesc%limits(LOW,KAXIS):tileDesc%limits(HIGH,KAXIS)) = &
+                         flamdot(tileDesc%limits(LOW,IAXIS):tileDesc%limits(HIGH,IAXIS),   &
+                                 tileDesc%limits(LOW,JAXIS):tileDesc%limits(HIGH,JAXIS),   &
+                                 tileDesc%limits(LOW,KAXIS):tileDesc%limits(HIGH,KAXIS))
 
   return
 end subroutine
