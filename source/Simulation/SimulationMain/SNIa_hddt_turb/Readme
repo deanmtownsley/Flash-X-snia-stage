@@ -1,0 +1,32 @@
+
+SNIa_ddt Simulation Unit Implementation
+
+Dean M. Townsley 2009
+Additional testing and input by:
+  Aaron P. Jackson
+  Alan C. Calder
+
+A Simulation Unit is a drop-in component for the FLASH 3.0
+hydrodynamics code (flash.uchicago.edu) which configures, initializes
+and implements a particular physical problem.
+
+This is a Simulation Unit for performance of Type Ia supernova
+simulations with FLASH.  This code is provided as a reference
+implementation for the randomized initial condition used by Townsley
+etal (2009, ApJ, in press, ArXiv:0906.4384) to construct a framework
+for study of SN Ia systematics based on a theoretical population of
+SNe Ia.  The critical components for reproducability of the
+theoretical population are the random number generator, contained in
+the file sim_LCGRandomIterate.F90 and the usage of this for choosing
+the coefficients of the multipole initial condition.  The coefficients
+are chosen by code in Simulation_init.F90 and their use to generate
+the initial flame surface appears in Simulation_initBlock.F90.
+
+Additionally, the implementation of the refinement prescriptions
+described in the same paper is included in the files
+Grid_markRefineDerefine.F90 and gr_markRefineDerefine.F90.  And an
+example initial WD is included in cc_7e8_linear_wd_plain.dat.
+
+Example parameter files for both 1-d and 2-d simulations described in
+Townsley etal (2009) are included.  Additional files are relevant to
+interaction with the FLASH source tree.

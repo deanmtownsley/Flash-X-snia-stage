@@ -1,0 +1,1026 @@
+%!PS-Adobe-3.0
+%%BoundingBox: 38 24 574 768
+%%Title: Enscript Output
+%%For: Eugene
+%%Creator: GNU Enscript 1.6.6
+%%CreationDate: Thu Sep 25 16:18:23 2014
+%%Orientation: Portrait
+%%Pages: (atend)
+%%DocumentMedia: Letter 612 792 0 () ()
+%%DocumentNeededResources: (atend)
+%%EndComments
+%%BeginProlog
+%%BeginResource: procset Enscript-Prolog 1.6 6
+%
+% Procedures.
+%
+
+/_S {	% save current state
+  /_s save def
+} def
+/_R {	% restore from saved state
+  _s restore
+} def
+
+/S {	% showpage protecting gstate
+  gsave
+  showpage
+  grestore
+} bind def
+
+/MF {	% fontname newfontname -> -	make a new encoded font
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  % insert only valid encoding vectors
+  encoding_vector length 256 eq {
+    newfont /Encoding encoding_vector put
+  } if
+
+  newfontname newfont definefont pop
+} def
+
+/MF_PS { % fontname newfontname -> -	make a new font preserving its enc
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  newfontname newfont definefont pop
+} def
+
+/SF { % fontname width height -> -	set a new font
+  /height exch def
+  /width exch def
+
+  findfont
+  [width 0 0 height 0 0] makefont setfont
+} def
+
+/SUF { % fontname width height -> -	set a new user font
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF
+  /F-gs-user-font width height SF
+} def
+
+/SUF_PS { % fontname width height -> -	set a new user font preserving its enc
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF_PS
+  /F-gs-user-font width height SF
+} def
+
+/M {moveto} bind def
+/s {show} bind def
+
+/Box {	% x y w h -> -			define box path
+  /d_h exch def /d_w exch def /d_y exch def /d_x exch def
+  d_x d_y  moveto
+  d_w 0 rlineto
+  0 d_h rlineto
+  d_w neg 0 rlineto
+  closepath
+} def
+
+/bgs {	% x y height blskip gray str -> -	show string with bg color
+  /str exch def
+  /gray exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    gray setgray
+    fill
+  grestore
+  x y M str s
+} def
+
+/bgcs { % x y height blskip red green blue str -> -  show string with bg color
+  /str exch def
+  /blue exch def
+  /green exch def
+  /red exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    red green blue setrgbcolor
+    fill
+  grestore
+  x y M str s
+} def
+
+% Highlight bars.
+/highlight_bars {	% nlines lineheight output_y_margin gray -> -
+  gsave
+    setgray
+    /ymarg exch def
+    /lineheight exch def
+    /nlines exch def
+
+    % This 2 is just a magic number to sync highlight lines to text.
+    0 d_header_y ymarg sub 2 sub translate
+
+    /cw d_output_w cols div def
+    /nrows d_output_h ymarg 2 mul sub lineheight div cvi def
+
+    % for each column
+    0 1 cols 1 sub {
+      cw mul /xp exch def
+
+      % for each rows
+      0 1 nrows 1 sub {
+        /rn exch def
+        rn lineheight mul neg /yp exch def
+        rn nlines idiv 2 mod 0 eq {
+	  % Draw highlight bar.  4 is just a magic indentation.
+	  xp 4 add yp cw 8 sub lineheight neg Box fill
+	} if
+      } for
+    } for
+
+  grestore
+} def
+
+% Line highlight bar.
+/line_highlight {	% x y width height gray -> -
+  gsave
+    /gray exch def
+    Box gray setgray fill
+  grestore
+} def
+
+% Column separator lines.
+/column_lines {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h translate
+    /cw d_output_w cols div def
+    1 1 cols 1 sub {
+      cw mul 0 moveto
+      0 d_output_h rlineto stroke
+    } for
+  grestore
+} def
+
+% Column borders.
+/column_borders {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h moveto
+    0 d_output_h rlineto
+    d_output_w 0 rlineto
+    0 d_output_h neg rlineto
+    closepath stroke
+  grestore
+} def
+
+% Do the actual underlay drawing
+/draw_underlay {
+  ul_style 0 eq {
+    ul_str true charpath stroke
+  } {
+    ul_str show
+  } ifelse
+} def
+
+% Underlay
+/underlay {	% - -> -
+  gsave
+    0 d_page_h translate
+    d_page_h neg d_page_w atan rotate
+
+    ul_gray setgray
+    ul_font setfont
+    /dw d_page_h dup mul d_page_w dup mul add sqrt def
+    ul_str stringwidth pop dw exch sub 2 div ul_h_ptsize -2 div moveto
+    draw_underlay
+  grestore
+} def
+
+/user_underlay {	% - -> -
+  gsave
+    ul_x ul_y translate
+    ul_angle rotate
+    ul_gray setgray
+    ul_font setfont
+    0 0 ul_h_ptsize 2 div sub moveto
+    draw_underlay
+  grestore
+} def
+
+% Page prefeed
+/page_prefeed {		% bool -> -
+  statusdict /prefeed known {
+    statusdict exch /prefeed exch put
+  } {
+    pop
+  } ifelse
+} def
+
+% Wrapped line markers
+/wrapped_line_mark {	% x y charwith charheight type -> -
+  /type exch def
+  /h exch def
+  /w exch def
+  /y exch def
+  /x exch def
+
+  type 2 eq {
+    % Black boxes (like TeX does)
+    gsave
+      0 setlinewidth
+      x w 4 div add y M
+      0 h rlineto w 2 div 0 rlineto 0 h neg rlineto
+      closepath fill
+    grestore
+  } {
+    type 3 eq {
+      % Small arrows
+      gsave
+        .2 setlinewidth
+        x w 2 div add y h 2 div add M
+        w 4 div 0 rlineto
+        x w 4 div add y lineto stroke
+
+        x w 4 div add w 8 div add y h 4 div add M
+        x w 4 div add y lineto
+	w 4 div h 8 div rlineto stroke
+      grestore
+    } {
+      % do nothing
+    } ifelse
+  } ifelse
+} def
+
+% EPSF import.
+
+/BeginEPSF {
+  /b4_Inc_state save def    		% Save state for cleanup
+  /dict_count countdictstack def	% Count objects on dict stack
+  /op_count count 1 sub def		% Count objects on operand stack
+  userdict begin
+  /showpage { } def
+  0 setgray 0 setlinecap
+  1 setlinewidth 0 setlinejoin
+  10 setmiterlimit [ ] 0 setdash newpath
+  /languagelevel where {
+    pop languagelevel
+    1 ne {
+      false setstrokeadjust false setoverprint
+    } if
+  } if
+} bind def
+
+/EndEPSF {
+  count op_count sub { pos } repeat	% Clean up stacks
+  countdictstack dict_count sub { end } repeat
+  b4_Inc_state restore
+} bind def
+
+% Check PostScript language level.
+/languagelevel where {
+  pop /gs_languagelevel languagelevel def
+} {
+  /gs_languagelevel 1 def
+} ifelse
+%%EndResource
+%%BeginResource: procset Enscript-Encoding-88591 1.6 6
+/encoding_vector [
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclam       	/quotedbl     	/numbersign   	
+/dollar       	/percent      	/ampersand    	/quoteright   	
+/parenleft    	/parenright   	/asterisk     	/plus         	
+/comma        	/hyphen       	/period       	/slash        	
+/zero         	/one          	/two          	/three        	
+/four         	/five         	/six          	/seven        	
+/eight        	/nine         	/colon        	/semicolon    	
+/less         	/equal        	/greater      	/question     	
+/at           	/A            	/B            	/C            	
+/D            	/E            	/F            	/G            	
+/H            	/I            	/J            	/K            	
+/L            	/M            	/N            	/O            	
+/P            	/Q            	/R            	/S            	
+/T            	/U            	/V            	/W            	
+/X            	/Y            	/Z            	/bracketleft  	
+/backslash    	/bracketright 	/asciicircum  	/underscore   	
+/quoteleft    	/a            	/b            	/c            	
+/d            	/e            	/f            	/g            	
+/h            	/i            	/j            	/k            	
+/l            	/m            	/n            	/o            	
+/p            	/q            	/r            	/s            	
+/t            	/u            	/v            	/w            	
+/x            	/y            	/z            	/braceleft    	
+/bar          	/braceright   	/tilde        	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclamdown   	/cent         	/sterling     	
+/currency     	/yen          	/brokenbar    	/section      	
+/dieresis     	/copyright    	/ordfeminine  	/guillemotleft	
+/logicalnot   	/hyphen       	/registered   	/macron       	
+/degree       	/plusminus    	/twosuperior  	/threesuperior	
+/acute        	/mu           	/paragraph    	/bullet       	
+/cedilla      	/onesuperior  	/ordmasculine 	/guillemotright	
+/onequarter   	/onehalf      	/threequarters	/questiondown 	
+/Agrave       	/Aacute       	/Acircumflex  	/Atilde       	
+/Adieresis    	/Aring        	/AE           	/Ccedilla     	
+/Egrave       	/Eacute       	/Ecircumflex  	/Edieresis    	
+/Igrave       	/Iacute       	/Icircumflex  	/Idieresis    	
+/Eth          	/Ntilde       	/Ograve       	/Oacute       	
+/Ocircumflex  	/Otilde       	/Odieresis    	/multiply     	
+/Oslash       	/Ugrave       	/Uacute       	/Ucircumflex  	
+/Udieresis    	/Yacute       	/Thorn        	/germandbls   	
+/agrave       	/aacute       	/acircumflex  	/atilde       	
+/adieresis    	/aring        	/ae           	/ccedilla     	
+/egrave       	/eacute       	/ecircumflex  	/edieresis    	
+/igrave       	/iacute       	/icircumflex  	/idieresis    	
+/eth          	/ntilde       	/ograve       	/oacute       	
+/ocircumflex  	/otilde       	/odieresis    	/divide       	
+/oslash       	/ugrave       	/uacute       	/ucircumflex  	
+/udieresis    	/yacute       	/thorn        	/ydieresis    	
+] def
+%%EndResource
+%%EndProlog
+%%BeginSetup
+%%IncludeResource: font Courier-Bold
+%%IncludeResource: font Courier
+/HFpt_w 10 def
+/HFpt_h 10 def
+/Courier-Bold /HF-gs-font MF
+/HF /HF-gs-font findfont [HFpt_w 0 0 HFpt_h 0 0] makefont def
+/Courier /F-gs-font MF
+/F-gs-font 10 10 SF
+/#copies 1 def
+% Pagedevice definitions:
+gs_languagelevel 1 gt {
+  <<
+    /PageSize [612 792] 
+  >> setpagedevice
+} if
+%%BeginResource: procset Enscript-Header-simple 1.6 6
+
+/do_header {	% print default simple header
+  gsave
+    d_header_x d_header_y HFpt_h 3 div add translate
+
+    HF setfont
+    user_header_p {
+      5 0 moveto user_header_left_str show
+
+      d_header_w user_header_center_str stringwidth pop sub 2 div
+      0 moveto user_header_center_str show
+
+      d_header_w user_header_right_str stringwidth pop sub 5 sub
+      0 moveto user_header_right_str show
+    } {
+      fname length fmodstr length add pagenumstr length add 95 6 idiv add d_header_w 6 idiv le{
+        5 0 moveto fname show
+        45 0 rmoveto fmodstr show
+        45 0 rmoveto pagenumstr show
+      } {
+        5 0 moveto fmodstr show
+        45 0 rmoveto pagenumstr show
+        fname length d_header_w 6 idiv idiv 1 add 10 mul 5 exch moveto
+        1 1 fname length d_header_w 6 idiv idiv
+        {
+          dup fname exch 1 sub d_header_w 6 idiv mul d_header_w 6 idiv getinterval show
+          5 exch 10 mul fname length d_header_w 6 idiv idiv 1 add 10 mul exch sub moveto
+        } for
+        5 10 moveto
+        fname fname length d_header_w 6 idiv idiv d_header_w 6 idiv mul dup fname length exch sub getinterval show
+      }ifelse
+    }ifelse
+
+  grestore
+} def
+%%EndResource
+/d_page_w 536 def
+/d_page_h 744 def
+/d_header_x 0 def
+/d_header_y 700 def
+/d_header_w 536 def
+/d_header_h 44 def
+/d_footer_x 0 def
+/d_footer_y 0 def
+/d_footer_w 536 def
+/d_footer_h 0 def
+/d_output_w 536 def
+/d_output_h 700 def
+/cols 1 def
+%%EndSetup
+%%Page: (1) 1
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 1 def
+/fname (sim_interpolate1dWd.F90) def
+/fdir (.) def
+/ftail (sim_interpolate1dWd.F90) def
+% User defined strings:
+/fmodstr (Thu Sep 25 16:06:17 2014) def
+/pagenumstr (1) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+/Courier-Oblique 10 10 SUF
+5 687 M
+(!!) s
+/F-gs-font 10 10 SF
+/Courier-Oblique 10 10 SUF
+5 676 M
+(!! Dean M. Townsley 2009) s
+/F-gs-font 10 10 SF
+/Courier-Oblique 10 10 SUF
+5 665 M
+(!!) s
+/F-gs-font 10 10 SF
+/Courier-Oblique 10 10 SUF
+5 654 M
+(!! This subroutine interpolates within a 1-dimensional WD profile) s
+/F-gs-font 10 10 SF
+/Courier-Oblique 10 10 SUF
+5 643 M
+(!! by averaging over a cell width.  The WD profile, stored in the) s
+/F-gs-font 10 10 SF
+/Courier-Oblique 10 10 SUF
+5 632 M
+(!! Simulation Unit's module data area, is averaged over an interval of) s
+/F-gs-font 10 10 SF
+/Courier-Oblique 10 10 SUF
+5 621 M
+(!! size "dr" at radius "radius".  Returned are the density, temperature,) s
+/F-gs-font 10 10 SF
+/Courier-Oblique 10 10 SUF
+5 610 M
+(!! and c12 and ne22 mass fractions.  Temperature averaging is just) s
+/F-gs-font 10 10 SF
+/Courier-Oblique 10 10 SUF
+5 599 M
+(!! multiplicatively mass-weighted for lack of a better thing to do.) s
+/F-gs-font 10 10 SF
+/Courier-Oblique 10 10 SUF
+5 588 M
+(!!) s
+/F-gs-font 10 10 SF
+/Courier-Oblique 10 10 SUF
+5 577 M
+(!! Averaging over an interval is used to allow a graceful mapping onto) s
+/F-gs-font 10 10 SF
+/Courier-Oblique 10 10 SUF
+5 566 M
+(!! the unrefined grid during initial refinement.) s
+/F-gs-font 10 10 SF
+/Courier-Bold 10 10 SUF
+5 544 M
+(subroutine ) s
+/F-gs-font 10 10 SF
+/Courier-Bold 10 10 SUF
+71 544 M
+(sim_interpolate1dWd) s
+/F-gs-font 10 10 SF
+185 544 M
+(\( radius, dr, dens, temp, xc12, xne20, xne22\)) s
+/Courier-Bold 10 10 SUF
+5 522 M
+(  use ) s
+/F-gs-font 10 10 SF
+/Courier-Bold 10 10 SUF
+41 522 M
+(Simulation_data) s
+/F-gs-font 10 10 SF
+131 522 M
+(, ) s
+/Courier-Bold 10 10 SUF
+143 522 M
+(ONLY) s
+/F-gs-font 10 10 SF
+167 522 M
+( : sim_wd_dens_tab, sim_wd_temp_tab, sim_wd_c12_tab, &) s
+5 511 M
+(                              sim_wd_ne22_tab, sim_wd_dr_inv, sim_wd_npnts, &) s
+5 500 M
+(                              sim_densFluff, sim_tempFluff, sim_xc12Fluff, &) s
+5 489 M
+(                              sim_xne22Fluff, sim_wd_ne20_tab, sim_xne20Fluff) s
+5 478 M
+(  ) s
+/Courier-Bold 10 10 SUF
+17 478 M
+(implicit) s
+/F-gs-font 10 10 SF
+65 478 M
+( ) s
+/Courier-Bold 10 10 SUF
+71 478 M
+(none) s
+/F-gs-font 10 10 SF
+/Courier-Bold 10 10 SUF
+5 456 M
+(  real) s
+/F-gs-font 10 10 SF
+41 456 M
+(, ) s
+/Courier-Bold 10 10 SUF
+53 456 M
+(intent) s
+/F-gs-font 10 10 SF
+89 456 M
+(\(in\) :: ) s
+/Courier-Bold 10 10 SUF
+137 456 M
+(radius, dr) s
+/F-gs-font 10 10 SF
+/Courier-Bold 10 10 SUF
+5 445 M
+(  real) s
+/F-gs-font 10 10 SF
+41 445 M
+(, ) s
+/Courier-Bold 10 10 SUF
+53 445 M
+(intent) s
+/F-gs-font 10 10 SF
+89 445 M
+(\(out\):: ) s
+/Courier-Bold 10 10 SUF
+137 445 M
+(dens, temp, xc12, xne20, xne22) s
+/F-gs-font 10 10 SF
+/Courier-Bold 10 10 SUF
+5 423 M
+(  real) s
+/F-gs-font 10 10 SF
+41 423 M
+( :: ) s
+/Courier-Bold 10 10 SUF
+65 423 M
+(left_edge, right_edge) s
+/F-gs-font 10 10 SF
+/Courier-Bold 10 10 SUF
+5 412 M
+(  real) s
+/F-gs-font 10 10 SF
+41 412 M
+( :: ) s
+/Courier-Bold 10 10 SUF
+65 412 M
+(shell_left, shell_right, shellvol) s
+/F-gs-font 10 10 SF
+/Courier-Bold 10 10 SUF
+5 401 M
+(  real) s
+/F-gs-font 10 10 SF
+41 401 M
+( :: ) s
+/Courier-Bold 10 10 SUF
+65 401 M
+(vol, mass, masstemp, massc12, massne20, massne22) s
+/F-gs-font 10 10 SF
+/Courier-Bold 10 10 SUF
+5 390 M
+(  integer) s
+/F-gs-font 10 10 SF
+59 390 M
+( :: ) s
+/Courier-Bold 10 10 SUF
+83 390 M
+(imin, imax, i) s
+/F-gs-font 10 10 SF
+/Courier-Oblique 10 10 SUF
+5 368 M
+(!don uncommented print statement:) s
+/F-gs-font 10 10 SF
+/Courier-Oblique 10 10 SUF
+5 357 M
+(!  print *, "radius, dr =", radius, dr) s
+/F-gs-font 10 10 SF
+5 335 M
+(  ) s
+/Courier-Oblique 10 10 SUF
+17 335 M
+(! want to construct a mapping that is direct if the grids are the same, and) s
+/F-gs-font 10 10 SF
+5 324 M
+(  ) s
+/Courier-Oblique 10 10 SUF
+17 324 M
+(! otherwise averages the cells in a reasonable way) s
+/F-gs-font 10 10 SF
+5 313 M
+(  ) s
+/Courier-Oblique 10 10 SUF
+17 313 M
+(! to do this we assume an evenly spaced grid for which the value) s
+/F-gs-font 10 10 SF
+5 302 M
+(  ) s
+/Courier-Oblique 10 10 SUF
+17 302 M
+(!  of each variable is constant on the intervals) s
+/F-gs-font 10 10 SF
+5 280 M
+(  ) s
+/Courier-Oblique 10 10 SUF
+17 280 M
+(! calculate boundaries of averaging region in grid index coordinates) s
+/F-gs-font 10 10 SF
+5 269 M
+(  left_edge = \(radius-0.5*dr\) * sim_wd_dr_inv) s
+5 258 M
+(  right_edge = \(radius+0.5*dr\) * sim_wd_dr_inv) s
+/Courier-Oblique 10 10 SUF
+5 247 M
+(!alan to do, pick through this.) s
+/F-gs-font 10 10 SF
+/Courier-Oblique 10 10 SUF
+5 236 M
+(!don add writes for left and right edges:) s
+/F-gs-font 10 10 SF
+/Courier-Oblique 10 10 SUF
+5 225 M
+(!  print *, "left edge, right edge = ", left_edge, right_edge) s
+/F-gs-font 10 10 SF
+5 203 M
+(  ) s
+/Courier-Oblique 10 10 SUF
+17 203 M
+(! if below bounds we redefine our averaging region to cover) s
+/F-gs-font 10 10 SF
+5 192 M
+(  ) s
+/Courier-Oblique 10 10 SUF
+17 192 M
+(! the last point on  that end) s
+/F-gs-font 10 10 SF
+5 181 M
+(  ) s
+/Courier-Bold 10 10 SUF
+17 181 M
+(if) s
+/F-gs-font 10 10 SF
+29 181 M
+( \() s
+/Courier-Bold 10 10 SUF
+41 181 M
+(floor) s
+/F-gs-font 10 10 SF
+71 181 M
+(\(right_edge\) <= 0\) ) s
+/Courier-Bold 10 10 SUF
+185 181 M
+(then) s
+/F-gs-font 10 10 SF
+5 170 M
+(     left_edge = 0.0) s
+5 159 M
+(     right_edge = 1.0) s
+5 148 M
+(  ) s
+/Courier-Bold 10 10 SUF
+17 148 M
+(endif) s
+/F-gs-font 10 10 SF
+5 137 M
+(  ) s
+/Courier-Oblique 10 10 SUF
+17 137 M
+(! above use fluff) s
+/F-gs-font 10 10 SF
+5 126 M
+(  ) s
+/Courier-Bold 10 10 SUF
+17 126 M
+(if) s
+/F-gs-font 10 10 SF
+29 126 M
+( \() s
+/Courier-Bold 10 10 SUF
+41 126 M
+(floor) s
+/F-gs-font 10 10 SF
+71 126 M
+(\(left_edge\) >= sim_wd_npnts\) ) s
+/Courier-Bold 10 10 SUF
+245 126 M
+(then) s
+/F-gs-font 10 10 SF
+5 115 M
+(     dens = sim_densFluff) s
+5 104 M
+(     temp = sim_tempFluff) s
+5 93 M
+(     xc12 = sim_xc12Fluff) s
+5 82 M
+(     xne20= sim_xne20Fluff) s
+5 71 M
+(     xne22= sim_xne22Fluff) s
+/Courier-Oblique 10 10 SUF
+5 60 M
+(!  print *, 'fluff', dens, temp, xc12, xne22) s
+/F-gs-font 10 10 SF
+5 49 M
+(     ) s
+/Courier-Bold 10 10 SUF
+35 49 M
+(return) s
+/F-gs-font 10 10 SF
+5 38 M
+(  ) s
+/Courier-Bold 10 10 SUF
+17 38 M
+(endif) s
+/F-gs-font 10 10 SF
+5 16 M
+(  vol = 0.0) s
+5 5 M
+(  mass = 0.0) s
+_R
+S
+%%Page: (2) 2
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 2 def
+/fname (sim_interpolate1dWd.F90) def
+/fdir (.) def
+/ftail (sim_interpolate1dWd.F90) def
+% User defined strings:
+/fmodstr (Thu Sep 25 16:06:17 2014) def
+/pagenumstr (2) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+5 687 M
+(  masstemp = 0.0) s
+5 676 M
+(  massc12  = 0.0) s
+/Courier-Oblique 10 10 SUF
+5 665 M
+(!don: add ne20) s
+/F-gs-font 10 10 SF
+5 654 M
+(  massne20 = 0.0) s
+5 643 M
+(  massne22 = 0.0) s
+5 632 M
+(  ) s
+/Courier-Bold 10 10 SUF
+17 632 M
+(if) s
+/F-gs-font 10 10 SF
+29 632 M
+( \( right_edge > ) s
+/Courier-Bold 10 10 SUF
+125 632 M
+(real) s
+/F-gs-font 10 10 SF
+149 632 M
+(\(sim_wd_npnts\) \) ) s
+/Courier-Bold 10 10 SUF
+251 632 M
+(then) s
+/F-gs-font 10 10 SF
+5 621 M
+(     shellvol = right_edge**3 - sim_wd_npnts**3) s
+5 610 M
+(     ) s
+5 599 M
+(     vol = vol + shellvol) s
+5 588 M
+(     mass = mass + sim_densFluff*shellvol) s
+5 577 M
+(     masstemp = masstemp + sim_densFluff*sim_tempFluff*shellvol) s
+5 566 M
+(     massc12  = massc12  + sim_densFluff*sim_xc12Fluff*shellvol) s
+/Courier-Oblique 10 10 SUF
+5 555 M
+(!don: add ne20) s
+/F-gs-font 10 10 SF
+5 544 M
+(     massne20  = massne20  + sim_densFluff*sim_xne20Fluff*shellvol) s
+5 533 M
+(     massne22 = massne22 + sim_densFluff*sim_xne22Fluff*shellvol) s
+5 522 M
+(  ) s
+/Courier-Bold 10 10 SUF
+17 522 M
+(endif) s
+/F-gs-font 10 10 SF
+5 500 M
+(  ) s
+/Courier-Oblique 10 10 SUF
+17 500 M
+(! sum through cells in 1-d grid that this region overlaps) s
+/F-gs-font 10 10 SF
+5 489 M
+(  imin = ) s
+/Courier-Bold 10 10 SUF
+59 489 M
+(max) s
+/F-gs-font 10 10 SF
+77 489 M
+(\(0, ) s
+/Courier-Bold 10 10 SUF
+101 489 M
+(floor) s
+/F-gs-font 10 10 SF
+131 489 M
+(\(left_edge\)\)) s
+5 478 M
+(  imax = ) s
+/Courier-Bold 10 10 SUF
+59 478 M
+(min) s
+/F-gs-font 10 10 SF
+77 478 M
+(\(sim_wd_npnts-1, ) s
+/Courier-Bold 10 10 SUF
+179 478 M
+(floor) s
+/F-gs-font 10 10 SF
+209 478 M
+(\(right_edge\)\)) s
+/Courier-Oblique 10 10 SUF
+5 467 M
+(!  print *, left_edge, right_edge) s
+/F-gs-font 10 10 SF
+/Courier-Oblique 10 10 SUF
+5 456 M
+(!  print *, imin, imax) s
+/F-gs-font 10 10 SF
+5 445 M
+(  ) s
+/Courier-Bold 10 10 SUF
+17 445 M
+(do) s
+/F-gs-font 10 10 SF
+29 445 M
+( i = imin, imax) s
+/Courier-Oblique 10 10 SUF
+5 434 M
+(!don: add print statement here:) s
+/F-gs-font 10 10 SF
+/Courier-Oblique 10 10 SUF
+5 423 M
+(!     print *,"in loop i do: i=",i) s
+/F-gs-font 10 10 SF
+5 401 M
+(     ) s
+/Courier-Oblique 10 10 SUF
+35 401 M
+(! average over just the portion of this cell which overlaps the averaging region) s
+/F-gs-font 10 10 SF
+5 390 M
+(     shell_left = ) s
+/Courier-Bold 10 10 SUF
+113 390 M
+(max) s
+/F-gs-font 10 10 SF
+131 390 M
+(\() s
+/Courier-Bold 10 10 SUF
+137 390 M
+(real) s
+/F-gs-font 10 10 SF
+161 390 M
+(\(i\), left_edge\)) s
+5 379 M
+(     shell_right = ) s
+/Courier-Bold 10 10 SUF
+119 379 M
+(min) s
+/F-gs-font 10 10 SF
+137 379 M
+(\() s
+/Courier-Bold 10 10 SUF
+143 379 M
+(real) s
+/F-gs-font 10 10 SF
+167 379 M
+(\(i+1\), right_edge\)) s
+/Courier-Oblique 10 10 SUF
+5 368 M
+(!     print *, shell_left, shell_right) s
+/F-gs-font 10 10 SF
+5 357 M
+(     ) s
+/Courier-Oblique 10 10 SUF
+35 357 M
+(! assume 1d profile has spherecial geometry to do mass averages) s
+/F-gs-font 10 10 SF
+/Courier-Oblique 10 10 SUF
+5 346 M
+(!     shellvol = \(shell_right-shell_left\)*0.25*\(shell_right+shell_left\)**2 ! * 4*pi) s
+/F-gs-font 10 10 SF
+5 335 M
+(     shellvol = shell_right**3-shell_left**3) s
+5 313 M
+(     vol  = vol  + shellvol) s
+5 302 M
+(     mass = mass + sim_wd_dens_tab\(i+1\)*shellvol) s
+5 291 M
+(     masstemp = masstemp + sim_wd_dens_tab\(i+1\)*sim_wd_temp_tab\(i+1\)*shellvol) s
+5 280 M
+(     massc12  = massc12  + sim_wd_dens_tab\(i+1\)*sim_wd_c12_tab\(i+1\)*shellvol) s
+/Courier-Oblique 10 10 SUF
+5 269 M
+(!don: add ne20) s
+/F-gs-font 10 10 SF
+5 258 M
+(     massne20  = massne20  + sim_wd_dens_tab\(i+1\)*sim_wd_ne20_tab\(i+1\)*shellvol) s
+5 247 M
+(     massne22 = massne22 + sim_wd_dens_tab\(i+1\)*sim_wd_ne22_tab\(i+1\)*shellvol) s
+5 236 M
+(  ) s
+/Courier-Bold 10 10 SUF
+17 236 M
+(enddo) s
+/F-gs-font 10 10 SF
+5 225 M
+(  dens = mass/vol) s
+5 214 M
+(  temp = masstemp/mass) s
+5 203 M
+(  xc12 = massc12/mass) s
+/Courier-Oblique 10 10 SUF
+5 192 M
+(!don: add ne20) s
+/F-gs-font 10 10 SF
+5 181 M
+(  xne20 = massne20/mass) s
+5 170 M
+(  xne22 = massne22/mass) s
+/Courier-Oblique 10 10 SUF
+5 148 M
+(!  print *, dens, temp, xc12, xne20, xne22) s
+/F-gs-font 10 10 SF
+/Courier-Bold 10 10 SUF
+5 137 M
+(end) s
+/F-gs-font 10 10 SF
+23 137 M
+( ) s
+/Courier-Bold 10 10 SUF
+29 137 M
+(subroutine) s
+/F-gs-font 10 10 SF
+_R
+S
+%%Trailer
+%%Pages: 2
+%%DocumentNeededResources: font Courier-Oblique Courier-Bold Courier 
+%%EOF
