@@ -63,7 +63,9 @@ subroutine Burn ( dt )
   real, allocatable :: shock(:,:,:)
   !JM real, dimension(GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC) :: react_proximity
   real, allocatable :: react_proximity(:,:,:)
-  real, pointer, dimension(:,:,:,:)                    :: solnData
+
+  !real, pointer, dimension(:,:,:,:)                    :: solnData
+  real,dimension(:,:,:,:),intent(inout) :: solnData
 
   real :: flamewidth
   integer :: ii, jj, kk, maxdi
@@ -761,7 +763,7 @@ allocate( react_proximity( tileDesc%limits(LOW,IAXIS):tileDesc%limits(HIGH,IAXIS
      !     Update interior EOS quantities for this block and release stuff
      ! --------------------------------
      !JM call Eos_wrapped(MODE_DENS_EI,blkLimits,blockID)
-     call Eos_multiDim(MODE_DENS_EI,tileDesc%limits,solnData)
+     call Eos_multiDim(MODE_DENS_EI,tileDesc%limits,tileDesc%grownLimits(LOW,:),solnData)
 
      !JM call Grid_releaseBlkPtr(blockID,solnData)
       deallocate(xCoord)

@@ -98,7 +98,7 @@
 !!REORDER(4): solnData
 
 
-subroutine Eos_multiDim(mode,range,solnData)
+subroutine Eos_multiDim(mode,range,lo,solnData)
 
    use Eos_data, ONLY: eos_eintSwitch, eos_smalle, eos_meshMe
    use Driver_interface, ONLY : Driver_abort
@@ -115,7 +115,8 @@ subroutine Eos_multiDim(mode,range,solnData)
    integer, intent(in) :: mode
    integer, dimension(2,MDIM), intent(in) :: range
  
-   real, pointer:: solnData(:,:,:,:)
+   integer, intent(in) :: lo(MDIM)
+   real,dimension(1:,lo(1):,lo(2):,lo(3):),intent(inout) :: solnData
  
    real, allocatable, dimension(:):: energyKinetic,energyInternal
    real, allocatable :: eosData(:,:)

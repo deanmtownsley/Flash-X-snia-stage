@@ -44,7 +44,8 @@ subroutine fl_effects( solnData, flamdot, dt, tileDesc)
 #include "FortranLangFeatures.fh"
 #include "Eos.h"
     
-  real, dimension(:,:,:,:),POINTER_INTENT_IN  :: solnData
+  !real, dimension(:,:,:,:),POINTER_INTENT_IN  :: solnData
+  real,dimension(:,:,:,:),intent(inout) :: solnData
   real,dimension(:,:,:), intent(in), allocatable     :: flamdot
   real,intent(in)                       :: dt
   type(Grid_tile_t), intent(in)         :: tileDesc
@@ -76,7 +77,7 @@ subroutine fl_effects( solnData, flamdot, dt, tileDesc)
      
   ! We changed internal energy so need to update other quantities
   call Timers_start("eos")
-  call Eos_multiDim(MODE_DENS_EI,tileLimits,solnData)
+  call Eos_multiDim(MODE_DENS_EI,tileLimits,tileDesc%grownLimits(LOW,:),solnData)
   !call Eos_wrapped(MODE_DENS_EI,blkLimits,blockID)
   call Timers_stop("eos")
      
