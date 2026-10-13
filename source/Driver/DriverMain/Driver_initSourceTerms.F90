@@ -48,10 +48,7 @@ subroutine Driver_initSourceTerms(restart)
     call Flame_init()
     call RadTrans_init()
     call Deleptonize_init()
-<<<<<<< HEAD
     call Turb_init()
-=======
     call Stir_init(restart)
->>>>>>> c831a0babe55cce8f7f9a18881e19abc663cef93
-
+    
 end subroutine Driver_initSourceTerms
