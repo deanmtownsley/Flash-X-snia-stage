@@ -59,8 +59,6 @@ subroutine Burn ( dt )
   integer, parameter :: shock_mode = 1 !JM
   real, parameter :: shock_thresh = 0.33 !JM
 
-  !JM real, dimension(GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC) :: shock
-  real, allocatable :: shock(:,:,:)
   !JM real, dimension(GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC) :: react_proximity
   real, allocatable :: react_proximity(:,:,:)
 
@@ -543,11 +541,6 @@ subroutine Burn ( dt )
 
       grownTileLimits = tileDesc%grownLimits
 
-      ! shock detect if burning is turned off in shocks
-      allocate( shock( grownTileLimits(LOW,IAXIS):grownTileLimits(HIGH,IAXIS), &
-      grownTileLimits(LOW,JAXIS):grownTileLimits(HIGH,JAXIS), &
-      grownTileLimits(LOW,KAXIS):grownTileLimits(HIGH,KAXIS) ) )
-
       call tileDesc%deltas(celldeltas)
       dx = celldeltas(IAXIS) ! also assume square grid
       !JM dx = xCoord(2)-xCoord(1) ! also assume square grid
@@ -572,32 +565,17 @@ subroutine Burn ( dt )
                           grownTileLimits(HIGH, :), &
                           zCoord)
 
-        call Hydro_shockStrength(solnData, shock, tileDesc%limits(LOW,:), tileDesc%limits(HIGH,:), &
-                                                  grownTileLimits(LOW,:), grownTileLimits(HIGH,:), &
-                                                  xCoord,yCoord,zCoord, shock_thresh, shock_mode)
+        solnData(SHOK_VAR,:,:,:)=0.0
+
+        call Hydro_shockStrength(solnData, tileDesc%limits(LOW,:), tileDesc%limits(HIGH,:), &
+                                           grownTileLimits(LOW,:), grownTileLimits(HIGH,:), &
+                                           xCoord,yCoord,zCoord, shock_thresh, shock_mode)
 
         deallocate(xCoord)
         deallocate(yCoord)
         deallocate(zCoord)
 
-      else
-         shock(:,:,:) = 0
       endif
-
-#ifdef SHK_VAR
-     !JM solnData(SHK_VAR,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),   &
-                      !JM blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),   &
-                      !JM blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)) = &
-                !JM shock(blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),   &
-                      !JM blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),   &
-                      !JM blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS))
-      solnData(SHK_VAR,tileDesc%limits(LOW,IAXIS):tileDesc%limits(HIGH,IAXIS),   &
-                     tileDesc%limits(LOW,JAXIS):tileDesc%limits(HIGH,JAXIS),   &
-                     tileDesc%limits(LOW,KAXIS):tileDesc%limits(HIGH,KAXIS)) = &
-                     shock(tileDesc%limits(LOW,IAXIS):tileDesc%limits(HIGH,IAXIS),   &
-                     tileDesc%limits(LOW,JAXIS):tileDesc%limits(HIGH,JAXIS),   &
-                     tileDesc%limits(LOW,KAXIS):tileDesc%limits(HIGH,KAXIS))
-#endif
 
 allocate( react_proximity( tileDesc%limits(LOW,IAXIS):tileDesc%limits(HIGH,IAXIS), &
                            tileDesc%limits(LOW,JAXIS):tileDesc%limits(HIGH,JAXIS), &
@@ -732,7 +710,8 @@ allocate( react_proximity( tileDesc%limits(LOW,IAXIS):tileDesc%limits(HIGH,IAXIS
                                 solnData(DYQN_MSCALAR,i,j,k), &
                                 solnData(DQQN_MSCALAR,i,j,k), &
                                 qdot, edotnu, dt, &
-                                react_proximity(i,j,k), shock(i,j,k), &
+                                react_proximity(i,j,k), &
+                                solnData(SHOK_VAR,i,j,k), &
                                 ignite_detonation, &
                                 phi_fa_det )
               ! save energy deposition rate
@@ -768,7 +747,6 @@ allocate( react_proximity( tileDesc%limits(LOW,IAXIS):tileDesc%limits(HIGH,IAXIS
       deallocate(xCoord)
       deallocate(yCoord)
       deallocate(zCoord)
-      deallocate(shock)
       deallocate(react_proximity)
 
       call tileDesc%releaseDataPtr(solnData, CENTER)
