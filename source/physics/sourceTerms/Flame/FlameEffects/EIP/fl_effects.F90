@@ -44,8 +44,7 @@ subroutine fl_effects( solnData, flamdot, dt, tileDesc)
 #include "FortranLangFeatures.fh"
 #include "Eos.h"
     
-  !real, dimension(:,:,:,:),POINTER_INTENT_IN  :: solnData
-  real,dimension(:,:,:,:),intent(inout) :: solnData
+  real, dimension(:,:,:,:),POINTER_INTENT_IN  :: solnData
   real,dimension(:,:,:), intent(in), allocatable     :: flamdot
   real,intent(in)                       :: dt
   type(Grid_tile_t), intent(in)         :: tileDesc

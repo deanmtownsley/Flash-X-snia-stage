@@ -64,8 +64,7 @@ subroutine Burn ( dt )
   !JM real, dimension(GRID_IHI_GC,GRID_JHI_GC,GRID_KHI_GC) :: react_proximity
   real, allocatable :: react_proximity(:,:,:)
 
-  !real, pointer, dimension(:,:,:,:)                    :: solnData
-  real,dimension(:,:,:,:),intent(inout) :: solnData
+  real, pointer, dimension(:,:,:,:)                    :: solnData
 
   real :: flamewidth
   integer :: ii, jj, kk, maxdi
