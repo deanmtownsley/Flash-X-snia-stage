@@ -254,15 +254,15 @@ void FR_GetNumParticles_HDF5(hid_t *file_identifier,
   int numElements;
 
   /* temporarily turn off error handling, to probe for the dataset's existence */
-  H5Eget_auto(&old_func, &old_client_data, H5P_DEFAULT);
-  H5Eset_auto(NULL, NULL, H5P_DEFAULT);
+  H5Eget_auto((hid_t)&old_func, ( herr_t (**)(hid_t,  void *) )&old_client_data, H5P_DEFAULT);
+  H5Eset_auto((hid_t)NULL, NULL, H5P_DEFAULT);
 
   /* get the dataset ID for the tracer partlcies record, and the dataspace in
      this record */
   dataset = H5Dopen(*file_identifier, "tracer particles", H5P_DEFAULT);
 
   /* restore the error handling */
-  H5Eset_auto(old_func, old_client_data, H5P_DEFAULT);
+  H5Eset_auto((hid_t)old_func, old_client_data, H5P_DEFAULT);
 
   if (dataset >= 0) {
     dataspace = H5Dget_space(dataset);
@@ -339,7 +339,7 @@ FR_File *FR_open_HDF5(char *filename, options_t opts){
 	int status;
 
 	/*Turn off automatic error printing*/
-	status=H5Eset_auto(NULL, NULL, H5P_DEFAULT);
+	status=H5Eset_auto((hid_t)NULL, NULL, H5P_DEFAULT);
 
   	/* Open file */
   	out = (FR_File *) malloc(sizeof(FR_File));
@@ -499,8 +499,8 @@ FR_File *FR_open_HDF5_Pmesh(hid_t handle, FR_File* out, options_t opts){
 
   if(opts.gridVarSelfDiscovery){
     
-    FR_get_data_names_HDF5(handle, &(out->varnames), 
-                           &(out->vartypes), &(out->nvar), out->ncells_vec);
+    FR_get_data_names_HDF5(handle, ( char (*)[5] )&(out->varnames), 
+                           ( int * )&(out->vartypes), &(out->nvar), out->ncells_vec);
   }
   else{ /* this is the way SFOCU originally got grid quantities. */
     out->nvar = 0;

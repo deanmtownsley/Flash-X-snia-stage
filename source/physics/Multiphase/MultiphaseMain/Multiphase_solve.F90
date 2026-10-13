@@ -20,44 +20,27 @@
 #include "Multiphase.h"
 #include "Simulation.h"
 
-subroutine Multiphase_solve(tileDesc, dt)
+subroutine Multiphase_solve(solnData, lo, hi, dt)
 
    use Multiphase_data
    use Timers_interface, ONLY: Timers_start, Timers_stop
-   use Driver_interface, ONLY: Driver_getNStep
-   use Grid_tile, ONLY: Grid_tile_t
    use Stencils_interface, ONLY: Stencils_integrateEuler, Stencils_integrateAB2
 
    implicit none
-   include "Flashx_mpi.h"
    !----------Arugments List---------------
+   real, dimension(:,:,:,:), pointer :: solnData
    real, INTENT(IN) :: dt
-   type(Grid_tile_t), INTENT(IN) :: tileDesc
-
+   integer, dimension(MDIM), intent(IN) :: lo, hi
 !-----------------------------------------------------------------------------------------
-   integer, dimension(2, MDIM) :: stnLimits = 1
-   real, pointer, dimension(:, :, :, :) :: solnData
-   real del(MDIM)
-!-----------------------------------------------------------------------------------------
-   nullify (solnData)
 
    call Timers_start("Multiphase_solve")
-
-   call tileDesc%getDataPtr(solnData, CENTER)
-
-   stnLimits(LOW, 1:NDIM) = tileDesc%limits(LOW, 1:NDIM) - tileDesc%blkLimitsGC(LOW, 1:NDIM) + 1
-   stnLimits(HIGH, 1:NDIM) = tileDesc%limits(HIGH, 1:NDIM) - tileDesc%blkLimitsGC(LOW, 1:NDIM) + 1
 
    call Stencils_integrateEuler(solnData(DFUN_VAR, :, :, :), &
                                 solnData(HDN0_VAR, :, :, :), &
                                 dt, &
-                                stnLimits(LOW, IAXIS), stnLimits(HIGH, IAXIS), &
-                                stnLimits(LOW, JAXIS), stnLimits(HIGH, JAXIS), &
-                                stnLimits(LOW, KAXIS), stnLimits(HIGH, KAXIS), &
+                                lo , hi, &
                                 iSource=solnData(DFRC_VAR, :, :, :))
 
-   ! Release pointers:
-   call tileDesc%releaseDataPtr(solnData, CENTER)
    call Timers_stop("Multiphase_solve")
 
    return

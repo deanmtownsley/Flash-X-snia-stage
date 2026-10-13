@@ -363,3 +363,7 @@ Harder to introduce now because we have multiple particle types)
         <runtime backend> either None or CUDA
         <offloading>      either None or OpenACC
 
+* Name  : HeaterFluxBC
+  Type  : Boolean
+
+  Flag to activate flux boundary condition treatment for heater

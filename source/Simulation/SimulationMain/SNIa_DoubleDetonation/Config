@@ -6,17 +6,26 @@ REQUIRES physics/Eos/EosMain/Helmholtz
 REQUIRES physics/sourceTerms/Burn/BurnMain/nuclearBurn
 REQUIRES Simulation/SimulationComposition
 REQUIRES Multispecies
+
 REQUESTS IO
 REQUESTS IO/IOMain/hdf5
 
 ## Do not refine fluff
 LINKIF Grid_markRefineDerefine.F90.pm4 Grid/GridMain/AMR/Paramesh4
 
-# Use more Timers-friendly variant if Hydro, if appropriate
-LINKIF Hydro.F90.levelFlux.timersFix physics/Hydro/HydroMain/unsplit/levelFlux
-USESETUPVARS NoLevelwideFluxes
-IF NoLevelwideFluxes
-   LINKIF Hydro.F90.timersFix physics/Hydro/HydroMain/unsplit
+## particles
+USESETUPVARS withParticles
+IF withParticles
+    REQUIRES Particles/ParticlesMain
+    REQUESTS IO/IOParticles
+    REQUESTS Particles/ParticlesInitialization/ParticlesOwned/WithDensity
+    REQUESTS Particles/ParticlesInitialization/ParticlesOwned/WithDensity/CellMassBins
+    PARTICLETYPE passive INITMETHOD With_Density MAPMETHOD quadratic ADVMETHOD rungekutta
+
+    PARTICLEPROP pdens REAL
+    PARTICLEPROP ptemp REAL
+    PARTICLEMAP TO pdens FROM VARIABLE dens
+    PARTICLEMAP TO ptemp FROM VARIABLE temp
 ENDIF
 
 #
@@ -56,6 +65,7 @@ D r_match_inner         Inner radius of spherical matchhead region
 D r_match_outer         Outer radius of spherical matchhead region
 D t_ignite_inner        Temperature of matchhead at r_match_inner
 D t_ignite_outer        Temperature of matchhead at r_match_outer
+D plume_match           Flag to clip match at t_ignite_outer outwards from center of the domain
 D xc12_match            c12 mass fraction of the matchhead region (remainder is filled with he4)
 D xo16_match            o16 mass fraction of the matchhead region (remainder is filled with he4)
 D xni56_match           ni56 mass fraction of the matchhead region (remainder is filled with he4)
@@ -67,20 +77,25 @@ PARAMETER     r_match_inner      REAL     0.e0  [0.0 to ]
 PARAMETER     r_match_outer      REAL     0.e0  [0.0 to ]
 PARAMETER     t_ignite_inner     REAL     4.e9  [0.0 to ]
 PARAMETER     t_ignite_outer     REAL     4.e9  [0.0 to ]
+PARAMETER     plume_match        BOOLEAN  FALSE
 PARAMETER     xc12_match         REAL     0.e0  [0.0 to 1.0]
 PARAMETER     xo16_match         REAL     0.e0  [0.0 to 1.0]
 PARAMETER     xni56_match        REAL     0.e0  [0.0 to 1.0]
 
-D useShell              flag to add a shell/belt to the profile
+D useShell              flag to add a shell/belt/wedge to the profile
 D radShellMin           Inner radius of shell
 D radShellMax           Outer radius of shell
-D thtShellMin           Min angle of belt (0.0 for shell)
-D thtShellMax           Max angle of belt (180.0 for shell)
+D thtShellMin           Min theta angle of belt (0.0 for shell)
+D thtShellMax           Max theta angle of belt (180.0 for shell)
+D phiShellMin           Min phi angle of belt (0.0 for shell)
+D phiShellMax           Max phi angle of belt (360.0 for shell)
 PARAMETER     useShell           BOOLEAN  FALSE
 PARAMETER     radShellMin        REAL     0.e0  [0.0 to ]
 PARAMETER     radShellMax        REAL     0.e0  [0.0 to ]
 PARAMETER     thtShellMin        REAL     0.e0  [0.0 to 180.0]
 PARAMETER     thtShellMax        REAL     0.e0  [0.0 to 180.0]
+PARAMETER     phiShellMin        REAL     0.e0  [0.0 to 360.0]
+PARAMETER     phiShellMax        REAL     0.e0  [0.0 to 360.0]
 
 D densShellMult         Density multiplier if shell is within profile
 D tempShellMult         Temperture multiplier if shell is within profile

@@ -492,7 +492,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                      else
                         k = 2*guard+1
                         do i = 1, guard
-                           regionData(i, 1:je, 1:ke, ivar) = 2.-regionData(k-i, 1:je, 1:ke, ivar)
+                           regionData(i, 1:je, 1:ke, ivar) = inflowVelScale*2.-regionData(k-i, 1:je, 1:ke, ivar)
                         end do
                      end if
 #ifdef SIGM_FACE_VAR
@@ -938,7 +938,7 @@ subroutine Grid_bcApplyToRegion(bcType, gridDataStruct, level, &
                      else
                         k = 2*guard+1
                         do i = 1, guard
-                           regionData(k-i, 1:je, 1:ke, ivar) = 2.-regionData(i, 1:je, 1:ke, ivar)
+                           regionData(k-i, 1:je, 1:ke, ivar) = inflowVelScale*2.-regionData(i, 1:je, 1:ke, ivar)
                         end do
                      end if
 #ifdef SIGM_FACE_VAR

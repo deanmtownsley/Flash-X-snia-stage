@@ -44,4 +44,6 @@ module Heater_data
    integer, save :: htr_annQueries
 #endif
 
+   real, save :: htr_xMin, htr_xMax, htr_yMin, htr_yMax, htr_zMin, htr_zMax
+
 end module Heater_data

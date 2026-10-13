@@ -4,7 +4,8 @@ IncompNS += ins_interface.o \
             ins_divergence.o \
             ins_diffusion_vardens.o \
             ins_corrector.o \
-            ins_setupPoissonRhs.o \
+            ins_setupPoissonRhs_constdens.o \
+            ins_setupPoissonRhs_vardens.o \
             ins_computeDtLocal.o \
             ins_extrasInterface.o \
             ins_velToCenter.o \

@@ -41,3 +41,11 @@ PARAMETER eos_wl_muShift   BOOLEAN      FALSE
 # be used in the non-hybrid Eos.F90 to perform a compile time check
 # that only this implementation has been loaded if the Hybrid EOS has not
 PPDEFINE EOS_WEAKLIB_INCLUDED
+
+VARIANTS Null
+
+# USESETUPVARS Milhoja
+# IF Milhoja
+#   VARIANTS GPU
+# ENDIF
+

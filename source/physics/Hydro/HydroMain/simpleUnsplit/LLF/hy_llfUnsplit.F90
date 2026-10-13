@@ -507,7 +507,7 @@ Subroutine hy_llfUnsplit ( tileLimits, Uin, plo, Uout, del, dt )
         end if
 
         !! Call to Eos - note this is a variant where we pass a buffer not a blockID.
-        call Eos_multiDim(hy_eosModeAfter, tileLimits, Uout)
+        call Eos_multiDim(hy_eosModeAfter, tileLimits, tileDesc%blkLimitsGC(LOW,:), Uout)
 
         call Grid_releaseTileVarPtrs(tileID,gridDataStruct=CENTER, &
              inPtr=Uin, &

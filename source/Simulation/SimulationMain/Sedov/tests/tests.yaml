@@ -167,6 +167,12 @@ Composite/Sedov/AMR/2dCyl/Paramesh/unsplit:
   restartParfiles: test_amr_cyl_2d_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
+Composite/Sedov25/AMR/2dCyl/pm4Lwf/spark/fcAllLev:
+  setupOptions: -auto -2d -nxb=16 -nyb=16 +cylindrical +pm4dev +spark +sparklwf DoAnalytical=True
+  parfiles:        test25_amr_cyl_2d_pm_-_fc_spark.par
+  restartParfiles: test25_amr_cyl_2d_pm_-_fc_spark_restart.par
+  transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
+
 Composite/Sedov23/AMR/2dCyl/amrexLwf/spark/fcAllLev:
   setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +amrex +spark +sparklwf DoAnalytical=True
   parfiles:        test23_amr_cyl_2d_amrex_-_fc1_spark.par
@@ -208,6 +214,7 @@ Composite/Sedov23/AMR/2dCyl/amrexNolwf/sparkNt/fcNone:
   restartParfiles: test23_amr_cyl_2d_amrex_nolwf_nofc_spark_restart.par
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
 
+# NOT PRESENT in regular Production_GCC.suite
 Composite/Sedov23/AMR/2dCyl/pm4Lwf/spark/fcAllLev:
   setupOptions: -auto -2d -nxb=12 -nyb=12 +cylindrical +pm4dev +spark +sparklwf DoAnalytical=True
   parfiles:        test23_amr_cyl_2d_pm_-_fc_spark.par
@@ -289,7 +296,7 @@ Composite/Sedov/AMR/2dSph/AMReX/unsplitPPM:
 
 # 2DSph AMR - next one from Sudarshan
 Composite/Sedov/AMR/2dSph/Paramesh/spark:
-  setupOptions: -auto -2d +spherical -nxb=12 -nyb=12 +spark +pm4dev DoAnalytical=True
+  setupOptions: -auto -2d +spherical -nxb=16 -nyb=16 +spark +pm4dev DoAnalytical=True
   parfiles: test_amr_sph_2d_spark.par
   restartParfiles: test_amr_sph_2d_spark_restart.par 
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat
@@ -371,7 +378,7 @@ Composite/SedovNP/AMR/3dSph/Paramesh/spark:
 
 # 3DSph AMR - next one from Sudarshan
 Composite/Sedov/AMR/3dSph/Paramesh/spark:
-  setupOptions: -auto -3d +spherical -nxb=12 -nyb=12 -nzb=12 +spark +pm4dev DoAnalytical=True
+  setupOptions: -auto -3d +spherical -nxb=16 -nyb=16 -nzb=16 +spark +pm4dev DoAnalytical=True
   parfiles: test_amr_sph_3d_spark.par
   restartParfiles: test_amr_sph_3d_spark_restart.par 
   transfers: source/Simulation/SimulationMain/Sedov/sedovSolutionModLong.dat

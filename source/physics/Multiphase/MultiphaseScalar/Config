@@ -1,0 +1,13 @@
+#
+PPDEFINE MULTIPHASE_SCALAR_TRANSPORT
+
+REQUIRES physics/Multiphase/MultiphaseMain
+
+D sflc_variable Scalar transport variable for fluctuations
+VARIABLE sflc TYPE:GENERIC
+
+D srh0_variable RHS variable for scalar transport
+VARIABLE srh0 TYPE:GENERIC
+
+D sfrc_variable Forcing variable for scalar transport
+VARIABLE sfrc TYPE:GENERIC

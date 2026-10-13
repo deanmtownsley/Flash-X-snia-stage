@@ -278,6 +278,8 @@ subroutine Grid_bcApplyToRegionSpecialized(bcType, gridDataStruct, level, &
                do i = 1, guard
                   regionData(k-i, 1:je, 1:ke, ivar) = regionData(i, 1:je, 1:ke, ivar)
                end do
+               call Heater_applyBCToRegion(level, ivar, gridDataStruct, regionData, coordinates, regionSize, &
+                                           guard, face, axis, secondDir, thirdDir)
 
             else if (axis == KAXIS) then ! Level 3b
                k = 2*guard+1

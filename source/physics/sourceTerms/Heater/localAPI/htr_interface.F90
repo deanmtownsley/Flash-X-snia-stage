@@ -37,31 +37,4 @@ Module htr_interface
       end subroutine htr_read
    end interface
 
-   interface
-      subroutine htr_lsReInitBlk(phi, xcell, ycell, zcell, boundBox, stime, &
-                                 ix1, ix2, jy1, jy2, kz1, kz2, lblock)
-         real, dimension(:, :, :), intent(inout) :: phi
-         real, dimension(:), intent(in)        :: xcell, ycell, zcell
-         real, dimension(:, :), intent(in)      :: boundBox
-         real, intent(in)                      :: stime
-         integer, intent(in)                   :: ix1, ix2, jy1, jy2, kz1, kz2, lblock
-      end subroutine htr_lsReInitBlk
-   end interface
-
-   interface htr_checkSitesBlk
-      subroutine htr_checkSitesBlk2d(phi, xcell, ycell, boundBox, ix1, ix2, jy1, jy2, lblock)
-         real, dimension(:, :, :), intent(in)  :: phi
-         real, dimension(:), intent(in)      :: xcell, ycell
-         real, dimension(:, :), intent(in)    :: boundBox
-         integer, intent(in)                 :: ix1, ix2, jy1, jy2, lblock
-      end subroutine htr_checkSitesBlk2d
-
-      subroutine htr_checkSitesBlk3d(phi, xcell, ycell, zcell, boundBox, ix1, ix2, jy1, jy2, kz1, kz2, lblock)
-         real, dimension(:, :, :), intent(in)  :: phi
-         real, dimension(:), intent(in)      :: xcell, ycell, zcell
-         real, dimension(:, :), intent(in)    :: boundBox
-         integer, intent(in)                :: ix1, ix2, jy1, jy2, kz1, kz2, lblock
-      end subroutine htr_checkSitesBlk3d
-   end interface htr_checkSitesBlk
-
 End module htr_interface

@@ -9,8 +9,10 @@
 !!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
-subroutine Multiphase_setPressureJumps(tileDesc)
-   use Grid_tile, ONLY: Grid_tile_t
+#include "constants.h"
+subroutine Multiphase_setPressureJumps(solnData, facexData, faceyData, facezData, del, lo, hi)
    implicit none
-   type(Grid_tile_t), intent(in) :: tileDesc
+   integer, dimension(MDIM),intent(IN) :: lo, hi
+   real,dimension(MDIM) ::  del
+   real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
 end subroutine Multiphase_setPressureJumps

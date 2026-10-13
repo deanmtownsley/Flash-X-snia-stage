@@ -69,6 +69,7 @@ module gr_amrexMultigridData
   type(amrex_multifab), allocatable, save :: gr_amrexMG_exact_solution(:)
   type(amrex_multifab), allocatable, save :: gr_amrexMG_acoef(:)
   type(amrex_multifab), allocatable, save :: gr_amrexMG_bcoef(:,:)
+  type(amrex_multifab), allocatable, save :: gr_amrexMG_gradient(:,:)
 
   real(amrex_real), save :: gr_amrexMG_ascalar, gr_amrexMG_bscalar
 

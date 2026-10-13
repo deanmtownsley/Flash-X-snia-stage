@@ -24,7 +24,7 @@
 !! DESCRIPTION
 !!
 !!  This function writes the checkpoint data to an hdf5 file to store the 
-!!  paramesh data.  IO is done in serial -- data is copied to processor 0 and then
+!!  grid data.  IO is done in serial -- data is copied to processor 0 and then
 !!  written out to file
 !!  to do the writing is performed.  HDF5 v. 1.4.0 or later is required
 !!
@@ -54,12 +54,12 @@
 !! NOTES
 !!
 !!  The KIND type parameter io_fileID_t is defined in Fortran module io_intfTypesModule.
-!!  It should ensure that fileID is compatible of the hid_t of the HDF5 library version
+!!  It should ensure that fileID is compatible with the hid_t of the HDF5 library version
 !!  used.
 !!
 !!***
 
-!!REORDER(5): unk, facevar[xyz]
+!!REORDER(5): unk, scratch, facevar[xyz]
 
 subroutine io_writeData (fileID)
 
@@ -95,10 +95,9 @@ subroutine io_writeData (fileID)
   use io_typeInterface, ONLY : io_xfer_tree_data
 
   use Grid_tile, ONLY : Grid_tile_t
-  implicit none
 
 
-#include "Flashx_mpi.h"
+#include "Flashx_mpi_implicitNone.fh"
 #include "constants.h"
 #include "Simulation.h"
 #include "io_flash.h"

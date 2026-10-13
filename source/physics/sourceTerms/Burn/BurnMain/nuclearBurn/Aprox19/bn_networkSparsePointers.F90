@@ -47,7 +47,6 @@ subroutine bn_networkSparsePointers(iloc,jloc,nzo,np)
 
   use bn_interface, ONLY: bn_mcord
   
-  use Burn_dataEOS, ONLY: btemp
   use Burn_data
   use bn_dataNetworkSize, ONLY:  neloc, nterms, eloc
 

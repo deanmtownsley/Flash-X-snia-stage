@@ -84,7 +84,7 @@
 
 subroutine Eos_unitTest(fileUnit, perfect)
 
-  use Eos_interface, ONLY : Eos_multiDim, Eos
+  use Eos_interface, ONLY : Eos_multiDim, Eos_vector !, Eos
   use Grid_interface,ONLY : Grid_getTileIterator, &
                             Grid_releaseTileIterator, &
                             Grid_getBlkType
@@ -103,7 +103,9 @@ subroutine Eos_unitTest(fileUnit, perfect)
   use eos_testData, ONLY: test1allB => eos_test1allB, &
                           test2allB => eos_test2allB, &
                           test3allB => eos_test3allB, &
-                          test4allB => eos_test4allB
+                          test4allB => eos_test4allB, &
+                          test5allB => eos_test5allB
+  use ut_testDriverMod
   implicit none
 
 #include "Eos.h"
@@ -123,17 +125,19 @@ subroutine Eos_unitTest(fileUnit, perfect)
 
   real :: presErr, tempErr, eintErr
 
-  logical:: test1,test2,test3,test4 !for a block
+  logical:: test1,test2,test3,test4, test5 !for a block
 
-  integer :: vecLen, blockOffset,  pres, dens, temp, e, n, m
+  integer :: vecLen, blockOffset,  pres, dens, temp, gamc, eint, e, n
   integer :: isize, jsize, ksize, i,j,k, nStartsAtOne
   real, dimension(:), allocatable :: eosData
-  real, dimension(:), allocatable :: massFrac
-  logical, dimension (EOS_VARS+1:EOS_NUM) :: mask
+  real, dimension(:,:), allocatable :: massFrac
+!!$  real, dimension (EOS_VARS+1:EOS_NUM) :: derivs
+  real, allocatable, dimension (:,:) :: derivsVec
   real, allocatable, dimension(:,:,:,:) :: derivedVariables
 
   character(len=7),pointer:: ap
   character(len=7),target :: a
+  character(len=14) :: cpos
   integer,parameter :: maxPrintPE = 20
   integer :: nodeType
   integer :: ib,ie,jb,je,kb,ke
@@ -150,7 +154,6 @@ subroutine Eos_unitTest(fileUnit, perfect)
      ap => a
   end if
 
-! info for checkpoint output
 
   nullify(solnData)
 
@@ -167,9 +170,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
      call Grid_getBlkType(blockId,nodeType)
      call tileDesc%getDataPtr(solnData, CENTER)
      blkLimits = tileDesc%limits
-     
-     
-     mask = .true.
+     blkLimitsGC=tileDesc%blkLimitsGC
      
      !! In Simulation_initBlock,
      !! temperature is initialized in CTMP_VAR and pressure is
@@ -200,7 +201,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
      end if
      
      solnData(TEMP_VAR,ib:ie,jb:je,kb:ke)=solnData(CTMP_VAR,ib:ie,jb:je,kb:ke)
-     call Eos_multiDim(eos_testTempMode, blkLimits,solnData, CENTER)
+     call Eos_multiDim(eos_testTempMode, blkLimits,blkLimitsGC(LOW,:),solnData)
      !! Summarize results of MODE_DENS_TEMP (or similar) call
      if (eos_meshMe<maxPrintPE) then
         print*,ap,'The resulting extreme values are '
@@ -229,7 +230,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
      !  Zero output variables
      solnData(TEMP_VAR,ib:ie,jb:je,kb:ke)=1.e-10  ! don't zero TEMP or eos_helm cannot converge in MODE_DENS_EI
      solnData(PRES_VAR,:,:,:)=0 
-     call Eos_multiDim(eos_testEintMode,blkLimits,solnData,CENTER)
+     call Eos_multiDim(eos_testEintMode,blkLimits,blkLimitsGC(LOW,:),solnData)
      
      
      if (eos_meshMe<maxPrintPE) then !! Summarize results of MODE_DENS_EI (or similar) call
@@ -271,7 +272,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
           eos_testPresMode,eos_testPresModeStr
      solnData(EINT_VAR,ib:ie,jb:je,kb:ke)=0
      solnData(TEMP_VAR,ib:ie,jb:je,kb:ke)=1.1e4  ! don't zero TEMP or eos_helm cannot converge in any mode
-     call Eos_multiDim(eos_testPresMode,blkLimits,solnData,CENTER)
+     call Eos_multiDim(eos_testPresMode,blkLimits,blkLimitsGC(LOW,:),solnData)
      
      !! Summarize results of MODE_DENS_PRES (or similar) call;
      !! calculate error from MODE_DENS_PRES (or similar) call.
@@ -307,9 +308,9 @@ subroutine Eos_unitTest(fileUnit, perfect)
      
      !!  Do calculations in reverse order
      ! Density and pressure in, energy and temperature out
-     !solnData(TEMP_VAR,ib:ie,jb:je,kb:ke)=0   ! don't zero TEMP or eos_helm cannot converge
+     solnData(TEMP_VAR,ib:ie,jb:je,kb:ke)=0
      solnData(EINT_VAR,ib:ie,jb:je,kb:ke)=0 
-     call Eos_multiDim(MODE_DENS_PRES, blkLimits,solnData)
+     call Eos_multiDim(MODE_DENS_PRES, blkLimits,blkLimitsGC(LOW,:),solnData)
      if (eos_meshMe<maxPrintPE) then
         print*,ap,'The resulting extreme values from MODE_DENS_PRES are '
         print*,ap,'Resulting Pressure min',minval(solnData(PRES_VAR,ib:ie,jb:je,kb:ke))
@@ -335,8 +336,8 @@ subroutine Eos_unitTest(fileUnit, perfect)
      ! Density and energy in, temperature and pressure out
      !! zero output values to make sure they're being calculated
      solnData(PRES_VAR,ib:ie,jb:je,kb:ke)=0.0
-     !solnData(TEMP_VAR,ib:ie,jb:je,kb:ke)=1.0e-11   ! don't zero TEMP or eos_helm cannot converge
-     call Eos_multiDim(MODE_DENS_EI,blkLimits,solnData,CENTER)
+     solnData(TEMP_VAR,ib:ie,jb:je,kb:ke)=1.0e-11   ! don't zero TEMP or eos_helm cannot converge
+     call Eos_multiDim(MODE_DENS_EI,blkLimits,blkLimitsGC(LOW,:),solnData)
      presErr1 = maxval(solnData(PRES_VAR,ib:ie,jb:je,kb:ke))
      presErr2 = maxval(solnData(OPRS_VAR,ib:ie,jb:je,kb:ke))
      if (eos_meshMe<maxPrintPE) print *,ap,'maxval PRES_VAR OPRS_VAR',presErr1,presErr2
@@ -361,7 +362,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
      
      solnData(EINT_VAR,ib:ie,jb:je,kb:ke)=0
      solnData(PRES_VAR,ib:ie,jb:je,kb:ke)=0 
-     call Eos_multiDim(MODE_DENS_TEMP,blkLimits,solnData,CENTER)
+     call Eos_multiDim(MODE_DENS_TEMP,blkLimits,blkLimitsGC(LOW,:),solnData)
      presErr = maxval(abs((solnData(PRES_VAR,ib:ie,jb:je,kb:ke)-&
           solnData(OPRS_VAR,ib:ie,jb:je,kb:ke))/solnData(PRES_VAR,ib:ie,jb:je,kb:ke)))
      eintErr = maxval(abs((solnData(EINT_VAR,ib:ie,jb:je,kb:ke)-&
@@ -380,26 +381,30 @@ subroutine Eos_unitTest(fileUnit, perfect)
      solnData(OENT_VAR,ib:ie,jb:je,kb:ke)=solnData(EINT_VAR,ib:ie,jb:je,kb:ke)
      solnData(OTMP_VAR,ib:ie,jb:je,kb:ke)=solnData(TEMP_VAR,ib:ie,jb:je,kb:ke)
      
-     !! Finally, do a test of the derived variables just for exercise.....
+     !! Finally, do some testing of the derived variables.....
      if (eos_meshMe<maxPrintPE) print *,ap,' Now testing the derived variables'
      
      !  Allocate the necessary arrays for an entire block of data
      isize = (blkLimits(HIGH,IAXIS) - blkLimits(LOW,IAXIS) + 1)
      jsize = (blkLimits(HIGH,JAXIS) - blkLimits(LOW,JAXIS) + 1)
      ksize = (blkLimits(HIGH,KAXIS) - blkLimits(LOW,KAXIS) + 1)
-     
-     vecLen=isize
-     
-     allocate(derivedVariables(isize,jsize,ksize,EOS_NUM))
+
+     vecLen=isize               ! We use vectors along the IAXIS direction
+
+     allocate(derivedVariables(ib:ie,jb:je,kb:ke,EOS_NUM))
+     allocate(derivsVec(vecLen,EOS_VARS+1:EOS_NUM))
      allocate(eosData(vecLen*EOS_NUM))
-     allocate(massFrac(vecLen*NSPECIES))
+     allocate(massFrac(NSPECIES,vecLen))
      
      ! Initialize them
      derivedVariables = 0.0
-     vecLen=isize
+     derivsVec(:,:) = 0.0
+
      pres = (EOS_PRES-1)*vecLen
      dens = (EOS_DENS-1)*vecLen
      temp = (EOS_TEMP-1)*vecLen
+     gamc = (EOS_GAMC-1)*vecLen
+     eint = (EOS_EINT-1)*vecLen
      
      
      !! Get DENS and PRES to fill up input, also massFraction
@@ -407,30 +412,70 @@ subroutine Eos_unitTest(fileUnit, perfect)
      do k = blkLimits(LOW,KAXIS),blkLimits(HIGH,KAXIS)
         do j = blkLimits(LOW,JAXIS), blkLimits(HIGH, JAXIS)
            do i = 1,vecLen
-              massFrac((i-1)*NSPECIES+1:i*NSPECIES) = &
+              massFrac(1:NSPECIES,i) = &
                    solnData(SPECIES_BEGIN:SPECIES_END,ib+i-1,j,k)
            end do
-           
+
+           ! We use an old style onedimensional eosData array - it is
+           ! compatible with the twodimensional eosData dummy array
+           ! that is expected by Eos_vector!
            eosData(pres+1:pres+vecLen) =  solnData(PRES_VAR,ib:ie,j,k)
            eosData(dens+1:dens+vecLen) =  solnData(DENS_VAR,ib:ie,j,k)
            eosData(temp+1:temp+vecLen) =  solnData(TEMP_VAR,ib:ie,j,k)
            
-           call Eos(MODE_DENS_PRES,vecLen,eosData,massFrac,mask)
-           
+!!$           call Eos(MODE_DENS_PRES,vecLen,eosData,massFrac,mask)
+           call Eos_vector(MODE_DENS_PRES,vecLen,eosData,massFrac,derivsVec)
+           solnData(GAMC_VAR,ib:ie,j,k) = eosData(gamc+1:gamc+vecLen)
+           solnData(EINT_VAR,ib:ie,j,k) = eosData(eint+1:eint+vecLen)
+
            do e=EOS_VARS+1,EOS_NUM
-              m = (e-1)*vecLen
-              derivedVariables(1:vecLen,j-jb+1,k-kb+1,e) =  eosData(m+1:m+vecLen)
+              derivedVariables(ib:ie,j,k,e) =  derivsVec(1:vecLen,e)
            end do
         end do
      end do
+     test5 = .TRUE.
      if (All(derivedVariables .eq. 0.0)) then
         if (eos_meshMe<maxPrintPE) print*,ap,"No derived variables were set!"
+        test5 = .FALSE.
      end if
      if (ANY(derivedVariables .ne. 0.0)) then
         if (eos_meshMe<maxPrintPE) print*,ap,"Some derived variables were set."
+#ifdef FLASH_EOS_GAMMA
+        do k = blkLimits(LOW,KAXIS),blkLimits(HIGH,KAXIS)
+           do j = blkLimits(LOW,JAXIS), blkLimits(HIGH, JAXIS)
+              do i = ib,ie
+21               format("(", I3,',',I3,',',I3, ")")
+                 write(cpos,21) i, j, k
+                 call assertEqual(derivedVariables(i,j,k,EOS_CV), derivedVariables(i,j,k,EOS_DET), &
+                                  cpos//"Cv different from dE/dT for Gamma Eos")
+                 call assertEqual(derivedVariables(i,j,k,EOS_DED), 0.0, &
+                                  cpos//"Bad dE/drho for Gamma Eos")
+                 call assertAlmostEqual(derivedVariables(i,j,k,EOS_DET), &
+                                        solnData(EINT_VAR,i,j,k) / solnData(TEMP_VAR,i,j,k), &
+                                        cpos//"Bad dE/dT for Gamma Eos")
+                 if (derivedVariables(i,j,k,EOS_CV) == 0.0) then
+                    call assertFalse(derivedVariables(i,j,k,EOS_CV) == 0.0, &
+                                     cpos//"Cv is zero for Gamma Eos")
+                 else
+                    call assertAlmostEqual(derivedVariables(i,j,k,EOS_CP) / derivedVariables(i,j,k,EOS_CV), &
+                                        solnData(GAMC_VAR,i,j,k), &
+                                        tolerance, cpos//"Bad Cp/Cv for Gamma Eos")
+                 end if
+              end do
+           end do
+        end do
+        test5 = test5.and.(ut_testFailureCount() == 0)
+#endif
      end if
+     if(test5) then
+        if (eos_meshMe<maxPrintPE) print*,ap,'MODE_DENS_PRES w/ derivs may be fine '
+     else
+        if (eos_meshMe<maxPrintPE) print *,ap,'MODE_DENS_PRES w/ derivs is BAD!!!'
+        test5allB = .FALSE.
+     endif
      deallocate(eosData)
      deallocate(massFrac)
+     deallocate(derivsVec)
      deallocate(derivedVariables)
      
      
@@ -441,14 +486,14 @@ subroutine Eos_unitTest(fileUnit, perfect)
      
      
      
-  perfect = test1allB.and.test2allB.and.test3allB.and.test4allB
+  perfect = test1allB.and.test2allB.and.test3allB.and.test4allB.and.test5allB
   if(perfect) then
      if (eos_meshMe<maxPrintPE) print*,ap,'SUCCESS(so far) all tests were fine'
   else
      if (eos_meshMe<maxPrintPE) then
         print*,ap,'FAILURE(so far) some tests failed'
-        if (.NOT.(test1.and.test2.and.test3.and.test4)) then
-           print*,ap,'FAILURE(block) tests1..4:',test1,test2,test3,test4
+        if (.NOT.(test1.and.test2.and.test3.and.test4.and.test5)) then
+           print*,ap,'FAILURE(block) tests1..5:',test1,test2,test3,test4,test5
         end if
      end if
   end if

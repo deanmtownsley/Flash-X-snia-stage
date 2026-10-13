@@ -1,4 +1,4 @@
-!!****f* source/physics/Hydro/HydroMain/simpleUnsplit/Hydro
+!!****f* source/physics/Hydro/HydroMain/simpleUnsplit/levelFlux/Hydro
 !! NOTICE
 !!  Copyright 2022 UChicago Argonne, LLC and contributors
 !!
@@ -33,7 +33,7 @@
 
 #include "UHD.h"
 
-subroutine Hydro(simTime, dt, dtOld)
+subroutine Hydro(simTime, dt, dtOld, sweepOrder)
   use Grid_interface,    ONLY : Grid_fillGuardCells, &
                                 Grid_getTileIterator, &
                                 Grid_releaseTileIterator
@@ -57,7 +57,8 @@ subroutine Hydro(simTime, dt, dtOld)
   implicit none
 
   real, intent(IN) ::  simTime, dt, dtOld
-  
+  integer, optional, intent(IN) :: sweepOrder
+
   real, pointer :: Uout(:,:,:,:)
   real, pointer :: Uin(:,:,:,:)
   real, pointer :: flX(:,:,:,:)
@@ -157,7 +158,7 @@ subroutine Hydro(simTime, dt, dtOld)
                                   flX, flY, flZ, lbound(flX), &
                                   deltas, dt)
 
-     call Eos_multiDim(hy_eosModeAfter, tileDesc%limits, Uout)
+     call Eos_multiDim(hy_eosModeAfter, tileDesc%limits,tileDesc%blkLimitsGC(LOW,:), Uout)
 
      call tileDesc%releaseDataPtr(Uin, CENTER)
      call tileDesc%releaseDataPtr(flX, FLUXX)

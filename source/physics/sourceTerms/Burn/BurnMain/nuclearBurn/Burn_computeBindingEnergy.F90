@@ -24,8 +24,7 @@
 !! Based on BANG version in networkPlusHybrid branch and misc. course notes
 !! from MSU's PHY 981/2/3
 subroutine Burn_computeBindingEnergy(ebin, massFrac)
-   use Burn_data, only: xmass, ymass, bion, zion, aion
-   use Burn_dataEOS, only: bye, abar, ytot1
+   use Burn_data, only: bion, zion, aion
    use bn_interface, only: bn_azbar
 
 #include "Simulation.h"
@@ -50,13 +49,12 @@ subroutine Burn_computeBindingEnergy(ebin, massFrac)
 
    real, parameter :: conv = MeV2erg*N_A ! erg / mol
 
+   real, dimension(NSPECIES) :: ymass
+
+   real :: abar, zbar, z2bar, ytot1, bye
    integer :: s
 
-   do s = 1, NSPECIES
-      xmass(s) = massFrac(s)
-   end do ! s
-
-   call bn_azbar()
+   call bn_azbar(massFrac, ymass, abar, zbar, z2bar, ytot1, bye)
 
    ebin = 0.0
 

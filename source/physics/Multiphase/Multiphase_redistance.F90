@@ -14,9 +14,12 @@
 !!
 !!
 !!***
-subroutine Multiphase_redistance(tileDesc, iteration)
-   use Grid_tile, ONLY: Grid_tile_t
+#include "constants.h"
+subroutine Multiphase_redistance(solnData,del,lo,hi, iteration)
+!-----------------------------------------------------------------------------------------
    implicit none
-   type(Grid_tile_t), intent(in) :: tileDesc
+   real, pointer, dimension(:, :, :, :) :: solnData
    integer, intent(in) :: iteration
+   integer,dimension(MDIM), intent(IN) :: lo, hi
+   real,dimension(MDIM),intent(IN) :: del
 end subroutine Multiphase_redistance

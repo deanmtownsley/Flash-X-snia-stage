@@ -190,7 +190,7 @@ subroutine gr_expandDomain (particlesInitialized)
         call itor%currentTile(tileDesc)
 
         call tileDesc%getDataPtr(solnData, CENTER)
-        call Eos_multiDim(gr_eosModeInit, tileDesc%limits, solnData)
+        call Eos_multiDim(gr_eosModeInit, tileDesc%limits, tileDesc%blkLimitsGC(LOW,:),  solnData)
         call tileDesc%releaseDataPtr(solnData, CENTER)
 
         call itor%next()

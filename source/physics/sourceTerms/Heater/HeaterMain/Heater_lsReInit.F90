@@ -18,62 +18,80 @@
 #include "Simulation.h"
 #include "constants.h"
 
-subroutine Heater_lsReInit(tileDesc, stime, blockCount)
+subroutine Heater_lsReInit(solnData,xcell,ycell,zcell,boundBox,logc, higc, stime,lblock)
 
-   use Grid_interface, ONLY: Grid_getCellCoords
-   use Grid_tile, ONLY: Grid_tile_t
-   use htr_interface, ONLY: htr_lsReInitBlk
-   use Timers_interface, ONLY: Timers_start, Timers_stop
-
-   implicit none
-   real, intent(in) :: stime
-   type(Grid_tile_t), intent(in) :: tileDesc
-   integer, intent(in) :: blockCount
-
+  use Timers_interface, ONLY: Timers_start, Timers_stop
+  use Heater_data
+  use Heater_type, ONLY: Heater_type_t
+  use Driver_interface, ONLY: Driver_abort
+  
+  implicit none
+  real, dimension(:, :, :, :)  :: solnData
+  real, dimension(:), intent(in)        :: xcell, ycell, zcell
+  real, dimension(LOW:HIGH, MDIM), intent(in)     :: boundBox
+  integer, dimension(MDIM),intent(in)   :: logc, higc
+  real, intent(in)                      :: stime
+  integer, intent(in)                   :: lblock
+  
 !----------------------------------------------------------------------------------------
-   real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
-   integer, dimension(2, MDIM)        :: blkLimits, blkLimitsGC
-   integer, dimension(MDIM)          :: lo, hi
-   real, dimension(GRID_IHI_GC)      :: xCenter
-   real, dimension(GRID_JHI_GC)      :: yCenter
-   real, dimension(GRID_KHI_GC)      :: zCenter
-   real    :: del(MDIM)
-   real    :: boundBox(LOW:HIGH, 1:MDIM)
-
-!----------------------------------------------------------------------------------------
-   nullify (solnData, facexData, faceyData, facezData)
-
-   call Timers_start("Heater_lsReInit")
+  type(Heater_type_t), pointer  :: heater
+  integer :: ix1, ix2, jy1, jy2, kz1, kz2
+  integer :: i, j, k, htr, isite, annIndex, isiteblk
+  real    :: idfun, iseedY, iseedX, iseedZ, iradius
+  
+  !----------------------------------------------------------------------------------------
+  
+  call Timers_start("Heater_lsReInit")
 
 #ifdef MULTIPHASE_EVAPORATION
-   blkLimits = tileDesc%limits
-   blkLimitsGC = tileDesc%blkLimitsGC
-
-   call tileDesc%deltas(del)
-   call tileDesc%boundBox(boundBox)
-   call tileDesc%getDataPtr(solnData, CENTER)
-
-   lo = blkLimitsGC(LOW, :)
-   hi = blkLimitsGC(HIGH, :)
-
-   xCenter = 0.0
-   yCenter = 0.0
-   zCenter = 0.0
-   call Grid_getCellCoords(IAXIS, CENTER, tileDesc%level, lo, hi, xCenter)
-   call Grid_getCellCoords(JAXIS, CENTER, tileDesc%level, lo, hi, yCenter)
-   if (NDIM == MDIM) call Grid_getCellCoords(KAXIS, CENTER, tileDesc%level, lo, hi, zCenter)
-
-   call htr_lsReInitBlk(solnData(DFUN_VAR, :, :, :), &
-                        xCenter, yCenter, zCenter, &
-                        boundBox, stime, &
-                        GRID_ILO_GC, GRID_IHI_GC, &
-                        GRID_JLO_GC, GRID_JHI_GC, &
-                        GRID_KLO_GC, GRID_KHI_GC, blockCount)
-
-   ! Release pointers:
-   call tileDesc%releaseDataPtr(solnData, CENTER)
+  ix1=logc(IAXIS); ix2=higc(IAXIS)
+  jy1=logc(JAXIS); jy2=higc(JAXIS)
+  kz1=logc(KAXIS); kz2=higc(KAXIS)    
+  
+  
+  do htr = 1, htr_numHeaters
+     
+     heater => htr_heaterInfo(htr)
+     
+#if NDIM < MDIM
+     if (boundBox(HIGH, IAXIS) .le. heater%xMin .or. boundBox(LOW, IAXIS) .ge. heater%xMax .or. &
+          boundBox(HIGH, JAXIS) .le. heater%yMin .or. boundBox(LOW, JAXIS) .ge. heater%yMax) cycle
+#else
+     if (boundBox(HIGH, IAXIS) .le. heater%xMin .or. boundBox(LOW, IAXIS) .ge. heater%xMax .or. &
+          boundBox(HIGH, JAXIS) .le. heater%yMin .or. boundBox(LOW, JAXIS) .ge. heater%yMax .or. &
+          boundBox(HIGH, KAXIS) .le. heater%zMin .or. boundBox(LOW, KAXIS) .ge. heater%zMax) cycle
 #endif
+     
+     do k = kz1, kz2
+        do j = jy1, jy2
+           do i = ix1, ix2
+              do isiteblk = 1, heater%numSitesBlk(lblock)
+                 
+                 isite = heater%siteMapOnProc(lblock, isiteblk)
+                 if (isite < 1) call Driver_abort("[Heater_lsReInit] isite < 1")
+                 
+                 if (((heater%siteTimeStamp(isite)+heater%nucWaitTime) .le. stime) .and. &
+                      (heater%siteIsAttachedPrev(isite) .eqv. .false.)) then
+                    iradius = heater%seedRadius
+                    iseedX = heater%xSiteProc(isite)
+                    iseedZ = heater%zSiteProc(isite)
+                    if(  abs(heater%ySiteProc(isite) - htr_yMin) .lt. abs(heater%ySiteProc(isite) - htr_yMax))then
+                       iseedY = heater%ySiteProc(isite)+heater%seedHeight
+                    else
+                       iseedY = heater%ySiteProc(isite)-heater%seedHeight                             
+                    end if
+                    idfun = iradius-sqrt((xcell(i)-iseedX)**2+(ycell(j)-iseedY)**2+(zcell(k)-iseedZ)**2)
+                    solnData(DFUN_VAR,i, j, k) = max(solnData(DFUN_VAR,i, j, k), idfun)
+                 end if
 
-   call Timers_stop("Heater_lsReInit")
+              end do
+           end do
+        end do
+     end do
+  end do
 
+#endif
+  
+  call Timers_stop("Heater_lsReInit")
+  
 end subroutine Heater_lsReInit

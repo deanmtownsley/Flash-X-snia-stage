@@ -1,6 +1,7 @@
-!!****if* source/Simulation/SimulationMain/incompFlow/gr_markRefineDerefineCallback
+!!****if* source/Simulation/SimulationMain/unitTest/ImBound/gr_markRefineDerefineCallback
+!!
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2023 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -79,10 +80,13 @@ subroutine gr_markRefineDerefineCallback(lev, tags, time, tagval, clearval) bind
                         gr_refine_cutoff, gr_derefine_cutoff, &
                         gr_refine_filter, gr_refine_var, &
                         gr_maxRefine, gr_enforceMaxRefinement, &
-                        gr_minRefine
+                        gr_minRefine, gr_geometry
+
    use gr_interface, ONLY: gr_estimateBlkError
    use gr_physicalMultifabs, ONLY: unk
    use Grid_tile, ONLY: Grid_tile_t
+   use Driver_interface, ONLY: Driver_abort
+   use Grid_interface, ONLY: Grid_getBlkCenterCoords
 
    implicit none
 
@@ -98,6 +102,7 @@ subroutine gr_markRefineDerefineCallback(lev, tags, time, tagval, clearval) bind
    type(Grid_tile_t)       :: tileDesc
 
    character(kind=c_char), contiguous, pointer :: tagData(:, :, :, :)
+   real(wp), contiguous, pointer :: solnData(:, :, :, :)
 
    real :: error
    real :: refineCut, derefineCut, refineFilter
@@ -109,7 +114,13 @@ subroutine gr_markRefineDerefineCallback(lev, tags, time, tagval, clearval) bind
    real, dimension(7) :: specs
    integer :: specsSize
 
-   nullify (tagData)
+   real, dimension(MDIM) :: blockCenter, blockSize, del
+   real                  :: xl, xr, yl, yr, zl, zr, dfunTol, lmdaTol
+   integer               :: b
+   logical               :: x_in_rect, y_in_rect, z_in_rect
+   integer, dimension(MDIM) :: lo, hi
+
+   nullify (tagData, solnData)
 
    ! AMReX uses 0-based spatial indices / FLASH uses 1-based
    ! The indices agree on inactive dimensions.
@@ -117,12 +128,12 @@ subroutine gr_markRefineDerefineCallback(lev, tags, time, tagval, clearval) bind
 
 #ifdef DEBUG_GRID
    write (*, '(A,A,I2)') "[gr_markRefineDerefineCallback]", &
-      "      Started on level ", lev + 1
+      "      Started on level ", lev+1
 #endif
 
    tag = tags
 
-   if (lev < gr_minRefine - 1) then
+   if (lev < gr_minRefine-1) then
 #ifdef DEBUG_GRID
       write (*, '(A,A,I4,I4,I4)') "[gr_markRefineDerefineCallback]", &
          "         derefinement to this level not allowed"
@@ -136,8 +147,8 @@ subroutine gr_markRefineDerefineCallback(lev, tags, time, tagval, clearval) bind
 
          tileDesc%limits(LOW, :) = 1
          tileDesc%limits(HIGH, :) = 1
-         tileDesc%limits(LOW, 1:NDIM) = bx%lo(1:NDIM) + 1 + NGUARD
-         tileDesc%limits(HIGH, 1:NDIM) = bx%hi(1:NDIM) + 1 - NGUARD
+         tileDesc%limits(LOW, 1:NDIM) = bx%lo(1:NDIM)+1+NGUARD
+         tileDesc%limits(HIGH, 1:NDIM) = bx%hi(1:NDIM)+1-NGUARD
 
          tagData => tag%dataptr(mfi)
 
@@ -146,18 +157,18 @@ subroutine gr_markRefineDerefineCallback(lev, tags, time, tagval, clearval) bind
                     lo_tag => lbound(tagData), &
                     hi_tag => ubound(tagData))
 
-            do k = lo(KAXIS) - K3D, hi(KAXIS) - K3D
-               do j = lo(JAXIS) - K2D, hi(JAXIS) - K2D
-                  do i = lo(IAXIS) - 1, hi(IAXIS) - 1
+            do k = lo(KAXIS)-K3D, hi(KAXIS)-K3D
+               do j = lo(JAXIS)-K2D, hi(JAXIS)-K2D
+                  do i = lo(IAXIS)-1, hi(IAXIS)-1
                      ! Fourth index is 1:1
                      tagData(i, j, k, 1) = clearval
                   end do
                end do
             end do
 
-            i = INT(0.5*DBLE(lo_tag(IAXIS) + hi_tag(IAXIS)))
-            j = INT(0.5*DBLE(lo_tag(JAXIS) + hi_tag(JAXIS)))
-            k = INT(0.5*DBLE(lo_tag(KAXIS) + hi_tag(KAXIS)))
+            i = INT(0.5*DBLE(lo_tag(IAXIS)+hi_tag(IAXIS)))
+            j = INT(0.5*DBLE(lo_tag(JAXIS)+hi_tag(JAXIS)))
+            k = INT(0.5*DBLE(lo_tag(KAXIS)+hi_tag(KAXIS)))
 
             tagData(i, j, k, 1) = tagval
          end associate
@@ -177,17 +188,23 @@ subroutine gr_markRefineDerefineCallback(lev, tags, time, tagval, clearval) bind
 
       ! DEVNOTE: TODO Simulate block until we have a natural iterator for FLASH
       ! Level must be 1-based index and limits/limitsGC must be 1-based also
-      tileDesc%level = lev + 1
+      tileDesc%level = lev+1
       tileDesc%grid_index = mfi%grid_index()
       tileDesc%limits(LOW, :) = 1
       tileDesc%limits(HIGH, :) = 1
-      tileDesc%limits(LOW, 1:NDIM) = bx%lo(1:NDIM) + 1 + NGUARD
-      tileDesc%limits(HIGH, 1:NDIM) = bx%hi(1:NDIM) + 1 - NGUARD
+      tileDesc%limits(LOW, 1:NDIM) = bx%lo(1:NDIM)+1+NGUARD
+      tileDesc%limits(HIGH, 1:NDIM) = bx%hi(1:NDIM)+1-NGUARD
       tileDesc%blkLimitsGC(LOW, :) = 1
       tileDesc%blkLimitsGC(HIGH, :) = 1
-      tileDesc%blkLimitsGC(LOW, 1:NDIM) = bx%lo(1:NDIM) + 1
-      tileDesc%blkLimitsGC(HIGH, 1:NDIM) = bx%hi(1:NDIM) + 1
+      tileDesc%blkLimitsGC(LOW, 1:NDIM) = bx%lo(1:NDIM)+1
+      tileDesc%blkLimitsGC(HIGH, 1:NDIM) = bx%hi(1:NDIM)+1
       tileDesc%grownLimits(:, :) = tileDesc%blkLimitsGC(:, :)
+
+      call Grid_getBlkCenterCoords(tileDesc, blockCenter)
+      call tileDesc%physicalSize(blockSize)
+      blockSize(:) = 0.5*blockSize(:)
+
+      call tileDesc%deltas(del)
 
       tagData => tag%dataptr(mfi)
 
@@ -198,21 +215,21 @@ subroutine gr_markRefineDerefineCallback(lev, tags, time, tagval, clearval) bind
 
 #ifdef DEBUG_GRID
          ! Tagbox must contain block
-         if (((lo_tag(IAXIS) + 1) > lo(IAXIS)) &
-             .OR. ((lo_tag(JAXIS) + K2D) > lo(JAXIS)) &
-             .OR. ((lo_tag(KAXIS) + K3D) > lo(KAXIS)) &
-             .OR. ((hi_tag(IAXIS) + 1) < hi(IAXIS)) &
-             .OR. ((hi_tag(JAXIS) + K2D) < hi(JAXIS)) &
-             .OR. ((hi_tag(KAXIS) + K3D) < hi(KAXIS))) then
+         if (((lo_tag(IAXIS)+1) > lo(IAXIS)) &
+             .OR. ((lo_tag(JAXIS)+K2D) > lo(JAXIS)) &
+             .OR. ((lo_tag(KAXIS)+K3D) > lo(KAXIS)) &
+             .OR. ((hi_tag(IAXIS)+1) < hi(IAXIS)) &
+             .OR. ((hi_tag(JAXIS)+K2D) < hi(JAXIS)) &
+             .OR. ((hi_tag(KAXIS)+K3D) < hi(KAXIS))) then
             call Driver_abort("[gr_markRefineDerefineCallback] "// &
                               "Tagbox is smaller than associated block")
          end if
 #endif
 
          ! Initialize to no refinement on interior
-         do k = lo(KAXIS) - K3D, hi(KAXIS) - K3D
-            do j = lo(JAXIS) - K2D, hi(JAXIS) - K2D
-               do i = lo(IAXIS) - 1, hi(IAXIS) - 1
+         do k = lo(KAXIS)-K3D, hi(KAXIS)-K3D
+            do j = lo(JAXIS)-K2D, hi(JAXIS)-K2D
+               do i = lo(IAXIS)-1, hi(IAXIS)-1
                   ! Fourth index is 1:1
                   tagData(i, j, k, 1) = clearval
                end do
@@ -227,15 +244,62 @@ subroutine gr_markRefineDerefineCallback(lev, tags, time, tagval, clearval) bind
 
             error = 0.0
 
-#ifdef LMDA_VAR
-            if (iref == LMDA_VAR) then
-               call gr_markVarBoundsForCallback(iref, &
-                                                min(gr_refine_cutoff(l), gr_derefine_cutoff(l)), &
-                                                max(gr_refine_cutoff(l), gr_derefine_cutoff(l)), &
-                                                lev, tags, tagval)
+#ifdef DFUN_VAR
+            if (iref == DFUN_VAR) then
+               solnData => unk(lev)%dataPtr(mfi)
+#if NDIM == 2
+               dfunTol = sqrt(del(IAXIS)**2+del(JAXIS)**2)
+#elif NDIM == 3
+               dfunTol = sqrt(del(IAXIS)**2+del(JAXIS)**2+del(KAXIS)**2)
+#else
+               call Driver_abort("[gr_markRefineDerefineCallback] Unknown dimension encountered when tagging for DFUN_VAR")
+#endif
+               if (maxval(solnData(lo(IAXIS):hi(IAXIS), &
+                                   lo(JAXIS):hi(JAXIS), &
+                                   lo(KAXIS):hi(KAXIS), DFUN_VAR)) > -2*dfunTol .AND. &
+                   minval(solnData(lo(IAXIS):hi(IAXIS), &
+                                   lo(JAXIS):hi(JAXIS), &
+                                   lo(KAXIS):hi(KAXIS), DFUN_VAR)) < 2*dfunTol) then
 
+                  i = INT(0.5d0*DBLE(lo_tag(IAXIS)+hi_tag(IAXIS)))
+                  j = INT(0.5d0*DBLE(lo_tag(JAXIS)+hi_tag(JAXIS)))
+                  k = INT(0.5d0*DBLE(lo_tag(KAXIS)+hi_tag(KAXIS)))
+
+                  ! Fourth index is 1:1
+                  tagData(i, j, k, 1) = tagval
+               end if
+               nullify (solnData)
             else
 #endif
+
+#ifdef LMDA_VAR
+            if (iref == LMDA_VAR) then
+               solnData => unk(lev)%dataPtr(mfi)
+#if NDIM == 2
+               lmdaTol = sqrt(del(IAXIS)**2+del(JAXIS)**2)
+#elif NDIM == 3
+               lmdaTol = sqrt(del(IAXIS)**2+del(JAXIS)**2+del(KAXIS)**2)
+#else
+               call Driver_abort("[gr_markRefineDerefineCallback] Unknown dimension encountered when tagging for LMDA_VAR")
+#endif
+               if (maxval(solnData(lo(IAXIS):hi(IAXIS), &
+                                   lo(JAXIS):hi(JAXIS), &
+                                   lo(KAXIS):hi(KAXIS), LMDA_VAR)) > -2*lmdaTol .AND. &
+                   minval(solnData(lo(IAXIS):hi(IAXIS), &
+                                   lo(JAXIS):hi(JAXIS), &
+                                   lo(KAXIS):hi(KAXIS), LMDA_VAR)) < 2*lmdaTol) then
+
+                  i = INT(0.5d0*DBLE(lo_tag(IAXIS)+hi_tag(IAXIS)))
+                  j = INT(0.5d0*DBLE(lo_tag(JAXIS)+hi_tag(JAXIS)))
+                  k = INT(0.5d0*DBLE(lo_tag(KAXIS)+hi_tag(KAXIS)))
+
+                  ! Fourth index is 1:1
+                  tagData(i, j, k, 1) = tagval
+               end if
+               nullify (solnData)
+            else
+#endif
+
                refineFilter = gr_refine_filter(l)
                call gr_estimateBlkError(error, tileDesc, iref, refineFilter)
 
@@ -254,9 +318,9 @@ subroutine gr_markRefineDerefineCallback(lev, tags, time, tagval, clearval) bind
                   ! array may differ.  This space is needed for ensuring proper
                   ! nesting and is used by AMReX.  Client code need not set those
                   ! when tagging for refinement.
-                  i = INT(0.5*DBLE(lo_tag(IAXIS) + hi_tag(IAXIS)))
-                  j = INT(0.5*DBLE(lo_tag(JAXIS) + hi_tag(JAXIS)))
-                  k = INT(0.5*DBLE(lo_tag(KAXIS) + hi_tag(KAXIS)))
+                  i = INT(0.5*DBLE(lo_tag(IAXIS)+hi_tag(IAXIS)))
+                  j = INT(0.5*DBLE(lo_tag(JAXIS)+hi_tag(JAXIS)))
+                  k = INT(0.5*DBLE(lo_tag(KAXIS)+hi_tag(KAXIS)))
 
                   ! NOTE: last dimension has range 1:1
                   tagData(i, j, k, 1) = tagval
@@ -264,7 +328,7 @@ subroutine gr_markRefineDerefineCallback(lev, tags, time, tagval, clearval) bind
 #ifdef DEBUG_GRID
                   write (*, '(A,A,I2)') "[gr_markRefineDerefineCallback]", &
                      "      Tag block for refinement at level", &
-                     (lev + 1)
+                     (lev+1)
                   write (*, '(A,A,I4,I4,I4)') "[gr_markRefineDerefineCallback]", &
                      "         lower: ", &
                      lo(IAXIS), lo(JAXIS), lo(KAXIS)
@@ -276,7 +340,7 @@ subroutine gr_markRefineDerefineCallback(lev, tags, time, tagval, clearval) bind
 #endif
                   EXIT rloop
                end if
-#ifdef LMDA_VAR
+#if defined(DFUN_VAR) || defined(LMDA_VAR)
             end if
 #endif
          end do rloop
@@ -289,7 +353,7 @@ subroutine gr_markRefineDerefineCallback(lev, tags, time, tagval, clearval) bind
 
 #ifdef DEBUG_GRID
    write (*, '(A,A,I2)') "[gr_markRefineDerefineCallback]", &
-      "      Finished on level ", lev + 1
+      "      Finished on level ", lev+1
 #endif
 
 end subroutine gr_markRefineDerefineCallback

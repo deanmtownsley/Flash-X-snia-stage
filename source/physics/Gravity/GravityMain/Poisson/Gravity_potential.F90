@@ -28,9 +28,8 @@
 !!
 !!      Supported boundary conditions are isolated (0) and
 !!      periodic (1).  The same boundary conditions are applied
-!!      in all directions.  For some implementation of Gravity,
-!!      in particular with Barnes-Hut tee solver, additional combinations
-!!      of boundary conditions may be supported.
+!!      in all directions.  For some implementations of Gravity,
+!!      additional combinations of boundary conditions may be supported.
 !!
 !! ARGUMENTS
 !!
@@ -104,7 +103,7 @@ subroutine Gravity_potential( potentialIndex)
        GRID_PDE_BND_ISOLATED, GRID_PDE_BND_DIRICHLET, &
        Grid_getTileIterator, Grid_releaseTileIterator, &
        Grid_notifySolnDataUpdate, &
-       Grid_solvePoisson
+       Grid_beginPoisson, Grid_finalizePoisson
   use Grid_tile,     ONLY : Grid_tile_t
   use Grid_iterator, ONLY : Grid_iterator_t
   
@@ -122,7 +121,6 @@ subroutine Gravity_potential( potentialIndex)
   real          :: redshift=0, oldRedshift=0
   real          :: scaleFactor, oldScaleFactor
   real          :: invscale, rescale
-  integer       :: lb
   integer       :: bcTypes(6)
   real          :: bcValues(2,6) = 0.
   integer       :: density
@@ -141,8 +139,6 @@ subroutine Gravity_potential( potentialIndex)
   else
      newPotVar = GPOT_VAR
   end if
-
-  lb=1
 
 !!$  call Cosmology_getRedshift(redshift)
 !!$  call Cosmology_getOldRedshift(oldRedshift)
@@ -167,9 +163,11 @@ subroutine Gravity_potential( potentialIndex)
   
   if(.not.updateGravity) return
 
+#ifdef USEBARS
   call Timers_start("gravity Barrier")
   call MPI_Barrier (grv_meshComm, ierr)
   call Timers_stop("gravity Barrier")
+#endif
 
   call Timers_start("gravity")
 
@@ -226,28 +224,6 @@ subroutine Gravity_potential( potentialIndex)
         end do
 
 
-#if defined(SGXO_VAR) && defined(SGYO_VAR) && defined(SGZO_VAR)
-        if (saveLastPot) then   !... but only if we are saving the old potential - kW
-           call Driver_abort("[Gravity_potential] Not tested third!")
-           ! If tiling is used here, we probably need to write this as an
-           ! explicit loop nest over the tile's indices
-           solnVec(SGXO_VAR,:,:,:) = solnVec(SGAX_VAR,:,:,:)
-           solnVec(SGYO_VAR,:,:,:) = solnVec(SGAY_VAR,:,:,:)
-           solnVec(SGZO_VAR,:,:,:) = solnVec(SGAZ_VAR,:,:,:)
-        end if
-#endif
-
-        ! for direct acceleration calculation by tree solver, added by R. Wunsch
-#if defined(GAOX_VAR) && defined(GAOY_VAR) && defined(GAOZ_VAR)
-        if (saveLastPot) then 
-           call Driver_abort("[Gravity_potential] Not tested fourth!")
-           ! If tiling is used here, we probably need to write this as an
-           ! explicit loop nest over the tile's indices
-           solnVec(GAOX_VAR,:,:,:) = solnVec(GACX_VAR,:,:,:)
-           solnVec(GAOY_VAR,:,:,:) = solnVec(GACY_VAR,:,:,:)
-           solnVec(GAOZ_VAR,:,:,:) = solnVec(GACZ_VAR,:,:,:)
-        end if
-#endif
         call tileDesc%releaseDataPtr(solnVec, CENTER)
         call itor%next()
      enddo
@@ -286,7 +262,9 @@ subroutine Gravity_potential( potentialIndex)
 #endif
 
   invscale=grav_poisfact*invscale
-  call Grid_solvePoisson (newPotVar, density, bcTypes, bcValues, &
+  call Grid_beginPoisson (newPotVar, density, bcTypes, bcValues, &
+       invscale)
+  call Grid_finalizePoisson (newPotVar, density, bcTypes, bcValues, &
        invscale)
   call Grid_notifySolnDataUpdate( (/newPotVar/) )
 

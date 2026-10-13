@@ -19,7 +19,7 @@
 !! 
 !!  call bn_networkDenseJakob (real, intent(IN) :: tt,
 !!                          real, intent(INOUT) :: y(:),
-!!                            real, intent(OUT) :: dfdy(nphys,nphys),
+!!                            real, intent(OUT) :: dfdy(:,:),
 !!                          integer, intent(IN) :: nlog,
 !!                          integer, intent(IN) :: nphys)
 !!
@@ -40,11 +40,11 @@
 !!***
 
 
-subroutine bn_networkDenseJakob(tt,y,dfdy,nlog,nphys)   
+subroutine bn_networkDenseJakob(tt,y,btemp,ratdum,dfdy,nlog,nphys)
 
 !! This is the only one LBR will do to include by name.  Essentially all
 !!   of the bn_dataAprox13 is used...
-  use Burn_data, ONLY: ratdum, ife52, icr48, iti44, ica40, iar36, is32, &
+  use Burn_data, ONLY: ife52, icr48, iti44, ica40, iar36, is32, &
        isi28, img24, ine20, io16, ic12, ihe4, ini56
   use bn_dataAprox13, ONLY: &
        irscpg,irvpg, irvpa, irmnpg, irmnpa, ircopg, ircopa, irfeag, ircrag,  &
@@ -66,9 +66,9 @@ subroutine bn_networkDenseJakob(tt,y,dfdy,nlog,nphys)
 
 !!  declare
   integer, intent(IN)  :: nlog, nphys
-  real, intent(IN)     :: tt
-  real, intent(INOUT), dimension(*)           :: y
-  real, intent(OUT), dimension(nphys,nphys) :: dfdy
+  real, intent(IN)     :: tt, btemp, ratdum(:)  ! NOTE: btemp is reserved for Aprox19
+  real, intent(INOUT)  :: y(:)
+  real, intent(OUT)    :: dfdy(:,:)
   integer          i,j
   real         r1,s1,t1,u1,v1,w1,x1,y1
 

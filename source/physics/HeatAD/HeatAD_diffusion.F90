@@ -14,8 +14,11 @@
 !!
 !!
 !!***
-subroutine HeatAD_diffusion(tileDesc)
-   use Grid_tile, ONLY: Grid_tile_t
+#include "constants.h"
+subroutine HeatAD_diffusion(solnData, del, lo, hi)
+!--------------------------------------------------------------------------------------------
    implicit none
-   type(Grid_tile_t), intent(in) :: tileDesc
+   real, pointer, dimension(:, :, :, :) :: solnData
+   real,dimension(MDIM),intent(IN) ::  del
+   integer, dimension(MDIM),intent(IN) :: lo, hi
 end subroutine HeatAD_diffusion

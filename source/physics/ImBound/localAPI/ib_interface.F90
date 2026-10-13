@@ -25,6 +25,13 @@ module ib_interface
    end interface
 
    interface
+      subroutine ib_annDestroyTree(body)
+         use ImBound_type, ONLY: ImBound_type_t
+         type(ImBound_type_t), intent(INOUT)  :: body
+      end subroutine ib_annDestroyTree
+   end interface
+
+   interface
       subroutine ib_annSearchTree(body, queryPt, annElems, annIdx)
          use ImBound_type, ONLY: ImBound_type_t
          type(ImBound_type_t), intent(IN)  :: body
@@ -87,6 +94,30 @@ module ib_interface
          integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
          real, intent(in) :: dx, dy, dz
       end subroutine ib_annMap3D
+   end interface
+
+   interface
+      subroutine ib_velGfm2d_fixed(lmda, velx, vely, px, py, dt, coeff, buffer, &
+                                   dx, dy, ix1, ix2, jy1, jy2)
+         implicit none
+         real, dimension(:, :, :), intent(inout) :: velx, vely
+         real, dimension(:, :, :), intent(in) :: lmda
+         real, dimension(:, :, :), intent(in) :: px, py
+         real, intent(in) :: dt, dx, dy, coeff, buffer(3)
+         integer, intent(in) :: ix1, ix2, jy1, jy2
+      end subroutine ib_velGfm2d_fixed
+   end interface
+
+   interface
+      subroutine ib_velGfm3d_fixed(lmda, velx, vely, velz, px, py, pz, &
+                                   dt, coeff, buffer, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
+         implicit none
+         real, dimension(:, :, :), intent(inout) :: velx, vely, velz
+         real, dimension(:, :, :), intent(in) :: lmda
+         real, dimension(:, :, :), intent(in) :: px, py, pz
+         real, intent(in) :: dt, dx, dy, dz, coeff, buffer(3)
+         integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
+      end subroutine ib_velGfm3d_fixed
    end interface
 
 end module ib_interface

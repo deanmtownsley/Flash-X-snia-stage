@@ -1,0 +1,144 @@
+!> @copyright Copyright 2023 UChicago Argonne, LLC and contributors
+!!
+!! @licenseblock
+!!   Licensed under the Apache License, Version 2.0 (the "License");
+!!   you may not use this file except in compliance with the License.
+!!
+!!   Unless required by applicable law or agreed to in writing, software
+!!   distributed under the License is distributed on an "AS IS" BASIS,
+!!   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+!!   See the License for the specific language governing permissions and
+!!   limitations under the License.
+!! @endlicenseblock
+!!
+!! @file
+
+!> @ingroup HydroSpark
+!!
+!<
+
+!!VARIANTS(GPU): Hydro_advance, &
+!!               Eos_multiDim, &
+!!               hy_rk_getGraveAccel, &
+!!               hy_rk_getFlatteningLimiter, &
+!!               hy_rk_getFaceFlux, &
+!!               hy_rk_updateSoln, &
+!!               hy_rk_saveFluxBuf, &
+!!               hy_rk_renormAbundance
+!!Reorder(4): Uin,hy_starState,hy_tmpState
+!!Reorder(4): hy_fl[xyz],hy_fluxBuf[XYZ]
+!!Reorder(4): hy_rope,hy_flux,hy_uPlus,hy_uMinus
+subroutine Hydro_advance(stage_in, Uin, dt, dtOld, &
+                         hy_starState, hy_tmpState, &
+                         hy_flx, hy_fly, hy_flz, &
+                         hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
+                         hy_grav, hy_flat3d, &
+                         hy_rope, hy_flux, hy_uPlus, hy_uMinus, &
+                         deltas, &
+                         blkLimits, blkLimitsGC, &
+                         lo, loGC, &
+                         hy_xCenter, hy_yCenter, hy_zCenter, &
+                         hy_xLeft, hy_xRight, hy_yLeft, hy_yRight, &
+                         hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol &
+                         @M hy_eos_args)
+
+#include "Simulation.h"
+#include "constants.h"
+#include "Spark.h"
+
+   use hy_rk_interface, ONLY: hy_rk_getGraveAccel, &
+                              hy_rk_getFlatteningLimiter, &
+                              hy_rk_getFaceFlux, &
+                              hy_rk_updateSoln, &
+                              hy_rk_saveFluxBuf, &
+                              hy_rk_renormAbundance
+   use Eos_interface, ONLY : Eos_multiDim
+   use Burn_interface, ONLY : Burn_update
+
+
+   @M hy_DIR_TARGET_routine(vector)
+
+   @M hy_DIR_TARGET_routine_vector(hy_rk_getGraveAccel)
+   @M hy_DIR_TARGET_routine_vector(hy_rk_getFlatteningLimiter)
+   @M hy_DIR_TARGET_routine_vector(hy_rk_getFaceFlux)
+   @M hy_DIR_TARGET_routine_vector(hy_rk_updateSoln)
+   @M hy_DIR_TARGET_routine_vector(hy_rk_saveFluxBuf)
+   @M hy_DIR_TARGET_routine_vector(hy_rk_renormAbundance)
+   @M hy_DIR_TARGET_routine_vector(Eos_multiDim_GPU)
+
+   implicit none
+
+   integer, intent(IN) :: stage_in, lo(3), loGC(3)
+   real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(IN OUT) :: Uin
+   real, intent(IN) :: dt, dtold
+   real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(IN OUT) :: hy_starState
+   real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(OUT) :: hy_flx, hy_fly, hy_flz
+   real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(IN) :: hy_tmpState
+   real, dimension(1:, lo(1):, lo(2):, lo(3):), intent(OUT) :: hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ
+   real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(OUT) :: hy_rope, hy_flux, hy_uPlus, hy_uMinus
+   real, dimension(1:, loGC(1):, loGC(2):, loGC(3):), intent(OUT) :: hy_grav
+   real, dimension(loGC(1):, loGC(2):, loGC(3):), intent(OUT) :: hy_flat3d
+
+   integer, dimension(LOW:HIGH, MDIM), intent(IN) :: blkLimits, blkLimitsGC
+
+   real, dimension(MDIM), intent(IN)  :: deltas
+   real, dimension(loGC(1):), intent(IN) :: hy_xCenter
+   real, dimension(loGC(2):), intent(IN) :: hy_yCenter
+   real, dimension(loGC(3):), intent(IN) :: hy_zCenter
+   real, dimension(loGC(1):), intent(IN) :: hy_xLeft, hy_xRight
+   real, dimension(loGC(2):), intent(IN) :: hy_yLeft, hy_yRight
+   real, dimension(loGC(1):, loGC(2):, loGC(3):), intent(IN) :: hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol
+
+   integer, dimension(LOW:HIGH, MDIM, MAXSTAGE) :: limits
+   integer :: stage, ng, dir
+   integer, parameter :: last_stage = MAXSTAGE
+
+   @M hy_eos_declare_scr
+
+
+
+   @M hy_setStage_nt
+
+   @M hy_setLimits
+
+   !! Begin loop over stages for the telescoping mode.
+   @M hy_stages_t
+      ! calculate gravitational acceleration based on current value of GPOT_VAR
+      ! This is stored in scratch variable hy_grav
+      call hy_rk_getGraveAccel(hy_starState, hy_grav, &
+                               hy_xCenter, hy_yCenter, deltas, &
+                               blkLimitsGC, loGC)
+
+      call hy_rk_getFlatteningLimiter(stage, hy_starState, hy_flat3d, limits, loGC)
+
+      call hy_rk_getFaceFlux(stage, hy_starState, hy_flat3d, hy_flx, hy_fly, hy_flz, &
+                             limits, deltas, &
+                             hy_rope, hy_flux, hy_uPlus, hy_uMinus, &
+                             loGC)
+      ! Now update solution based on conservative fluxes
+      ! See select_RK_scheme() for explicit outline of C1, C2, & C3
+      ! U* = C1 * U0 + C2 * U* + C3 * dt*L(U*)
+      call hy_rk_updateSoln(stage, hy_starState, hy_tmpState, &
+                            hy_grav, hy_flx, hy_fly, hy_flz, &
+                            deltas, hy_fareaX, hy_fareaY, hy_fareaZ, hy_cvol, hy_xCenter, &
+                            hy_xLeft, hy_xRight, hy_yLeft, hy_yRight, &
+                            dt, dtOld, limits, lo, loGC)
+      call hy_rk_saveFluxBuf(stage, hy_fluxBufX, hy_fluxBufY, hy_fluxBufZ, &
+                             hy_flx, hy_fly, hy_flz, &
+                             hy_fareaX, hy_fareaY, hy_fareaZ, &
+                             blkLimits, lo, loGC)
+#if NSPECIES>0
+      !Properly normalize species after the update
+      call hy_rk_renormAbundance(blkLimitsGC, hy_starState, loGC)
+#endif
+
+      @M hy_DIR_update_starState_to_host
+      call Eos_multiDim(MODE_DENS_EI, limits(LOW:HIGH,1:MDIM,stage), loGC, hy_starState @M hy_eos_args)
+      @M hy_DIR_update_starState_to_device
+
+   @M hy_end_stages_t
+
+   @M hy_updateState
+
+end subroutine Hydro_advance
+

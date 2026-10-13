@@ -56,8 +56,11 @@ Module bn_interface
   !! NOTE from this point down, LBR had to guess the intent
   !! These routines reside in nuclearBurn and are generic for all alpha-chain networks
   interface
-     subroutine bn_azbar()
+     subroutine bn_azbar(xmass, ymass, abar, zbar, z2bar, ytot1, bye)
        implicit none
+       real, intent(IN) :: xmass(NSPECIES)
+       real, intent(OUT) :: ymass(NSPECIES)
+       real, intent(OUT) :: abar, zbar, z2bar, ytot1, bye
      end subroutine bn_azbar
   end interface
 
@@ -95,20 +98,54 @@ Module bn_interface
      end subroutine bn_mcord
   end interface
 
+  type :: screen4_state_t
+     real :: qlam0z
+     real :: gamp
+     real :: taufac
+     real :: gamef
+     real :: tau12
+     real :: alph12
+     real :: h12w
+     real :: h12
+     real :: xlgfac
+     real :: cc
+     real :: xx
+     real :: gamp14
+     real :: alp123
+     real :: xni
+     real :: aa
+     real :: bb
+     real :: dd
+     real :: btempi
+     real :: btemp_old
+     real :: den_old
+     real :: zbarr_old
+     real :: abarr_old
+  end type screen4_state_t
+
   interface
-     subroutine bn_screen4(zbarr,abarr,z2barr,z1,a1,z2,a2, & 
-          &                   jscreen,init,scorr,scorrdt)
+     subroutine bn_screen4(state, zbarr, abarr, z2barr, z1, a1, z2, a2, &
+                           jscreen, init, &
+                           btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                           scorr)
+       import :: screen4_state_t
        implicit none
-       integer, intent(IN)   :: jscreen, init
-       real, intent(IN)      :: abarr, zbarr, z2barr, z1, a1, z2, a2
-       real, intent(OUT)     :: scorr
-       real, intent(OUT), optional     :: scorrdt
+       type(screen4_state_t), intent(INOUT) :: state
+       integer, intent(IN) :: jscreen
+       logical, intent(IN) :: init
+       real, intent(IN) :: abarr, zbarr, z2barr, z1, a1, z2, a2
+       real, intent(IN) :: btemp, bden
+       real, intent(OUT) :: scorr
+       real, intent(INOUT) :: zs13(:), zs13inv(:), zhat(:), zhat2(:), lzav(:), aznut(:)   ! size of nrat
      end subroutine bn_screen4
   end interface
 
   interface
-     subroutine bn_sneutx()
+     subroutine bn_sneutx(btemp,bden,abar,zbar, &
+                          sneut)
        implicit none
+       real, intent(IN) :: btemp,bden,abar,zbar
+       real, intent(OUT) :: sneut
      end subroutine bn_sneutx
   end interface
 

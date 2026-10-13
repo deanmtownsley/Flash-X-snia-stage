@@ -38,27 +38,33 @@
 !!
 !!
 !!  @param mode   Selects the mode of operation of the Eos unit.
-!!             The valid values are MODE_DENS_EI, MODE_DENS_PRES and  
-!!             MODE_DENS_TEMP as decribed above.
+!!             The valid values are MODE_DENS_EI, MODE_DENS_PRES,
+!!             MODE_DENS_TEMP, and perhaps others.
 !!
-!!  @param  range(LOW:HIGH,MDIM) are the bounds of the array
-!!          pointed to by solnData
+!!  @param  range(LOW:HIGH,MDIM) are the spatial bounds of the region of the
+!!          array solnData on which the Eos is to act, usually as indexes in
+!!          the global index convention and definitely using the same convention
+!!          as the "lo" argument.
 !!
-!!  @param solnData(:,:,:,:) is pointer to the array where
-!!          all the data is located
+!!  @param  lo(1:MDIM) are the spatial lower bounds of the array passed as
+!!          solnData, usually the indexes in the global index convention
 !!
+!!  @param solnData(:,:,:,:) is the array where all the
+!!          solution data of a current block is located
+!!
+!!REORDER(4): solnData
 !!NOVARIANTS
 
 
-subroutine Eos_multiDim(mode,range,solnData)
-  
+subroutine Eos_multiDim(mode,range,lo,solnData)
+
   implicit none
 
 #include "constants.h"
-#include "FortranLangFeatures.fh"
 
   integer, intent(in) :: mode
   integer, dimension(2,MDIM), intent(in) :: range
-  real, POINTER_INTENT_IN :: solnData(:,:,:,:)
+  integer, intent(in) :: lo(MDIM)
+  real,dimension(1:,lo(1):,lo(2):,lo(3):),intent(inout) :: solnData
 end subroutine Eos_multiDim
 

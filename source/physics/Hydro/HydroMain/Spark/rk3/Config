@@ -10,7 +10,7 @@ IF not nontelescoping and (useTVD or useLim03 or useFog)
 ENDIF
 
 IF not nontelescoping and not (useTVD or useLim03 or useFog)
-  GUARDCELLS 10
+  GUARDCELLS 12
 ENDIF
 
 # NOTE: I think that FLASH can only handle EVEN numbers of guardzones...

@@ -46,14 +46,21 @@ subroutine gr_mpolePotentials (ipotvar,Poisson_factor)
 
   use gr_mpoleData,      ONLY : gr_mpoleGravityConstant, &
                                 gr_mpoleFourPiInv,       &
-                                gr_mpoleGeometry
+                                gr_mpoleMaxQ,            &
+                                gr_mpoleMomRI,           &
+                                gr_mpoleMomentI,         &
+                                gr_mpoleMomentR,         &
+                                gr_mpoleScratch,         &
+                                gr_mpoleGeometry, gr_mpoleRequest
 
-  implicit none
 
 #include "gr_mpole.h"
+#include "Flashx_mpi_implicitNone.fh"
 
   integer, intent (in) :: ipotvar
   real,    intent (in) :: Poisson_factor
+  integer :: stat(MPI_STATUS_SIZE),error
+  
 !  
 !
 !     ...Calculate the gravitational constant.
@@ -68,7 +75,16 @@ subroutine gr_mpolePotentials (ipotvar,Poisson_factor)
 !
 !     ...Select the appropriate subroutine.
 !
-!
+  !
+
+  call MPI_Wait(gr_mpoleRequest, stat, error)
+
+  gr_mpoleMomentR (:,0) = ZERO
+  gr_mpoleMomentR (:,1:gr_mpoleMaxQ) = gr_mpoleScratch (:,1:gr_mpoleMaxQ,1)
+
+  gr_mpoleMomentI (:,1:gr_mpoleMaxQ) = gr_mpoleScratch (:,1:gr_mpoleMaxQ,2)
+  gr_mpoleMomentI (:,gr_mpoleMaxQ+1) = ZERO
+  
 
   select case (gr_mpoleGeometry)
 

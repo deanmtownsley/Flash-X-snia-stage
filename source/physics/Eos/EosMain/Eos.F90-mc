@@ -20,7 +20,13 @@
 !! @subref{Eos}
 !!
 !!
-!!NOVARIANTS
+!!
+
+!!VARIANTS(GPU): Eos, &
+!!               eos_idealGamma, &
+!!               eos_helmSpecies, &
+!!               eos_weakLib, &
+!!               Driver_abort
 
 #include "constants.h"
 #include "Eos.h"
@@ -33,7 +39,6 @@ subroutine Eos(mode, @M eos_args, massFrac, derivs)
   use Driver_interface, ONLY : Driver_abort
   use Eos_data, ONLY : eos_meshMe, eos_type
   use eos_localInterface, ONLY : eos_idealGamma, eos_helmSpecies, eos_weakLib
-
 
   implicit none
   integer, INTENT(in) :: mode

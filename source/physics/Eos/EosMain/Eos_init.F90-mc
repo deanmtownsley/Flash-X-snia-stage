@@ -20,6 +20,8 @@
 !!
 !!
 !!***
+!!
+
 !!NOVARIANTS
 subroutine Eos_init()
 
@@ -52,7 +54,8 @@ subroutine Eos_init()
   call RuntimeParameters_get("eos_singleSpeciesA", eos_singleSpeciesA)
   call RuntimeParameters_get("eos_singleSpeciesZ", eos_singleSpeciesZ)
   call RuntimeParameters_get("eos_logLevel", eos_logLevel)
-  call RuntimeParameters_get("smalle",eos_smalle)
+  call RuntimeParameters_get("smalle", eos_smalle)
+  call RuntimeParameters_get('smallt', eos_smallt)
   call RuntimeParameters_get("eintSwitch",eos_eintSwitch)
 #ifndef EINT_VAR
   if (eos_eintSwitch > 0.0) then
@@ -64,6 +67,12 @@ subroutine Eos_init()
   @M eos_helmSpeciesInit
   @M eos_weaklibInit  
   @M eos_hybridInit
+
+  @M eos_DIR_update_to([eos_gasConstant, eos_smalle, eos_smallt, eos_gamma])
+  @M eos_DIR_update_to([eos_singleSpeciesA, eos_singleSpeciesZ])
+  @M eos_DIR_update_to([eos_meshMe, eos_type, eos_mapLookup])
+  @M eos_DIR_update_to([eos_eintSwitch, eos_tol, eos_smallt, eos_largeT, eos_smallRho])
+
   call RuntimeParameters_get("threadWithinBlockBuild", threadWithinBlockBuild)
   call RuntimeParameters_get("threadEosWithinBlock", eos_threadWithinBlock)
 

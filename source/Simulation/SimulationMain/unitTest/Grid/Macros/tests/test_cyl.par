@@ -1,0 +1,25 @@
+geometry = "cylindrical"
+
+xmin     =  1.0
+xmax     =  4.0
+ymin     = -1.5
+ymax     =  4.5
+zmin     =  10
+zmax     =  30
+
+lrefine_min  = 1
+lrefine_max  = 3
+refine_var_1 = "dens"
+
+lrefine_min  = 1
+lrefine_max  = 3
+refine_var_1 = "dens"
+
+xl_boundary_type = "reflecting"
+xr_boundary_type = "outflow"
+
+yl_boundary_type = "reflecting"
+yr_boundary_type = "reflecting"
+
+zl_boundary_type = "periodic"
+zr_boundary_type = "periodic"

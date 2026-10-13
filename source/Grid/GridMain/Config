@@ -193,9 +193,9 @@ D &            an explicit 'tiling' flag argument present.
 D &            Setting this global flag to TRUE will only have the
 D &            effect of turning tiling on if (1) gr_enableTiling is
 D &            TRUE, (2) the Grid immplementation of the iterator
-D &            class actually supports tiling, and (3) the statements
-D &            that 'gets' the iterator does not have an explicit
-D &            'tiling' actual argument.
+D &            class actually supports tiling, and (3) the call
+D &            that 'gets' the iterator does not have an actual
+D &            'tiling' argument present.
 D &            This parameter is also used by some physics code units
 D &            to decide whether they should use proper tiling for
 D &            their tile loops.

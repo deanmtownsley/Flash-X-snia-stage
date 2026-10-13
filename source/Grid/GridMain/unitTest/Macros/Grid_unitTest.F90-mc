@@ -1,0 +1,284 @@
+#include "Simulation.h"
+#include "constants.h"
+
+!!NOVARIANTS
+!!REORDER(4): solnData
+subroutine Grid_unitTest(fileUnit, perfect)
+   use Grid_interface,        ONLY : Grid_getDomainBoundBox, &
+                                     Grid_getCellCoords, &
+                                     Grid_getCellFaceAreas, &
+                                     Grid_getCellVolumes, &
+                                     Grid_getGeometry, &
+                                     Grid_getDeltas, &
+                                     Grid_getMaxRefinement, &
+                                     Grid_getTileIterator, &
+                                     Grid_releaseTileIterator
+   use Grid_iterator,         ONLY : Grid_iterator_t
+   use Grid_tile,             ONLY : Grid_tile_t
+   use ut_testDriverMod
+
+   implicit none
+
+   integer, intent(in)    :: fileUnit
+   logical, intent(inout) :: perfect
+
+   type(Grid_iterator_t) :: itor
+   type(Grid_tile_t)     :: tileDesc
+   real, pointer         :: solnData(:, :, :, :)
+   integer               :: geometry
+   integer               :: blkLimits(LOW:HIGH, 1:MDIM)
+   integer               :: blkLimitsGC(LOW:HIGH, 1:MDIM)
+   integer               :: lo(MDIM), hi(MDIM), loGC(MDIM), hiGC(MDIM)
+   real                  :: domain(LOW:HIGH, MDIM), globalLBnd(MDIM)
+   real, dimension(MDIM) :: deltas
+
+   real, allocatable :: GridComputedCellCenter(:), MacroComputedCellCenter(:)
+   real, allocatable :: GridComputedCellLeft(:), MacroComputedCellLeft(:)
+   real, allocatable :: GridComputedCellRight(:), MacroComputedCellRight(:)
+
+   real, allocatable :: GridComputedFareaX(:, :, :), MacroComputedFareaX(:, :, :)
+   real, allocatable :: GridComputedFareaY(:, :, :), MacroComputedFareaY(:, :, :)
+   real, allocatable :: GridComputedFareaZ(:, :, :), MacroComputedFareaZ(:, :, :)
+
+   real, allocatable :: GridComputedCvol(:, :, :), MacroComputedCvol(:, :, :)
+
+   integer :: axis, i, j, k
+
+   nullify(solnData)
+
+   call start_test_run
+
+   ! Physical domain
+   call Grid_getGeometry(geometry)
+   call Grid_getDomainBoundBox(domain)
+   globalLBnd = domain(LOW, :)
+
+   !!!!! CONFIRM CELL COORDS MACROS
+   call Grid_getTileIterator(itor, LEAF, tiling=.TRUE.)
+   do while (itor%isValid())
+      call itor%currentTile(tileDesc)
+      call tileDesc%deltas(deltas)
+
+      lo = tileDesc%limits(LOW,  :)
+      hi = tileDesc%limits(HIGH, :)
+      loGC = tileDesc%blkLimitsGC(LOW,  :)
+      hiGC = tileDesc%blkLimitsGC(HIGH, :)
+
+      do axis = IAXIS, NDIM
+         allocate(GridComputedCellCenter(lo(axis):hi(axis)))
+         allocate(GridComputedCellLeft(lo(axis):hi(axis)))
+         allocate(GridComputedCellRight(lo(axis):hi(axis)))
+         allocate(MacroComputedCellCenter(lo(axis):hi(axis)))
+         allocate(MacroComputedCellLeft(lo(axis):hi(axis)))
+         allocate(MacroComputedCellRight(lo(axis):hi(axis)))
+
+         call Grid_getCellCoords(axis, CENTER, tileDesc%level, lo, hi, GridComputedCellCenter)
+         call Grid_getCellCoords(axis, LEFT_EDGE, tileDesc%level, lo, hi, GridComputedCellLeft)
+         call Grid_getCellCoords(axis, RIGHT_EDGE, tileDesc%level, lo, hi, GridComputedCellRight)
+         do i = lo(axis), hi(axis)
+            @M Grid_getCenterCoords(globalLBnd, axis, deltas, i, MacroComputedCellCenter)
+            @M Grid_getLeftEdgeCoords(globalLBnd, axis, deltas, i, MacroComputedCellLeft)
+            @M Grid_getRightEdgeCoords(globalLBnd, axis, deltas, i, MacroComputedCellRight)
+         end do
+
+         do i = lo(axis), hi(axis)
+            call assertEqual(GridComputedCellCenter(i), MacroComputedCellCenter(i), &
+               "Bad CellCenter")
+            call assertEqual(GridComputedCellLeft(i), MacroComputedCellLeft(i), &
+               "Bad CellLeft")
+            call assertEqual(GridComputedCellRight(i), MacroComputedCellRight(i), &
+               "Bad CellRight")
+         end do
+
+         deallocate(GridComputedCellCenter)
+         deallocate(GridComputedCellLeft)
+         deallocate(GridComputedCellRight)
+         deallocate(MacroComputedCellCenter)
+         deallocate(MacroComputedCellLeft)
+         deallocate(MacroComputedCellRight)
+      end do
+
+      call itor%next()
+   end do
+   call Grid_releaseTileIterator(itor)
+
+   !!!!! CONFIRM CELL FACE AREAS MACROS
+   call Grid_getTileIterator(itor, LEAF, tiling=.TRUE.)
+   do while (itor%isValid())
+      call itor%currentTile(tileDesc)
+      call tileDesc%deltas(deltas)
+
+      lo = tileDesc%limits(LOW,  :)
+      hi = tileDesc%limits(HIGH, :)
+      loGC = tileDesc%blkLimitsGC(LOW,  :)
+      hiGC = tileDesc%blkLimitsGC(HIGH, :)
+
+      allocate( &
+         GridComputedFareaX(lo(IAXIS):hi(IAXIS), &
+                            lo(JAXIS):hi(JAXIS), &
+                            lo(KAXIS):hi(KAXIS)) &
+      )
+      call Grid_getCellFaceAreas(IAXIS, tileDesc%level, lo, hi, GridComputedFareaX)
+      allocate( &
+         MacroComputedFareaX(lo(IAXIS):hi(IAXIS), &
+                             lo(JAXIS):hi(JAXIS), &
+                             lo(KAXIS):hi(KAXIS)) &
+      )
+#if NDIM > 1
+      allocate( &
+         GridComputedFareaY(lo(IAXIS):hi(IAXIS), &
+                            lo(JAXIS):hi(JAXIS), &
+                            lo(KAXIS):hi(KAXIS)) &
+      )
+      call Grid_getCellFaceAreas(JAXIS, tileDesc%level, lo, hi, GridComputedFareaY)
+      allocate( &
+         MacroComputedFareaY(lo(IAXIS):hi(IAXIS), &
+                             lo(JAXIS):hi(JAXIS), &
+                             lo(KAXIS):hi(KAXIS)) &
+      )
+#endif
+#if NDIM > 2
+      allocate( &
+         GridComputedFareaZ(lo(IAXIS):hi(IAXIS), &
+                            lo(JAXIS):hi(JAXIS), &
+                            lo(KAXIS):hi(KAXIS)) &
+      )
+      call Grid_getCellFaceAreas(KAXIS, tileDesc%level, lo, hi, GridComputedFareaZ)
+      allocate( &
+         MacroComputedFareaZ(lo(IAXIS):hi(IAXIS), &
+                             lo(JAXIS):hi(JAXIS), &
+                             lo(KAXIS):hi(KAXIS)) &
+      )
+#endif
+      select case(geometry)
+      case (CARTESIAN)
+         do k = lo(KAXIS), hi(KAXIS)
+         do j = lo(JAXIS), hi(JAXIS)
+         do i = lo(IAXIS), hi(IAXIS)
+            @M Grid_getFaceAreas_IAXIS_Cartesian(globalLBnd, deltas, MacroComputedFareaX, i, j, k)
+#if NDIM > 1
+            @M Grid_getFaceAreas_JAXIS_Cartesian(globalLBnd, deltas, MacroComputedFareaY, i, j, k)
+#endif
+#if NDIM > 2
+            @M Grid_getFaceAreas_KAXIS_Cartesian(globalLBnd, deltas, MacroComputedFareaZ, i, j, k)
+#endif
+         end do
+         end do
+         end do
+      case (CYLINDRICAL)
+         do k = lo(KAXIS), hi(KAXIS)
+         do j = lo(JAXIS), hi(JAXIS)
+         do i = lo(IAXIS), hi(IAXIS)
+            @M Grid_getFaceAreas_IAXIS_Cylindrical(globalLBnd, deltas, MacroComputedFareaX, i, j, k)
+#if NDIM > 1
+            @M Grid_getFaceAreas_JAXIS_Cylindrical(globalLBnd, deltas, MacroComputedFareaY, i, j, k)
+#endif
+#if NDIM > 2
+            @M Grid_getFaceAreas_KAXIS_Cylindrical(globalLBnd, deltas, MacroComputedFareaZ, i, j, k)
+#endif
+         end do
+         end do
+         end do
+      case (SPHERICAL)
+         do k = lo(KAXIS), hi(KAXIS)
+         do j = lo(JAXIS), hi(JAXIS)
+         do i = lo(IAXIS), hi(IAXIS)
+            @M Grid_getFaceAreas_IAXIS_Spherical(globalLBnd, deltas, MacroComputedFareaX, i, j, k)
+#if NDIM > 1
+            @M Grid_getFaceAreas_JAXIS_Spherical(globalLBnd, deltas, MacroComputedFareaY, i, j, k)
+#endif
+#if NDIM > 2
+            @M Grid_getFaceAreas_KAXIS_Spherical(globalLBnd, deltas, MacroComputedFareaZ, i, j, k)
+#endif
+         end do
+         end do
+         end do
+      end select
+
+      do k = lo(KAXIS), hi(KAXIS)
+      do j = lo(JAXIS), hi(JAXIS)
+      do i = lo(IAXIS), hi(IAXIS)
+         call assertEqual(GridComputedFareaX(i,j,k), MacroComputedFareaX(i,j,k), "Bad FaceArea along X-axis")
+#if NDIM > 1
+         call assertEqual(GridComputedFareaY(i,j,k), MacroComputedFareaY(i,j,k), "Bad FaceArea along Y-axis")
+#endif
+#if NDIM > 2
+         call assertEqual(GridComputedFareaZ(i,j,k), MacroComputedFareaZ(i,j,k), "Bad FaceArea along Z-axis")
+#endif
+      end do
+      end do
+      end do
+
+      deallocate(GridComputedFareaX)
+      deallocate(MacroComputedFareaX)
+#if NDIM > 1
+      deallocate(GridComputedFareaY)
+      deallocate(MacroComputedFareaY)
+#endif
+#if NDIM > 2
+      deallocate(GridComputedFareaZ)
+      deallocate(MacroComputedFareaZ)
+#endif
+      call itor%next()
+   end do
+   call Grid_releaseTileIterator(itor)
+
+
+   !!!!! CONFIRM CELL VOLUMES MACROS
+   call Grid_getTileIterator(itor, LEAF, tiling=.TRUE.)
+   do while (itor%isValid())
+      call itor%currentTile(tileDesc)
+      call tileDesc%deltas(deltas)
+
+      lo = tileDesc%limits(LOW,  :)
+      hi = tileDesc%limits(HIGH, :)
+      loGC = tileDesc%blkLimitsGC(LOW,  :)
+      hiGC = tileDesc%blkLimitsGC(HIGH, :)
+
+      allocate( &
+         GridComputedCvol(lo(IAXIS):hi(IAXIS), &
+                          lo(JAXIS):hi(JAXIS), &
+                          lo(KAXIS):hi(KAXIS)) &
+      )
+      call Grid_getCellVolumes(tileDesc%level, lo, hi, GridComputedCvol)
+
+      allocate( &
+         MacroComputedCvol(lo(IAXIS):hi(IAXIS), &
+                           lo(JAXIS):hi(JAXIS), &
+                           lo(KAXIS):hi(KAXIS)) &
+      )
+      do k = lo(KAXIS), hi(KAXIS)
+      do j = lo(JAXIS), hi(JAXIS)
+      do i = lo(IAXIS), hi(IAXIS)
+         select case(geometry)
+         case (CARTESIAN)
+            @M Grid_getCellVolumes_Cartesian(globalLBnd, deltas, MacroComputedCvol, i, j, k)
+         case (CYLINDRICAL)
+            @M Grid_getCellVolumes_Cylindrical(globalLBnd, deltas, MacroComputedCvol, i, j, k)
+         case (SPHERICAL)
+            @M Grid_getCellVolumes_Spherical(globalLBnd, deltas, MacroComputedCvol, i, j, k)
+         end select
+      end do
+      end do
+      end do
+
+      do k = lo(KAXIS), hi(KAXIS)
+      do j = lo(JAXIS), hi(JAXIS)
+      do i = lo(IAXIS), hi(IAXIS)
+         call assertEqual(GridComputedCvol(i,j,k), MacroComputedCvol(i,j,k), "Bad CellVolume")
+      end do
+      end do
+      end do
+
+      deallocate(GridComputedCvol)
+      deallocate(MacroComputedCvol)
+
+      call itor%next()
+   end do
+   call Grid_releaseTileIterator(itor)
+
+   perfect = finish_test_run()
+
+end subroutine Grid_unitTest
+
+

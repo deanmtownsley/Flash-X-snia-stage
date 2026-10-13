@@ -18,7 +18,7 @@
 !!
 !! SYNOPSIS
 !!
-!!  Hydro( real(IN)    :: timeEndAdv, 
+!!  call Hydro( real(IN)    :: timeEndAdv,
 !!         real(IN)    :: dt, 
 !!         real(IN)    :: dtOld, 
 !!         integer(IN) :: sweepOrder )
@@ -39,11 +39,9 @@
 !!***
 
 
-subroutine Hydro(simTime, dt, dtOld, sweeporder)
+subroutine Hydro(simTime, dt, dtOld, sweepOrder)
 implicit none
-#include "Simulation.h"
-#include "constants.h"
   
   real,    INTENT(IN) :: simTime, dt, dtOld
-  integer, optional, intent(IN) :: sweeporder
+  integer, optional, intent(IN) :: sweepOrder
 end subroutine Hydro

@@ -377,7 +377,7 @@ Subroutine hy_updateSolution_fluxbuf(tileDesc, flx,fly,flz,lo, Uin, Uout, del,ti
         print*,'_unsplit bef Eos_multiDim: lbound(Uout):',lbound(Uout)
         print*,'_unsplit bef Eos_multiDim: ubound(Uout):',ubound(Uout)
 #endif
-        call Eos_multiDim(hy_eosModeAfter, tileDesc%limits, Uout)
+        call Eos_multiDim(hy_eosModeAfter, tileDesc%limits,tileDesc%blkLimitsGC(LOW,:), Uout)
      !#endif
      end if
 #endif /* ifndef GRAVITY */

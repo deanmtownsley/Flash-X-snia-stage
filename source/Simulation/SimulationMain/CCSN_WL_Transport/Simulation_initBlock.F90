@@ -498,7 +498,7 @@ subroutine Simulation_initBlock(solnData, tileDesc)
   deallocate(zRight)
   deallocate(zCenter)
 
-  call Eos_multiDim(MODE_DENS_TEMP,tileDesc%limits,solnData)
+  call Eos_multiDim(MODE_DENS_TEMP,tileDesc%limits,tileDesc%blkLimitsGC(LOW,:),solnData)
 
   return
 end subroutine Simulation_initBlock

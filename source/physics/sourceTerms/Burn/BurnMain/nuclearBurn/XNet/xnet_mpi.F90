@@ -16,7 +16,10 @@
 !***************************************************************************************************
 
 module xnet_mpi
+#ifdef HAVE_MPI_MODULE
+  use mpi
+#else
   implicit none
   include 'mpif.h'
-  !use mpi
+#endif
 end module xnet_mpi

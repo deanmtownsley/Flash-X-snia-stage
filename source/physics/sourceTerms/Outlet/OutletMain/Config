@@ -2,6 +2,13 @@
 REQUIRES physics/IncompNS/IncompNSMain
 REQUIRES physics/sourceTerms/Outlet/localAPI
 
+USESETUPVARS InsLSDamping
+
+IF InsLSDamping
+    REQUIRES physics/Multiphase/MultiphaseMain
+    REQUIRES physics/sourceTerms/Outlet/OutletMain/lsDamping
+ENDIF
+
 # Directives
 PPDEFINE OUTLET_MAIN
 

@@ -1,6 +1,5 @@
-subroutine mph_setEvapJumps3d(phi, pf, sigx, sigy, sigz, mflux, rhoGas, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
 !! NOTICE
-!!  Copyright 2022 UChicago Argonne, LLC and contributors
+!!  Copyright 2024 UChicago Argonne, LLC and contributors
 !!
 !!  Licensed under the Apache License, Version 2.0 (the "License");
 !!  you may not use this file except in compliance with the License.
@@ -10,6 +9,8 @@ subroutine mph_setEvapJumps3d(phi, pf, sigx, sigy, sigz, mflux, rhoGas, dx, dy, 
 !!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
+subroutine mph_setEvapJumps3d(phi, pf, sigx, sigy, sigz, mflux, rhoGas, &
+                              dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2, tol)
    !
    implicit none
 
@@ -18,6 +19,7 @@ subroutine mph_setEvapJumps3d(phi, pf, sigx, sigy, sigz, mflux, rhoGas, dx, dy, 
    real, intent(in) :: dx, dy, dz, rhoGas
    real, dimension(:, :, :), intent(in) :: phi, mflux, pf
    real, dimension(:, :, :), intent(inout) :: sigx, sigy, sigz
+   real, intent(in) :: tol
 
    !-------Local variables---------------
    real :: th, xijl, xijr, xij, yij, yijl, yijr, zijl, zijr, zij
@@ -36,7 +38,7 @@ subroutine mph_setEvapJumps3d(phi, pf, sigx, sigy, sigz, mflux, rhoGas, dx, dy, 
             !--------------------------------------------------------------
             if (pf(i, j, k) .eq. 0. .and. pf(i + 1, j, k) .eq. 1.) then
                !          = (+)            = (+)           = (-)
-               th = abs(phi(i + 1, j, k))/(abs(phi(i + 1, j, k)) + abs(phi(i, j, k)))
+               th = max(tol, abs(phi(i + 1, j, k))/(abs(phi(i + 1, j, k)) + abs(phi(i, j, k))))
                xijl = -bb*mflux(i, j, k)*mflux(i, j, k)
                xijr = -bb*mflux(i + 1, j, k)*mflux(i + 1, j, k)
                xij = xijl*th + xijr*(1.-th)
@@ -48,7 +50,7 @@ subroutine mph_setEvapJumps3d(phi, pf, sigx, sigy, sigz, mflux, rhoGas, dx, dy, 
             !--------------------------------------------------------------
             if (pf(i, j, k) .eq. 1. .and. pf(i + 1, j, k) .eq. 0.) then
                !
-               th = abs(phi(i, j, k))/(abs(phi(i, j, k)) + abs(phi(i + 1, j, k)))
+               th = max(tol, abs(phi(i, j, k))/(abs(phi(i, j, k)) + abs(phi(i + 1, j, k))))
                xijl = -bb*mflux(i, j, k)*mflux(i, j, k)
                xijr = -bb*mflux(i + 1, j, k)*mflux(i + 1, j, k)
                xij = xijl*(1.-th) + xijr*th
@@ -61,7 +63,7 @@ subroutine mph_setEvapJumps3d(phi, pf, sigx, sigy, sigz, mflux, rhoGas, dx, dy, 
             !--------------------------------------------------------------
             if (pf(i, j, k) .eq. 0. .and. pf(i, j + 1, k) .eq. 1.) then
                !
-               th = abs(phi(i, j + 1, k))/(abs(phi(i, j + 1, k)) + abs(phi(i, j, k)))
+               th = max(tol, abs(phi(i, j + 1, k))/(abs(phi(i, j + 1, k)) + abs(phi(i, j, k))))
                yijl = -bb*mflux(i, j, k)*mflux(i, j, k)
                yijr = -bb*mflux(i, j + 1, k)*mflux(i, j + 1, k)
                yij = yijl*th + yijr*(1.-th)
@@ -73,7 +75,7 @@ subroutine mph_setEvapJumps3d(phi, pf, sigx, sigy, sigz, mflux, rhoGas, dx, dy, 
             !--------------------------------------------------------------
             if (pf(i, j, k) .eq. 1. .and. pf(i, j + 1, k) .eq. 0.) then
                !
-               th = abs(phi(i, j, k))/(abs(phi(i, j, k)) + abs(phi(i, j + 1, k)))
+               th = max(tol, abs(phi(i, j, k))/(abs(phi(i, j, k)) + abs(phi(i, j + 1, k))))
                yijl = -bb*mflux(i, j, k)*mflux(i, j, k)
                yijr = -bb*mflux(i, j + 1, k)*mflux(i, j + 1, k)
                yij = yijl*(1.-th) + yijr*th
@@ -84,7 +86,7 @@ subroutine mph_setEvapJumps3d(phi, pf, sigx, sigy, sigz, mflux, rhoGas, dx, dy, 
             !--------------------------------------------------------------
             if (pf(i, j, k) .eq. 0. .and. pf(i, j, k + 1) .eq. 1.) then
                !
-               th = abs(phi(i, j, k + 1))/(abs(phi(i, j, k + 1)) + abs(phi(i, j, k)))
+               th = max(tol, abs(phi(i, j, k + 1))/(abs(phi(i, j, k + 1)) + abs(phi(i, j, k))))
                zijl = -bb*mflux(i, j, k)*mflux(i, j, k)
                zijr = -bb*mflux(i, j, k + 1)*mflux(i, j, k + 1)
                zij = zijl*th + zijr*(1.-th)
@@ -96,7 +98,7 @@ subroutine mph_setEvapJumps3d(phi, pf, sigx, sigy, sigz, mflux, rhoGas, dx, dy, 
             !--------------------------------------------------------------
             if (pf(i, j, k) .eq. 1. .and. pf(i, j, k + 1) .eq. 0.) then
                !
-               th = abs(phi(i, j, k))/(abs(phi(i, j, k)) + abs(phi(i, j, k + 1)))
+               th = max(tol, abs(phi(i, j, k))/(abs(phi(i, j, k)) + abs(phi(i, j, k + 1))))
                zijl = -bb*mflux(i, j, k)*mflux(i, j, k)
                zijr = -bb*mflux(i, j, k + 1)*mflux(i, j, k + 1)
                zij = zijl*(1.-th) + zijr*th

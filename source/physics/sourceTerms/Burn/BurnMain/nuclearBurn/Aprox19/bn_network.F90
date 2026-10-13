@@ -19,6 +19,8 @@
 !!
 !! bn_network(real, intent(IN)                :: tt,
 !!            real, intent(IN), dimension(:)  :: y,
+!!            real, intent(IN),               :: btemp,
+!!            real, intent(IN), dimension(:)  :: ratdum,
 !!            real, intent(OUT), dimension(:) :: dydt
 !!
 !! DESCRIPTION
@@ -37,14 +39,17 @@
 !!
 !!   tt  -- never used, so don't know what it does
 !!   y --
+!!   btemp --
+!!   ratdum --
 !!   dydt --
 !!
 !!***
 
-subroutine bn_network(tt,y,dydt)   
+subroutine bn_network(tt,y,btemp,ratdum,dydt)
 
-  use Burn_dataEOS, ONLY:  btemp
-  use Burn_data
+  use Burn_data, ONLY: ineut, iprot, ih1, ihe3, ihe4, ic12, in14, &
+                       io16, ine20, img24, isi28, is32, iar36, ica40, &
+                       iti44, icr48, ife52, ife54, ini56
   use bn_dataAprox19
  
   implicit none
@@ -58,8 +63,8 @@ subroutine bn_network(tt,y,dydt)
 
 
 !!  declare arguments and local variables
-  real, intent(IN)  :: tt,y(*)
-  real, intent(OUT) :: dydt(*)
+  real, intent(IN)  :: tt, y(:), btemp, ratdum(:)
+  real, intent(OUT) :: dydt(:)
 
   real         yneut2,yprot2,xx,den1,den2,                &
        &       r1,s1,t1,u1,v1,w1,x1,ralf1,ralf2,                          &

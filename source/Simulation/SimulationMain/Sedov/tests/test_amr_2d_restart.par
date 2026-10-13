@@ -91,7 +91,7 @@ kProcs = 1
 ## -------------------------------------------------------------##
 ##  SWITCHES SPECIFIC TO THE UNSPLIT HYDRO SOLVER               ##
 #	I. INTERPOLATION SCHEME:
-order		= 3      # Interpolation order (first/second/third/fifth order)
+#order		= -1     # Simple Hydro does not provide higher order
 slopeLimiter    = "mc"   # Slope limiters (minmod, mc, vanLeer, hybrid, limited)
 LimitedSlopeBeta= 1.     # Slope parameter for the "limited" slope by Toro
 charLimiting	= .true. # Characteristic limiting vs. Primitive limiting

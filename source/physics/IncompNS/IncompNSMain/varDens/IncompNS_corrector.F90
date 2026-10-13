@@ -22,54 +22,21 @@
 #include "constants.h"
 #include "IncompNS.h"
 
-subroutine IncompNS_corrector(tileDesc, dt)
+subroutine IncompNS_corrector(solnData, facexData, faceyData, facezData, del, lo, hi, dt)
 
-   use Grid_tile, ONLY: Grid_tile_t
    use ins_interface, ONLY: ins_corrector_vardens
    use Timers_interface, ONLY: Timers_start, Timers_stop
-   use Driver_interface, ONLY: Driver_getNStep
    use IncompNS_data
 
    implicit none
-   include "Flashx_mpi.h"
    !-----Argument List-----
+   real, dimension(:,:,:,:), pointer :: solnData, facexData, faceyData, facezData
+   real,dimension(MDIM),intent(IN) :: del
+   integer, dimension(MDIM),intent(IN) :: lo, hi
    real, INTENT(IN) :: dt
-   type(Grid_tile_t), INTENT(IN) :: tileDesc
-
-!------------------------------------------------------------------------------------------
-   integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
-#if NDIM < MDIM
-   real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData
-   real, dimension(NFACE_VARS, 1, 1, 1) :: facezData
-#else
-   real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
-#endif
-   real del(MDIM)
-   integer :: NStep
-
-!------------------------------------------------------------------------------------------
-#if NDIM < MDIM
-   nullify (solnData, facexData, faceyData)
-#else
-   nullify (solnData, facexData, faceyData, facezData)
-#endif
+   
 
    call Timers_start("IncompNS_corrector")
-
-   call tileDesc%deltas(del)
-
-   ! Get Index Limits:
-   blkLimits = tileDesc%limits
-   blkLimitsGC = tileDesc%blkLimitsGC
-
-   ! Point to blocks center and face vars:
-   call tileDesc%getDataPtr(solnData, CENTER)
-   call tileDesc%getDataPtr(facexData, FACEX)
-   call tileDesc%getDataPtr(faceyData, FACEY)
-
-#if NDIM == 3
-   call tileDesc%getDataPtr(facezData, FACEZ)
-#endif
 
    ! update divergence-free velocities (not on block boundary)
    call ins_corrector_vardens(facexData(VELC_FACE_VAR, :, :, :), &
@@ -94,18 +61,10 @@ subroutine IncompNS_corrector(tileDesc, dt)
                               !------------------------------!
                               solnData(PRES_VAR, :, :, :), &
                               ins_rhoGas, dt, del(DIR_X), del(DIR_Y), del(DIR_Z), &
-                              GRID_ILO, GRID_IHI, &
-                              GRID_JLO, GRID_JHI, &
-                              GRID_KLO, GRID_KHI)
+                              lo(IAXIS), hi(IAXIS), &
+                              lo(JAXIS), hi(JAXIS), &
+                              lo(KAXIS), hi(KAXIS))
 
-   ! Release pointers:
-   call tileDesc%releaseDataPtr(solnData, CENTER)
-   call tileDesc%releaseDataPtr(facexData, FACEX)
-   call tileDesc%releaseDataPtr(faceyData, FACEY)
-
-#if NDIM ==3
-   call tileDesc%releaseDataPtr(facezData, FACEZ)
-#endif
 
    call Timers_stop("IncompNS_corrector")
 

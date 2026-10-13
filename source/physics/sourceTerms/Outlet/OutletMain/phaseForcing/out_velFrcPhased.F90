@@ -53,7 +53,6 @@ subroutine out_velFrcPhased(vel, rhs, sigm, phi, xgrid, ygrid, zgrid, &
             ! Get cell coordinates from grid arrays
             xcell = xgrid(i)
             ycell = ygrid(j)
-            zcell = zgrid(k)
 
             ! Compute level set function on the cell face
             phiface(IAXIS:JAXIS) = (/(phi(i, j, k)+phi(i-1, j, k))*.5, &
@@ -73,6 +72,8 @@ subroutine out_velFrcPhased(vel, rhs, sigm, phi, xgrid, ygrid, zgrid, &
                                            (vel(i, j+1, k)-vel(i, j-1, k))/(2*dy)/)
 
 #if NDIM == MDIM
+            zcell = zgrid(k)
+
             phiface(KAXIS) = (phi(i, j, k)+phi(i, j, k-1))*.5
 
             outprofile(LOW, KAXIS) = 2/(1+exp(outletGrowthRate*(zcell-zMin)/outletBuffer))

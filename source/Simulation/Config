@@ -1,1 +1,10 @@
 DEFAULT SimulationMain
+
+USESETUPVARS hybrid_precision
+
+IF hybrid_precision
+   LINKIF Flash_mpi.h.hybrid_precision Simulation
+   # signals that FLASH will be compiled with real = real(c_float),
+   # aka single precision, traditionally called real*4.
+   PPDEFINE HYBRID_PRECISION
+ENDIF

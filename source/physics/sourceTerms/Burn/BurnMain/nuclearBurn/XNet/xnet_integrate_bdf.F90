@@ -800,9 +800,13 @@ Contains
           acor(1:ny,izb) = acor(1:ny,izb) + dy(:,izb)
           dvec(1:ny) = dy(:,izb)
           If ( iheat > 0 ) Then
-            dvec(neq) = dt9(izb)
+            t9t(izb) = zt0(neq,0,izb) + acor(neq,izb) + dt9(izb)
+            If ( t9t(izb) < 1.0e-99_dp ) then
+              t9t(izb) = 1.0e-99_dp
+              dt9(izb) = -zt0(neq,0,izb) - acor(neq,izb)
+            EndIf
             acor(neq,izb) = acor(neq,izb) + dt9(izb)
-            t9t(izb) = zt0(neq,0,izb) + acor(neq,izb)
+            dvec(neq) = dt9(izb)
           EndIf
           del(izb) = normw( dvec, ewt(:,izb) )
           If ( nit_nr(izb) > 1 ) crate(izb) = max( cr_down*crate(izb), del(izb)/delp(izb) )
@@ -848,7 +852,7 @@ Contains
 
           ! If at max number of NR iterations or if diverging....
           ElseIf ( nit_nr(izb) == max_it_nr .or. &
-              ( nit_nr(izb) > 1 .and. del(izb) > delp(izb) * cr_diverge ) ) Then
+              ( nit_nr(izb) > 1 .and. .not. del(izb) <= delp(izb) * cr_diverge ) ) Then
 
             ! Reset the iteration and try again with a new Jacobian
             If ( j_age(izb) > 0 ) Then

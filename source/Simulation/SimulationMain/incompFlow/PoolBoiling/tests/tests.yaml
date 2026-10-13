@@ -3,7 +3,7 @@
 
 UnitTest/incompFlow/PoolBoiling/2d/Paramesh:
   setupOptions: -auto -maxblocks=100 +pm4dev -gridinterpolation=native +incomp +parallelIO -2d -nxb=16 -nyb=16
-  parfiles: test_single_bubble.par
+  parfiles: test_single_bubble_unittest.par
   transfers: source/Simulation/SimulationMain/incompFlow/PoolBoiling/tests/single_bubble_hdf5_htr_0001
 
 Comparison/incompFlow/PoolBoiling/2d/AMReX:
@@ -11,7 +11,7 @@ Comparison/incompFlow/PoolBoiling/2d/AMReX:
   parfiles: test_single_bubble.par
   transfers: source/Simulation/SimulationMain/incompFlow/PoolBoiling/tests/single_bubble_hdf5_htr_0001
 
-Comparison/incompFlow/PoolBoiling/3d/IO:
-  setupOptions: -auto -maxblocks=20 +amrex +parallelIO +incomp IOWriteGridFiles=False -3d -nxb=16 -nyb=16 -nzb=16
-  parfiles: test_io_3d.par
-  transfers: source/Simulation/SimulationMain/incompFlow/PoolBoiling/tests/test_io_3d.py
+Comparison/incompFlow/PoolBoiling/3d/AMReX:
+  setupOptions: -auto -maxblocks=100 +amrex +parallelIO +incomp -3d -nxb=16 -nyb=16 -nzb=16 -tomlfile=tests/test_3d.toml --with-unitmods
+  parfiles: <defaultParfile>
+  transfers: object/pool_boiling_3d_hdf5_htr_0001

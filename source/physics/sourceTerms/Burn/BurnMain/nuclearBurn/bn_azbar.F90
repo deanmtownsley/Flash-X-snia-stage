@@ -28,37 +28,41 @@
 !!  mean nucleon charge zbar, mean nucleon charge squared z2bar, and the
 !!  electron mole number bye.
 !!
-!! NOTES
-!!   the output variables are stored in data structure Burn_dataEOS
 !!  
 !!***
 
-subroutine bn_azbar()
+subroutine bn_azbar(xmass, ymass, abar, zbar, z2bar, ytot1, bye)
 
-  use Burn_dataEOS, ONLY:  abar,zbar,z2bar,ytot1,bye
-  use Burn_data, ONLY: xmass,ymass,aion,zion,bion,aioninv,zionsq
+  use Burn_data, ONLY: aioninv, zion, zionsq
 
   implicit none
 
 #include "constants.h"
 #include "Simulation.h"
 
-  !!  local declarations
-  integer          i
-  real             zbarxx,z2barxx
+  ! Arguments
+  real, intent(IN) :: xmass(NSPECIES)
+  real, intent(OUT) :: ymass(NSPECIES)
+  real, intent(OUT) :: abar, zbar, z2bar, ytot1, bye
+
+  ! Local variables
+  integer :: i
+  real :: zbarxx, z2barxx
 
   zbarxx  = 0.0e0
   z2barxx = 0.0e0
   ytot1   = 0.0e0
 
-  do i=1,NSPECIES
+  ! Compute ymass and intermediate sums
+  do i = 1, NSPECIES
      ymass(i) = xmass(i) * aioninv(i)
      zbarxx   = zbarxx + zion(i) * ymass(i)
      z2barxx  = z2barxx + zionsq(i) * ymass(i)
      ytot1    = ytot1 + ymass(i)
-  enddo
+  end do
 
-  abar   = 1.0e0/ytot1
+  ! Compute final results
+  abar   = 1.0e0 / ytot1
   zbar   = zbarxx * abar
   z2bar  = z2barxx * abar
   bye    = zbar * ytot1

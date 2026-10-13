@@ -157,8 +157,8 @@ Testing servers:
 
   FlashTest server for running tests on `staged` branch
 
-  - GCC   - https://jenkins-gce.cels.anl.gov/job/Flash-X-staged_GCC
-  - Intel - https://jenkins-gce.cels.anl.gov/job/Flash-X-staged_Intel
+  - GCC   - https://jenkins.cels.anl.gov/job/Flash-X-staged_GCC
+  - Intel - https://jenkins.cels.anl.gov/job/Flash-X-staged_Intel
 
   FlashTestView
 

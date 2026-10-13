@@ -20,37 +20,24 @@
 #include "constants.h"
 #include "IncompNS.h"
 
-subroutine IncompNS_predictor(tileDesc, dt)
+subroutine IncompNS_predictor(solnData, facexData, faceyData, facezData, del, lo, hi, dt)
 
-   use Grid_tile, ONLY: Grid_tile_t
    use Timers_interface, ONLY: Timers_start, Timers_stop
-   use Driver_interface, ONLY: Driver_getNStep, Driver_abort
+   use Driver_interface, ONLY: Driver_abort
    use Stencils_interface, ONLY: Stencils_integrateEuler, Stencils_integrateAB2
    use IncompNS_data
 
    implicit none
-   include "Flashx_mpi.h"
+
    !-----Argument-List-----!
-   real, INTENT(IN) :: dt
-   type(Grid_tile_t), INTENT(IN) :: tileDesc
-
-!------------------------------------------------------------------------------------------
-   integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
-#if NDIM < MDIM
-   real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData
-   real, dimension(NFACE_VARS, 1, 1, 1) :: facezData
-#else
    real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
-#endif
-   real del(MDIM)
-   integer :: NStep
+   real, dimension(MDIM), intent(in) :: del
+   integer,dimension(MDIM), intent(in) :: lo,hi
+   real, INTENT(IN) :: dt
 
-!------------------------------------------------------------------------------------------
-#if NDIM < MDIM
-   nullify (solnData, facexData, faceyData)
-#else
-   nullify (solnData, facexData, faceyData, facezData)
-#endif
+   !------------------------------------------------------------------------------------------
+   integer, dimension(MDIM) :: hi1
+
    !
    call Timers_start("IncompNS_predictor")
 
@@ -63,70 +50,51 @@ subroutine IncompNS_predictor(tileDesc, dt)
    ! COMPUTE RIGHT HAND SIDE AND PREDICTOR STEP:
    ! ------- ----- ---- ---- --- --------- ----
    !------------------------------------------------------------------------------------------------------
-   blkLimits = tileDesc%limits
-   blkLimitsGC = tileDesc%blkLimitsGC
-   call tileDesc%deltas(del)
-   call tileDesc%getDataPtr(solnData, CENTER)
-   call tileDesc%getDataPtr(facexData, FACEX)
-   call tileDesc%getDataPtr(faceyData, FACEY)
-#if NDIM == 3
-   call tileDesc%getDataPtr(facezData, FACEZ)
-#endif
-
+   hi1(:) = hi(:)
+   
    if (ins_intSchm == 1) then
+      hi1(IAXIS)=hi1(IAXIS)+1
       call Stencils_integrateEuler(facexData(VELC_FACE_VAR, :, :, :), &
                                    facexData(HVN0_FACE_VAR, :, :, :), &
-                                   dt, &
-                                   GRID_ILO, GRID_IHI + 1, &
-                                   GRID_JLO, GRID_JHI, &
-                                   GRID_KLO, GRID_KHI, &
+                                   dt,lo, hi1, &
                                    iSource=ins_prescoeff*facexData(PGN1_FACE_VAR, :, :, :) &
                                    + facexData(VFRC_FACE_VAR, :, :, :) &
                                    - ins_dpdx + ins_gravX)
 
+      hi1(IAXIS)=hi1(IAXIS)-1; hi1(JAXIS)=hi1(JAXIS)+1
       call Stencils_integrateEuler(faceyData(VELC_FACE_VAR, :, :, :), &
                                    faceyData(HVN0_FACE_VAR, :, :, :), &
-                                   dt, &
-                                   GRID_ILO, GRID_IHI, &
-                                   GRID_JLO, GRID_JHI + 1, &
-                                   GRID_KLO, GRID_KHI, &
+                                   dt, lo, hi1,&
                                    iSource=ins_prescoeff*faceyData(PGN1_FACE_VAR, :, :, :) &
                                    + faceyData(VFRC_FACE_VAR, :, :, :) &
                                    - ins_dpdy + ins_gravY)
 
 #if NDIM == 3
+      hi1(JAXIS)=hi1(JAXIS)-1; hi1(KAXIS)=hi1(KAXIS)+1
       call Stencils_integrateEuler(facezData(VELC_FACE_VAR, :, :, :), &
                                    facezData(HVN0_FACE_VAR, :, :, :), &
-                                   dt, &
-                                   GRID_ILO, GRID_IHI, &
-                                   GRID_JLO, GRID_JHI, &
-                                   GRID_KLO, GRID_KHI + 1, &
+                                   dt, lo, hi1, &
                                    iSource=ins_prescoeff*facezData(PGN1_FACE_VAR, :, :, :) &
                                    + facezData(VFRC_FACE_VAR, :, :, :) &
                                    - ins_dpdz + ins_gravZ)
 #endif
 
    else if (ins_intSchm == 2) then
+      hi1(IAXIS)=hi1(IAXIS)+1
       call Stencils_integrateAB2(facexData(VELC_FACE_VAR, :, :, :), &
                                  facexData(HVN0_FACE_VAR, :, :, :), &
                                  facexData(HVN1_FACE_VAR, :, :, :), &
-                                 dt, &
-                                 GRID_ILO, GRID_IHI + 1, &
-                                 GRID_JLO, GRID_JHI, &
-                                 GRID_KLO, GRID_KHI, &
+                                 dt, lo, hi1, &
                                  iSource=ins_prescoeff*facexData(PGN1_FACE_VAR, :, :, :) &
                                  + facexData(VFRC_FACE_VAR, :, :, :) &
                                  - ins_dpdx + ins_gravX)
 
       facexData(HVN1_FACE_VAR, :, :, :) = facexData(HVN0_FACE_VAR, :, :, :)
-
+      hi1(IAXIS)=hi1(IAXIS)-1; hi1(JAXIS)=hi1(JAXIS)+1
       call Stencils_integrateAB2(faceyData(VELC_FACE_VAR, :, :, :), &
                                  faceyData(HVN0_FACE_VAR, :, :, :), &
                                  faceyData(HVN1_FACE_VAR, :, :, :), &
-                                 dt, &
-                                 GRID_ILO, GRID_IHI, &
-                                 GRID_JLO, GRID_JHI + 1, &
-                                 GRID_KLO, GRID_KHI, &
+                                 dt, lo, hi1, &
                                  iSource=ins_prescoeff*faceyData(PGN1_FACE_VAR, :, :, :) &
                                  + faceyData(VFRC_FACE_VAR, :, :, :) &
                                  - ins_dpdy + ins_gravY)
@@ -134,13 +102,11 @@ subroutine IncompNS_predictor(tileDesc, dt)
       faceyData(HVN1_FACE_VAR, :, :, :) = faceyData(HVN0_FACE_VAR, :, :, :)
 
 #if NDIM == 3
+      hi1(JAXIS)=hi1(JAXIS)-1; hi1(KAXIS)=hi1(KAXIS)+1
       call Stencils_integrateAB2(facezData(VELC_FACE_VAR, :, :, :), &
                                  facezData(HVN0_FACE_VAR, :, :, :), &
                                  facezData(HVN1_FACE_VAR, :, :, :), &
-                                 dt, &
-                                 GRID_ILO, GRID_IHI, &
-                                 GRID_JLO, GRID_JHI, &
-                                 GRID_KLO, GRID_KHI + 1, &
+                                 dt,lo, hi1, &
                                  iSource=ins_prescoeff*facezData(PGN1_FACE_VAR, :, :, :) &
                                  + facezData(VFRC_FACE_VAR, :, :, :) &
                                  - ins_dpdz + ins_gravZ)
@@ -149,14 +115,6 @@ subroutine IncompNS_predictor(tileDesc, dt)
 #endif
 
    end if
-
-   ! Release pointers:
-   call tileDesc%releaseDataPtr(solnData, CENTER)
-   call tileDesc%releaseDataPtr(facexData, FACEX)
-   call tileDesc%releaseDataPtr(faceyData, FACEY)
-#if NDIM == 3
-   call tileDesc%releaseDataPtr(facezData, FACEZ)
-#endif
 
    call Timers_stop("IncompNS_predictor")
 

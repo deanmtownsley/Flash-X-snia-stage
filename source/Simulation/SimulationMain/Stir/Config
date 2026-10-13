@@ -1,0 +1,44 @@
+# Configuration File for setup Stir
+#
+# For example applications see Federrath et al. 2008, ApJ 688, L79,
+# Federrath et al. (2010, A&A 512, A81)
+#
+# This makes use of 'TurbGen' to control the turbulence driving.
+# GitHub: https://github.com/chfeder/turbulence_generator
+# See also: https://www.mso.anu.edu.au/~chfeder/codes/turbgen/turbgen.html
+
+USESETUPVARS hybrid_precision
+
+IF hybrid_precision
+   DEFAULT HybridPrecision
+ENDIF
+
+REQUIRES Driver
+REQUIRES Grid
+REQUIRES physics/Hydro
+REQUIRES physics/sourceTerms/Stir/StirMain
+
+# REQUIRES physics/sourceTerms/VelocityLimiter/VelocityLimiterMain
+
+# Magnetic Resistivity (instead of this use +resistivity on setup line)
+# REQUIRES physics/materialProperties/MagneticResistivity/MagneticResistivityMain
+# Viscosity (instead of this use +viscosity on setup line)
+# REQUIRES physics/materialProperties/Viscosity/ViscosityMain
+
+D   sim_dens   mean density
+D   sim_cs     sound speed
+D   sim_magz   magnitude of constant B-field in z
+
+PARAMETER sim_dens    REAL   1.e0
+PARAMETER sim_cs      REAL   1.e0
+PARAMETER sim_magz    REAL   1.e0
+
+# link TurbGen parameter file(s)
+DATAFILES TurbGen*.par
+
+# additional variables
+# magnitude of vorticity and divergence of velocity
+# VARIABLE mvrt
+# VARIABLE dvvl
+# VARIABLE rtrf
+# VARIABLE dvrf

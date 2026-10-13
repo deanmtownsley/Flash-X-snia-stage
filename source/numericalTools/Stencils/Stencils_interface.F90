@@ -24,7 +24,7 @@
 !!  This is the module needed for defining the Stencils unit interface.
 !!
 !!***
-
+#include "constants.h"
 Module Stencils_interface
 
   interface
@@ -41,41 +41,41 @@ Module Stencils_interface
   !----------------------------------------------------------------------------------------------------------
 
   interface Stencils_integrateEuler
-     subroutine Stencils_integrateEulerScalar(phi,rhs,dt,ix1,ix2,jy1,jy2,kz1,kz2,iSource)
+     subroutine Stencils_integrateEulerScalar(phi,rhs,dt,lo, hi,iSource)
      implicit none
      real, dimension(:,:,:), intent(inout):: phi
      real, dimension(:,:,:), intent(in) :: rhs
      real, intent(in) :: dt
-     integer, intent(in) :: ix1,ix2,jy1,jy2,kz1,kz2
+     integer, dimension(MDIM), intent(in) :: lo, hi
      real, intent(in) :: iSource
      end subroutine Stencils_integrateEulerScalar
 
-     subroutine Stencils_integrateEulerArray(phi,rhs,dt,ix1,ix2,jy1,jy2,kz1,kz2,iSource)
+     subroutine Stencils_integrateEulerArray(phi,rhs,dt,lo, hi,iSource)
      implicit none
      real, dimension(:,:,:), intent(inout):: phi
      real, dimension(:,:,:), intent(in) :: rhs
      real, intent(in) :: dt
-     integer, intent(in) :: ix1,ix2,jy1,jy2,kz1,kz2
+     integer, dimension(MDIM), intent(in) :: lo, hi
      real, dimension(:,:,:), intent(in) :: iSource
      end subroutine Stencils_integrateEulerArray
   end interface
 
   interface Stencils_integrateAB2
-     subroutine Stencils_integrateAB2Scalar(phi,rhsNew,rhsOld,dt,ix1,ix2,jy1,jy2,kz1,kz2,iSource)
+     subroutine Stencils_integrateAB2Scalar(phi,rhsNew,rhsOld,dt,lo, hi,iSource)
      implicit none
      real, dimension(:,:,:), intent(inout):: phi
      real, dimension(:,:,:), intent(in) :: rhsNew, rhsOld
      real, intent(in) :: dt
-     integer, intent(in) :: ix1,ix2,jy1,jy2,kz1,kz2
+     integer, dimension(MDIM), intent(in) :: lo, hi
      real, intent(in) :: iSource
      end subroutine Stencils_integrateAB2Scalar
 
-     subroutine Stencils_integrateAB2Array(phi,rhsNew,rhsOld,dt,ix1,ix2,jy1,jy2,kz1,kz2,iSource)
+     subroutine Stencils_integrateAB2Array(phi,rhsNew,rhsOld,dt,lo, hi,iSource)
      implicit none
      real, dimension(:,:,:), intent(inout):: phi
      real, dimension(:,:,:), intent(in) :: rhsNew, rhsOld
      real, intent(in) :: dt
-     integer, intent(in) :: ix1,ix2,jy1,jy2,kz1,kz2
+     integer, dimension(MDIM), intent(in) :: lo, hi
      real, dimension(:,:,:), intent(in) :: iSource
      end subroutine Stencils_integrateAB2Array
   end interface
@@ -104,92 +104,48 @@ Module Stencils_interface
   end interface
 
   interface
-    subroutine Stencils_advectWeno2d(rhs,phi,u,v,dx,dy,ix1,ix2,jy1,jy2,center,facex,facey)
-    implicit none
-    real, dimension(:,:,:), intent(inout):: rhs
-    real, dimension(:,:,:), intent(in) :: phi,u,v
-    real, intent(in) :: dx,dy
-    integer, intent(in) :: ix1,ix2,jy1,jy2
-    integer, intent(in) :: center,facex,facey
-    end subroutine Stencils_advectWeno2d
-  end interface
- 
-  interface
-    subroutine Stencils_advectWeno3d(rhs,phi,u,v,w,dx,dy,dz,ix1,ix2,jy1,jy2,kz1,kz2,&
-                                      center,facex,facey,facez)
+    subroutine Stencils_advectWeno(rhs,phi,u,v,w,delta,lo,hi,face)
     implicit none
     real, dimension(:,:,:), intent(inout):: rhs
     real, dimension(:,:,:), intent(in) :: phi,u,v,w
-    real, intent(in) :: dx,dy,dz
-    integer, intent(in) :: ix1,ix2,jy1,jy2,kz1,kz2
-    integer, intent(in) :: center,facex,facey,facez
-    end subroutine Stencils_advectWeno3d
+    real, dimension(MDIM), intent(in) :: delta
+    integer,dimension(MDIM), intent(in) :: lo,hi
+    integer,dimension(MDIM+1), intent(in) :: face
+    end subroutine Stencils_advectWeno
   end interface
 
   interface
-    subroutine Stencils_advectCentral2d(rhs,phi,u,v,dx,dy,ix1,ix2,jy1,jy2,center,facex,facey)
-    implicit none
-    real, dimension(:,:,:), intent(inout):: rhs
-    real, dimension(:,:,:), intent(in) :: phi,u,v
-    real, intent(in) :: dx,dy
-    integer, intent(in) :: ix1,ix2,jy1,jy2
-    integer, intent(in) :: center,facex,facey
-    end subroutine Stencils_advectCentral2d
-  end interface
-
-  interface
-    subroutine Stencils_advectCentral3d(rhs,phi,u,v,w,dx,dy,dz,ix1,ix2,jy1,jy2,kz1,kz2,&
-                                         center,facex,facey,facez)
+    subroutine Stencils_advectCentral(rhs,phi,u,v,w,delta,lo,hi,face)
     implicit none
     real, dimension(:,:,:), intent(inout):: rhs
     real, dimension(:,:,:), intent(in) :: phi,u,v,w
-    real, intent(in) :: dx,dy,dz
-    integer, intent(in) :: ix1,ix2,jy1,jy2,kz1,kz2
-    integer, intent(in) :: center,facex,facey,facez
-    end subroutine Stencils_advectCentral3d
+    real, dimension(MDIM), intent(in) :: delta
+    integer, dimension(MDIM), intent(in) :: lo,hi
+    integer, dimension(MDIM+1), intent(in) :: face
+    end subroutine Stencils_advectCentral
   end interface
 
   !----------------------------------------------------------------------------------------------------------
   !----------------------------------------------------------------------------------------------------------
 
-  interface Stencils_diffusion2d
-    subroutine Stencils_diffusion2dConst(rhs, phi, dx, dy, Coeff, ix1, ix2, jy1, jy2)
+  interface Stencils_diffusion
+    subroutine Stencils_diffusionConst(rhs, phi, del, Coeff, lo, hi)
     implicit none
     real, dimension(:,:,:), intent(inout) :: rhs
     real, dimension(:,:,:), intent(in)  :: phi
+    real,dimension(MDIM), intent(in) :: del
     real, intent(in) :: Coeff
-    real, intent(in) :: dx, dy
-    integer, intent(in) :: ix1, ix2, jy1, jy2
-    end subroutine Stencils_diffusion2dConst
+    integer, dimension(MDIM), intent(in) :: lo, hi
+    end subroutine Stencils_diffusionConst
 
-    subroutine Stencils_diffusion2dVar(rhs, phi, dx, dy, Coeff, ix1, ix2, jy1, jy2)
+    subroutine Stencils_diffusionVar(rhs, phi, del, Coeff, lo,hi)
     implicit none
     real, dimension(:,:,:), intent(inout) :: rhs
     real, dimension(:,:,:), intent(in)  :: phi
-    real, dimension(:,:,:), intent(in)  :: Coeff
-    real, intent(in) :: dx, dy
-    integer, intent(in) :: ix1, ix2, jy1, jy2
-    end subroutine Stencils_diffusion2dVar
-  end interface
-
-  interface Stencils_diffusion3d
-    subroutine Stencils_diffusion3dConst(rhs, phi, dx, dy, dz, Coeff, ix1, ix2, jy1, jy2, kz1, kz2)
-    implicit none
-    real, dimension(:,:,:), intent(inout) :: rhs
-    real, dimension(:,:,:), intent(in)  :: phi
-    real, intent(in) :: dx, dy, dz
-    real, intent(in) :: Coeff
-    integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
-    end subroutine Stencils_diffusion3dConst
-
-    subroutine Stencils_diffusion3dVar(rhs, phi, dx, dy, dz, Coeff, ix1, ix2, jy1, jy2, kz1, kz2)
-    implicit none
-    real, dimension(:,:,:), intent(inout) :: rhs
-    real, dimension(:,:,:), intent(in)  :: phi
-    real, intent(in) :: dx, dy, dz
+    real, dimension(MDIM),intent(in) :: del
     real, dimension(:,:,:), intent(in) :: Coeff
-    integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
-    end subroutine Stencils_diffusion3dVar
+    integer, dimension(MDIM), intent(in) :: lo,hi
+    end subroutine Stencils_diffusionVar
   end interface
 
   !----------------------------------------------------------------------------------------------------------
@@ -293,21 +249,21 @@ Module Stencils_interface
   end interface
 
   interface
-    subroutine Stencils_lsCurvature2d(crv, phi, dx, dy, ix1, ix2, jy1, jy2)
+    subroutine Stencils_lsCurvature2d(crv, phi, nrmx, nrmy, dx, dy, ix1, ix2, jy1, jy2)
     implicit none
     integer, intent(in) :: ix1, ix2, jy1, jy2
     real, intent(in) :: dx, dy
-    real, dimension(:, :, :), intent(in) :: phi
+    real, dimension(:, :, :), intent(in) :: phi, nrmx, nrmy
     real, dimension(:, :, :), intent(inout) :: crv
   end subroutine Stencils_lsCurvature2d
  end interface
 
   interface
-    subroutine Stencils_lsCurvature3d(crv, phi, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
+    subroutine Stencils_lsCurvature3d(crv, phi, nrmx, nrmy, nrmz, dx, dy, dz, ix1, ix2, jy1, jy2, kz1, kz2)
     implicit none
     integer, intent(in) :: ix1, ix2, jy1, jy2, kz1, kz2
     real, intent(in) :: dx, dy, dz
-    real, dimension(:, :, :), intent(in) :: phi
+    real, dimension(:, :, :), intent(in) :: phi, nrmx, nrmy, nrmz
     real, dimension(:, :, :), intent(inout) :: crv
   end subroutine Stencils_lsCurvature3d
  end interface

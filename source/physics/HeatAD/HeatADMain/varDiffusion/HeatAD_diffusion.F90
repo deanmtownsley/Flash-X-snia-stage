@@ -21,57 +21,32 @@
 #include "HeatAD.h"
 #include "Simulation.h"
 
-subroutine HeatAD_diffusion(tileDesc)
+subroutine HeatAD_diffusion(solnData, del, lo, hi)
 
    use HeatAD_data
    use Timers_interface, ONLY: Timers_start, Timers_stop
-   use Driver_interface, ONLY: Driver_getNStep
-   use Grid_tile, ONLY: Grid_tile_t
-   use Stencils_interface, ONLY: Stencils_diffusion2d, Stencils_diffusion3d
+   use Stencils_interface, ONLY: Stencils_diffusion
 
 !--------------------------------------------------------------------------------------------
    implicit none
-   include"Flashx_mpi.h"
-   type(Grid_tile_t), intent(in) :: tileDesc
-
-   real ::  del(MDIM)
-   integer, dimension(2, MDIM) :: stnLimits
    real, pointer, dimension(:, :, :, :) :: solnData
+   real,dimension(MDIM),intent(IN) ::  del
+   integer, dimension(MDIM),intent(IN) :: lo, hi
    real :: diffusion_coeff
 
 !---------------------------------------------------------------------------------------------
-   nullify (solnData)
 
    call Timers_start("HeatAD_diffusion")
 
    diffusion_coeff = ht_invReynolds/ht_Prandtl
 
-   call tileDesc%getDataPtr(solnData, CENTER)
-
-   call tileDesc%deltas(del)
-
-   stnLimits(LOW, :) = tileDesc%limits(LOW, :) - tileDesc%blkLimitsGC(LOW, :) + 1
-   stnLimits(HIGH, :) = tileDesc%limits(HIGH, :) - tileDesc%blkLimitsGC(LOW, :) + 1
   
-#if NDIM == MDIM
-   call Stencils_diffusion3d(solnData(HTN0_VAR, :, :, :), &
+   call Stencils_diffusion(solnData(HTN0_VAR, :, :, :), &
                              solnData(TEMP_VAR, :, :, :), &
-                             del(DIR_X), del(DIR_Y), del(DIR_Z), &
+                             del,&
                              diffusion_coeff*solnData(ALPH_VAR, :, :, :), &
-                             stnLimits(LOW, IAXIS), stnLimits(HIGH, IAXIS), &
-                             stnLimits(LOW, JAXIS), stnLimits(HIGH, JAXIS), &
-                             stnLimits(LOW, KAXIS), stnLimits(HIGH, KAXIS))
+                             lo, hi)
 
-#else
-   call Stencils_diffusion2d(solnData(HTN0_VAR, :, :, :), &
-                             solnData(TEMP_VAR, :, :, :), &
-                             del(DIR_X), del(DIR_Y), &
-                             diffusion_coeff*solnData(ALPH_VAR, :, :, :), &
-                             stnLimits(LOW, IAXIS), stnLimits(HIGH, IAXIS), &
-                             stnLimits(LOW, JAXIS), stnLimits(HIGH, JAXIS))
-#endif
-
-   call tileDesc%releaseDataPtr(solnData, CENTER)
 
    call Timers_stop("HeatAD_diffusion")
 

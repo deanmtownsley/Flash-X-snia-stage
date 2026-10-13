@@ -1,0 +1,85 @@
+# Top level configuration file for Bubbly Flow problem to replicate study described in
+# "Assessing passive scalar dynamics in bubble-induced turbulence using direct numerical simulations"
+# Authors: Hidman .et.al J. Fluid Mech. (2023), vol. 962, A32, doi:10.1017/jfm.2023.307
+
+[Simulation]
+  sim_numBubbles = 14
+  sim_lengthScaleMeters = 0.0025
+  sim_timeScaleSeconds = 0.016
+
+[Simulation.bubble_dist]
+  ndim = 2
+
+[Logfile]
+  run_comment = "Bubbly Flow problem"
+  log_file = "INS_Bubbly_Flow.log"
+
+[Grid]
+  geometry = "cartesian"
+  xmin = -5.0
+  xmax =  5.0
+  ymin = -5.0
+  ymax =  5.0
+  zmin = -5.0
+  zmax =  5.0
+  xl_boundary_type = "periodic"
+  xr_boundary_type = "periodic"
+  yl_boundary_type = "periodic"
+  yr_boundary_type = "periodic"
+  zl_boundary_type = "periodic"
+  zr_boundary_type = "periodic"
+  gr_amrexMG_composite_solve = true
+  gr_amrexMG_Tol = 1e-13
+  gr_amrexMG_max_iter = 200
+  nblockx = 15
+  nblocky = 15
+  nblockz = 15
+  nrefs = 10000
+  lrefine_min = 1
+  lrefine_max = 1
+
+[Driver]
+  tstep_change_factor = 1.01
+  nend = 10000000
+  tmax = 15
+  dtinit = 3.125e-6
+  dtmin = 3.125e-6
+  dtmax = 3.125e-5
+  restart = false
+
+[IncompNS]
+  ins_cflFlg = 1
+  ins_cfl = 0.1
+  ins_sigma = 0.1
+  ins_pressureCorrect = false
+  ins_intSchm = 2 # AB2
+  ins_advSchm = 105 # WENO5
+  ins_invReynolds = 0.00256
+  ins_gravY = -1.0
+  ins_dtSpec = 3.125e-6
+  ins_dpdy = -1.5 # alpha*rho_gas*grav + (1-alpha)*rho_liq*grav, alpha = Nb*pi*d^3/(6*L^3)
+
+[Multiphase]
+  mph_lsIt = 3
+  mph_rhoGas = 0.001
+  mph_muGas = 0.01
+  mph_iPropSmear = 2.0
+  mph_invWeber = 1.2
+  mph_presTol = 0.01
+
+[IO]
+  basenm = "INS_Bubbly_Flow_"
+  checkpointFileIntervalTime = 1.0
+  checkpointFileIntervalStep = 0
+  plotFileIntervalTime = 0.1
+  plotFileIntervalStep = 0
+  checkpointFileNumber = 0
+  rolling_checkpoint = 2
+  plotFileNumber = 0
+  plot_var_1 = "pres"
+  plot_var_2 = "velx"
+  plot_var_3 = "vely"
+  plot_var_4 = "dfun"
+  plot_var_5 = "visc"
+  plot_var_6 = "rhoc"
+  plot_var_7 = "curv"

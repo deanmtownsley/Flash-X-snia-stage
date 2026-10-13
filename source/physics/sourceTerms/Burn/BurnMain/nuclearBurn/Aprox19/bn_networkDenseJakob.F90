@@ -19,7 +19,7 @@
 !! 
 !!  call bn_networkDenseJakob (real, intent(IN) :: tt,
 !!                            real, intent(OUT) :: y(:),
-!!                            real, intent(OUT) :: dfdy(nphys,nphys),
+!!                            real, intent(OUT) :: dfdy(:,:),
 !!                          integer, intent(IN) :: nlog,
 !!                          integer, intent(IN) :: nphys)
 !!
@@ -41,29 +41,31 @@
 
 
 
-subroutine bn_networkDenseJakob(tt,y,dfdy,nlog,nphys)   
+subroutine bn_networkDenseJakob(tt,y,btemp,ratdum,dfdy,nlog,nphys)
 
 #include "Simulation.h"
 
   
-  use Burn_dataEOS
-  use Burn_data
+  use Burn_data, ONLY: ih1, ihe3, ihe4, ic12, in14, io16, ine20, &
+                       img24, isi28, is32, iar36, ica40, iti44, &
+                       icr48, ife52, ife54, ini56, ineut, iprot
   use bn_dataAprox19
 
   implicit none
 
   ! arguments declaration
-  integer, intent(IN) :: nlog, nphys
-  real, intent(IN)    :: tt
-  real, intent(OUT)   :: y(*), dfdy(nphys,nphys)
+  integer, intent(IN)  :: nlog, nphys
+  real, intent(IN)     :: tt, btemp, ratdum(:)
+  real, intent(IN OUT) :: y(:)
+  real, intent(OUT)    :: dfdy(:,:)
 
   ! Local variables
-  integer          i,j
-  real             yneut2,yprot2,xx,      &
-       &                 den1,den2,r1,s1,t1,u1,v1,w1,x1,ralf1,ralf2,      &
-       &                 r1f54,r2f54,r3f54,r4f54,r5f54,r6f54,r7f54,r8f54
-  real             yy,den1a,den2a,r1f54a,r2f54a,                    &
-       &                 r3f54a,r4f54a,r5f54a,r6f54a,r7f54a,r8f54a
+  integer :: i,j
+  real :: yneut2,yprot2,xx,                           &
+          den1,den2,r1,s1,t1,u1,v1,w1,x1,ralf1,ralf2, &
+          r1f54,r2f54,r3f54,r4f54,r5f54,r6f54,r7f54,r8f54
+  real :: yy,den1a,den2a,r1f54a,r2f54a,               &
+          r3f54a,r4f54a,r5f54a,r6f54a,r7f54a,r8f54a
 
 
   !..zero the jacobian

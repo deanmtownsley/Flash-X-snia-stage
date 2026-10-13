@@ -33,6 +33,7 @@ module Simulation_data
 
   !! *** Runtime Parameters *** !!
    real, save    :: sim_xMin, sim_xMax, sim_yMin, sim_yMax, sim_zMin, sim_zMax
+   real, save    :: sim_xMinRef, sim_xMaxRef, sim_yMinRef, sim_yMaxRef, sim_zMinRef, sim_zMaxRef
 
    integer, save :: sim_meshMe
 

@@ -33,8 +33,50 @@ Module Burn_interface
 
   interface Burn
      subroutine Burn(dt)
-       real,intent(IN) :: dt
+        implicit none
+        real,intent(IN) :: dt
      end subroutine Burn
+  end interface Burn
+
+  !!milhoja begin common
+  !!   _Uin :: source=grid_data, &
+  !!           structure_index=[center, 1], &
+  !!           RW=[1:NUNK_VARS]
+  !!   _dt :: source=external, &
+  !!          origin=input_arg:dt
+  !!milhoja end common
+
+  interface
+      !!milhoja begin
+      !!   Uin :: common=_Uin
+      !!   loGC :: source=tile_lbound
+      !!   blkLimits :: source=tile_interior
+      !!   dt :: common=_dt
+      subroutine Burn_burner(Uin, loGC, blkLimits, dt)
+         implicit none
+         integer, dimension(MDIM), intent(IN) ::  loGC
+         real, dimension(1:, loGC(IAXIS):, loGC(JAXIS):, loGC(KAXIS):), intent(IN OUT) :: Uin
+         integer, dimension(LOW:HIGH,MDIM), intent(IN) :: blkLimits
+         real, intent(IN) :: dt
+      end subroutine Burn_burner
+      !!milhoja end
+   end interface
+
+  interface
+      !!milhoja begin
+      !!   Uin :: common=_Uin
+      !!   loGC :: source=tile_lbound
+      !!   blkLimits :: source=tile_interior
+      !!   dt :: common=_dt
+      subroutine Burn_update (Uin, loGC, blkLimits, dt)
+         implicit none
+         !args
+         integer, dimension(MDIM),intent(in) :: loGC
+         integer, dimension(LOW:HIGH,MDIM) :: blkLimits
+         real, intent(in) :: dt
+         real,dimension(1:,loGC(IAXIS):, loGC(JAXIS):, loGC(KAXIS):),intent(inout) :: Uin
+      end subroutine Burn_update
+      !!milhoja end
   end interface
 
   interface Burn_finalize

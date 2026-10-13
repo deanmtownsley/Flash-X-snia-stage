@@ -21,11 +21,14 @@
 !
 ! Output: ru,rv    = u and v momentum for Helmholtz RHS
 !**************************************************************
-SUBROUTINE ins_diffusion2d_vardens(uni, vni, ru1, ix1, ix2, jy1, jy2, dx, dy, ru, rv, &
+#include "constants.h"
+
+SUBROUTINE ins_diffusion2d_vardens(uni, vni, ru1,lo, hi, del, ru, rv, &
                                    visc, rhox, rhoy)
    implicit none
-   INTEGER, INTENT(IN):: ix1, ix2, jy1, jy2
-   REAL, INTENT(IN):: ru1, dx, dy
+   INTEGER, dimension(MDIM), INTENT(IN):: lo, hi
+   real, dimension(MDIM), intent(IN) :: del
+   REAL, INTENT(IN):: ru1
    REAL, DIMENSION(:, :, :), INTENT(IN):: uni, vni, visc, rhox, rhoy
    REAL, DIMENSION(:, :, :), INTENT(OUT):: ru, rv
 
@@ -40,12 +43,12 @@ SUBROUTINE ins_diffusion2d_vardens(uni, vni, ru1, ix1, ix2, jy1, jy2, dx, dy, ru
    INTEGER, parameter :: kz1 = 1
 
    ! grid spacings
-   dx1 = 1.0/dx
-   dy1 = 1.0/dy
+   dx1 = 1.0/del(IAXIS)
+   dy1 = 1.0/del(JAXIS)
 
    !++++++++++  U-COMPONENT  ++++++++++
-   do j = jy1, jy2
-      do i = ix1, ix2 + 1
+   do j = lo(JAXIS), hi(JAXIS)
+      do i = lo(IAXIS), hi(IAXIS) + 1
          ! Diffusion Terms
 
          ! get derivatives at 1/2 locations
@@ -75,8 +78,8 @@ SUBROUTINE ins_diffusion2d_vardens(uni, vni, ru1, ix1, ix2, jy1, jy2, dx, dy, ru
    end do
 
    !++++++++++  V-COMPONENT  ++++++++++
-   do j = jy1, jy2 + 1
-      do i = ix1, ix2
+   do j = lo(JAXIS), hi(JAXIS) + 1
+      do i = lo(IAXIS), hi(IAXIS)
          ! Diffusion Terms
 
          ! get derivatives at 1/2 locations
@@ -111,8 +114,7 @@ END SUBROUTINE ins_diffusion2d_vardens
 !-------------------------------------------------------------------------------------------!
 
 SUBROUTINE ins_diffusion3d_vardens(uni, vni, wni, tv, ru1, &
-                                   ix1, ix2, jy1, jy2, kz1, kz2, &
-                                   dx, dy, dz, ru, rv, rw, visc, &
+                                   lo, hi, del, ru, rv, rw, visc, &
                                    rhox, rhoy, rhoz)
 
    !*****************************************************************
@@ -135,8 +137,9 @@ SUBROUTINE ins_diffusion3d_vardens(uni, vni, wni, tv, ru1, &
    !**************************************************************
 
    implicit none
-   INTEGER, INTENT(IN):: ix1, ix2, jy1, jy2, kz1, kz2
-   REAL, INTENT(IN):: ru1, dx, dy, dz
+   INTEGER, dimension(MDIM), INTENT(IN):: lo, hi
+   real, dimension(MDIM), intent(IN) :: del
+   REAL, INTENT(IN):: ru1
    REAL, DIMENSION(:, :, :), INTENT(IN):: uni, vni, wni, tv, visc, rhox, rhoy
    REAL, DIMENSION(:, :, :), INTENT(IN):: rhoz
    REAL, DIMENSION(:, :, :), INTENT(OUT):: ru, rv, rw
@@ -159,14 +162,14 @@ SUBROUTINE ins_diffusion3d_vardens(uni, vni, wni, tv, ru1, &
    REAL:: vvip, vvim, vvjp, vvjm, vvkp, vvkm
 
    ! grid spacings
-   dx1 = 1.0/dx
-   dy1 = 1.0/dy
-   dz1 = 1.0/dz
+   dx1 = 1.0/del(IAXIS)
+   dy1 = 1.0/del(JAXIS)
+   dz1 = 1.0/del(KAXIS)
 
    !++++++++++  U-COMPONENT (Variable Density)  ++++++++++
-   do k = kz1, kz2
-      do j = jy1, jy2
-         do i = ix1, ix2 + 1
+   do k = lo(KAXIS), hi(KAXIS)
+      do j = lo(JAXIS), hi(JAXIS)
+         do i = lo(IAXIS), hi(IAXIS) + 1
             ! Diffusion Terms
 
             ! get derivatives at 1/2 locations
@@ -234,9 +237,9 @@ SUBROUTINE ins_diffusion3d_vardens(uni, vni, wni, tv, ru1, &
 
    !++++++++++  V-COMPONENT  ++++++++++
 
-   do k = kz1, kz2
-      do j = jy1, jy2 + 1
-         do i = ix1, ix2
+   do k = lo(KAXIS), hi(KAXIS)
+      do j = lo(JAXIS), hi(JAXIS) + 1
+         do i = lo(IAXIS), hi(IAXIS)
             ! Diffusion Terms
 
             ! get derivatives at 1/2 locations
@@ -304,9 +307,9 @@ SUBROUTINE ins_diffusion3d_vardens(uni, vni, wni, tv, ru1, &
 
    !++++++++++  W-COMPONENT  ++++++++++
 
-   do k = kz1, kz2 + 1
-      do j = jy1, jy2
-         do i = ix1, ix2
+   do k = lo(KAXIS), hi(KAXIS) + 1
+      do j = lo(JAXIS), hi(JAXIS)
+         do i = lo(IAXIS), hi(IAXIS)
             ! Diffusion Terms
 
             ! get derivatives at 1/2 locations

@@ -47,11 +47,21 @@ module Heater_type
       real    :: seedHeight
       real    :: velContact
 
+      real    :: C3 = 0.
+      real    :: C2 = 0.
+      real    :: C1 = 0.
+      real    :: C0 = 0.
+      real    :: tblThickness = 0.2
+      logical :: varTempFlg = .FALSE.
+      logical :: heatFluxFlg = .FALSE.
+      real    :: heatFlux = 0.
+      real    :: nucTemp
+
       integer :: numSitesAll, numSitesProc
       integer :: numSitesBlk(MAXBLOCKS), siteMapOnProc(MAXBLOCKS, HTR_MAX_NUMSITES)
 
       real, dimension(:), allocatable :: xSiteInit, ySiteInit, zSiteInit, radiusInit
-      real, dimension(HTR_MAX_NUMSITES) :: xSiteProc, zSiteProc, ySiteProc, siteTimeStamp
+      real, dimension(HTR_MAX_NUMSITES) :: xSiteProc, zSiteProc, ySiteProc, siteTimeStamp, siteTemp
       logical, dimension(HTR_MAX_NUMSITES) :: siteIsAttachedCurr, siteIsAttachedPrev
 
 #ifdef HEATER_ANN_SEARCH

@@ -29,26 +29,34 @@
 !!
 !!***
 
-subroutine bn_networkTable()
+subroutine bn_networkTable(btemp, bden, abar, zbar, z2bar, ytot1, bye, &
+                           nrat, nrattab, &
+                           rattab, ttab, dtab, ratraw)
 
-  use Burn_data, ONLY: nrat, ratraw, dtab, nrattab, ttab, rattab
-  use Driver_interface, ONLY : Driver_abort
-  use Burn_dataEOS, ONLY:  btemp,bden,abar,zbar,z2bar,ytot1,bye
-  use bn_dataAprox13
+  use Driver_interface, ONLY: Driver_abort
+  use bnNetwork_interface, ONLY: bn_networkRates
+  use bn_dataAprox13  ! Assuming this module provides constants like ircag, etc.
 
   implicit none
+
+  integer, intent(IN) :: nrat, nrattab
+  real, intent(IN) :: btemp, bden, abar, zbar, z2bar, ytot1, bye
+  real, intent(OUT), dimension(nrattab) :: ttab
+  real, intent(OUT), dimension(nrat, nrattab) :: rattab
+  real, intent(OUT), dimension(nrat) :: dtab
+  real, intent(OUT), dimension(nrat) :: ratraw
 
   !..uses tables instead of analytical expressions to evaluate the 
   !..raw reaction rates. a cubic polynomial is hardwired for speed.
 
-!! local variables
-  logical        :: firstCall = .true.
-  integer          i,j,imax,iat,mp
-  parameter        (mp = 4)
-  real, save     :: btemp_sav, den_sav
-  real             tlo,thi,tstp,                   &
-       &                 x,x1,x2,x3,x4,a,b,c,d,e,f,g,h,p,q,                &
-       &                 alfa,beta,gama,delt
+  !! local variables
+  logical :: firstCall = .true.
+  integer :: i, j, iat
+  integer, parameter :: mp = 4, imax = 481
+  real :: btemp_tmp, bden_tmp
+  real :: tlo, thi, tstp, &
+          x, x1, x2, x3, x4, a, b, c, d, e, f, g, h, p, q, &
+          alfa, beta, gama, delt
 
 !!-------------------------------------------------------------------
 
@@ -57,33 +65,25 @@ subroutine bn_networkTable()
 
      !..set the log temperature loop limits
      !..use 120 points per decade
-     imax = 481
      if (imax .gt. nrattab) then
         call Driver_abort('ERROR imax too small in bn_networkTable')
      endif
      tlo  = 6.0e0
      thi  = 10.0e0
-     tstp = (thi - tlo)/float(imax-1)
-
-     !..save the input
-     btemp_sav = btemp
-     den_sav   = bden
+     tstp = (thi - tlo)/real(imax-1)
 
      !..form the table
-     bden = 1.0e0
+     bden_tmp = 1.0e0
      do i=1,imax
-        btemp = tlo + float(i-1)*tstp
-        btemp = 10.0e0**(btemp)
-        call bn_networkRates()
-        ttab(i) = btemp
+        btemp_tmp = tlo + real(i-1)*tstp
+        btemp_tmp = 10.0e0**(btemp_tmp)
+        call bn_networkRates(btemp_tmp, bden_tmp, abar, zbar, z2bar, ytot1, bye, nrat, ratraw)
+        ttab(i) = btemp_tmp
         do j=1,nrat
            rattab(j,i) = ratraw(j)
         enddo
      enddo
 
-     !..restore the input
-     bden  = den_sav
-     btemp = btemp_sav
      firstCall = .false.
   end if
 
@@ -178,11 +178,11 @@ subroutine bn_networkTable()
 
   !..crank off the raw reaction rates
   do j=1,nrat
-     ratraw(j) = (alfa*rattab(j,iat)                                   &
-          &            + beta*rattab(j,iat+1)                                 &
-          &            + gama*rattab(j,iat+2)                                 &
-          &            + delt*rattab(j,iat+3)                                 &
-          &              ) * dtab(j)
+     ratraw(j) = (  alfa*rattab(j,iat)   &
+                  + beta*rattab(j,iat+1) &
+                  + gama*rattab(j,iat+2) &
+                  + delt*rattab(j,iat+3) &
+                 ) * dtab(j)
   enddo
 
   return

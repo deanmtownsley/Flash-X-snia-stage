@@ -38,6 +38,7 @@ subroutine Driver_initSourceTerms(restart)
     use RadTrans_interface, ONLY: RadTrans_init
     use Deleptonize_interface, ONLY: Deleptonize_init
     use Turb_interface, ONLY: Turb_init
+    use Stir_interface, ONLY: Stir_init
 
     implicit none
 
@@ -47,6 +48,10 @@ subroutine Driver_initSourceTerms(restart)
     call Flame_init()
     call RadTrans_init()
     call Deleptonize_init()
+<<<<<<< HEAD
     call Turb_init()
+=======
+    call Stir_init(restart)
+>>>>>>> c831a0babe55cce8f7f9a18881e19abc663cef93
 
 end subroutine Driver_initSourceTerms

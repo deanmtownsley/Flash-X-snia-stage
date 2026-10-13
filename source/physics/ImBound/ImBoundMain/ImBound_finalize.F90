@@ -31,9 +31,15 @@
 
 subroutine ImBound_finalize()
 
-   use ImBound_data, ONLY: ib_bodyInfo, ib_annIdx
+   use ImBound_data, ONLY: ib_bodyInfo, ib_annIdx, ib_numBodies
+   use ib_interface, ONLY: ib_annDestroyTree
 
    implicit none
+   integer :: ibd
+
+   do ibd = 1, ib_numBodies
+      call ib_annDestroyTree(ib_bodyInfo(ibd))
+   end do
 
    deallocate (ib_bodyInfo)
    deallocate (ib_annIdx)

@@ -39,7 +39,7 @@
 !<
 
 !!Reorder(4): Uin, starState, tmpState
-!!NOVARIANTS
+!!VARIANTS(GPU): hy_rk_initSolnScratch
 subroutine hy_rk_initSolnScratch(stage, Uin, starState, tmpState, &
                                  blkLimits, blkLimitsGC, lo, loGC)
 

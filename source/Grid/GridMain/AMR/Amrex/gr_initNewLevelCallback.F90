@@ -291,7 +291,7 @@ subroutine gr_initNewLevelCallback(lev, time, pba, pdm) bind(c)
        call itor%currentTile(tileDesc)
 
        call tileDesc%getDataPtr(initData, CENTER)
-       call Eos_multiDim(gr_eosModeInit, tileDesc%grownLimits, initData)
+       call Eos_multiDim(gr_eosModeInit, tileDesc%grownLimits,tileDesc%blkLimitsGC(LOW,:), initData)
        call tileDesc%releaseDataPtr(initData, CENTER)
 
        call itor%next()

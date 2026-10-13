@@ -14,8 +14,9 @@
 !!
 !!
 !!***
-subroutine Multiphase_setMassFlux(tileDesc)
-   use Grid_tile, ONLY: Grid_tile_t
-   implicit none
-   type(Grid_tile_t), intent(in) :: tileDesc
+#include "constants.h"
+subroutine Multiphase_setMassFlux(solnData,del)
+  implicit none
+   real, pointer, dimension(:, :, :, :) :: solnData
+   real, dimension(MDIM) :: del
 end subroutine Multiphase_setMassFlux

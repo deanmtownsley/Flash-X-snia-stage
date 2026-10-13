@@ -15,9 +15,12 @@
 !!
 !!
 !!***
-subroutine IncompNS_corrector(tileDesc, dt)
-   use Grid_tile, ONLY: Grid_tile_t
+#include "constants.h"
+subroutine IncompNS_corrector(solnData, facexData, faceyData, facezData, del, lo, hi, dt)
    implicit none
-   type(Grid_tile_t), INTENT(IN) :: tileDesc
+   !-----Argument List-----
+   real, dimension(:,:,:,:), pointer :: solnData, facexData, faceyData, facezData
+   real,dimension(MDIM),intent(IN) :: del
+   integer, dimension(MDIM),intent(IN) :: lo, hi
    real, INTENT(IN) :: dt
 end subroutine IncompNS_corrector

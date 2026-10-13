@@ -1,0 +1,84 @@
+# numerical viscosity switches
+use_avisc = .false.
+cvisc     = 0.1
+
+# use the turbulence stirring module (stirring from file)
+useStir              =  .true.
+st_infilename        =  "TurbGen.par"
+st_computeDt         =  .false.
+
+# Simulation parameters
+sim_dens             =  1.0
+sim_cs               =  1.0
+sim_magz             =  0.0
+
+# simulation box
+xmin            = -0.5
+xmax            = +0.5
+ymin            = -0.5
+ymax            = +0.5
+zmin            = -0.5
+zmax            = +0.5
+
+xl_boundary_type      = "periodic"
+xr_boundary_type      = "periodic"
+yl_boundary_type      = "periodic"
+yr_boundary_type      = "periodic"
+zl_boundary_type      = "periodic"
+zr_boundary_type      = "periodic"
+
+basenm          = "flashx_"
+run_comment     = "FLASH-X"
+
+# file numbers - if you restart you have to change the checkpointFileNumber
+restart                 = .false.
+checkpointFileNumber    = 0
+plotFileNumber          = 0
+
+# set the time between dumps
+checkpointFileIntervalTime  = 5   # 10 t_turb
+plotFileIntervalTime        = 5   # 10 t_turb
+dtmax                       = 2.5 #  5 t_turb
+tmax                        = 1.5 #  3 t_turb
+
+# set the number of steps between dumps
+checkpointFileIntervalStep  = 0
+plotFileIntervalStep        = 0
+
+wall_clock_time_limit = 160000.0
+wall_clock_checkpoint = 86000.0
+wr_integrals_freq = 1
+
+dtinit = 1.e-4
+dtmin  = 1.e-99
+smallt = 1.e-99
+smalle = 1.e-99
+smlrho = 1.e-99
+
+plot_var_1      = "dens"
+plot_var_2      = "velx"
+plot_var_3      = "vely"
+plot_var_4      = "velz"
+
+gamma           = 1.001
+eintSwitch      = 0
+cfl             = 0.5
+nend            = 1000000
+
+# magnetic fields
+flux_correct          = .true.
+# killdivb              = .true.
+# UnitSystem            = "CGS"
+
+# AMR refinement parameters
+lrefine_min = 1
+lrefine_max = 1
+refine_var_1 = "dens"
+nblockx = 2
+nblocky = 2
+nblockz = 2
+
+# Parameters below are only necessary for the Uniform Grid mode
+iProcs = 2 # num procs in i direction
+jProcs = 2 # num procs in j direction
+kProcs = 2 # num procs in k direction

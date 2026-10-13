@@ -1,0 +1,72 @@
+# Configuration to replicate the simulation in:
+# "The atomizing pulsed jet", https://arxiv.org/abs/2405.01959
+# Authors: Yash Kulkarni, Cesar Pairetti, Raphaël Villiers, Stéphane Popinet, Stéphane Zaleski
+ 
+ins_invReynolds = 0.0002
+ins_inflowVelScale = 1.0
+ins_gravY = 0.0
+
+mph_rhoGas = 0.03
+mph_muGas = 0.03
+mph_iPropSmear = 2.0
+mph_invWeber = 0.0002
+
+out_buffer = 0.5
+
+sim_jetAmp = 0.1
+sim_jetFreq = 9 # (18D/3U)*(pi/5)*(U/D)
+
+geometry = "cartesian"
+xmin = -2
+xmax =  2
+ymin =  0
+ymax =  6
+zmin = -2
+zmax =  2
+xl_boundary_type = "noslip_ins"
+xr_boundary_type = "noslip_ins"
+yl_boundary_type = "inflow_ins"
+yr_boundary_type = "outflow_ins"
+zl_boundary_type = "noslip_ins"
+zr_boundary_type = "noslip_ins"
+
+run_comment = "Cross Flow problem"
+log_file = "INS_Cross_Flow.log"
+basenm = "INS_Cross_Flow_"
+restart = .false.
+nend = 10000000
+tmax = 5
+ins_cflFlg = 1
+ins_cfl = 0.01
+ins_sigma = 0.01
+ins_dtSpec = 1e-05
+dtinit = 1e-05
+tstep_change_factor = 1.01
+ins_pressureCorrect = .false.
+ins_intSchm = 2
+
+plot_var_1 = "pres"
+plot_var_2 = "velx"
+plot_var_3 = "vely"
+plot_var_4 = "velz"
+plot_var_5 = "dfun"
+
+checkpointFileIntervalTime = 1.0
+checkpointFileIntervalStep = 500000
+plotFileIntervalTime = 0.1
+plotFileIntervalStep = 100000
+checkpointFileNumber = 0
+rolling_checkpoint = 2
+plotFileNumber = 0
+
+nblockx = 4
+nblocky = 6
+nblockz = 4
+nrefs = 10000000
+
+lrefine_min = 3
+lrefine_max = 3
+flux_correct = .true.
+gr_amrexMG_composite_solve = .TRUE.
+gr_amrexMG_Tol = 1e-12
+gr_amrexMG_max_iter = 1000

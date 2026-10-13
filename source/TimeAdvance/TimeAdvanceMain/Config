@@ -1,1 +1,9 @@
 DEFAULT StrangSplit
+
+D ta_useAsyncGrav Should TimeAdvance compute the
+D & gravitational potential in a way that allows
+D & asynchronous excution of other physics calls
+D & while MPI requests are outstanding?
+D & Used by the StrangSplit implementation of the
+D & TimeAdvance unit.
+PARAMETER ta_useAsyncGrav BOOLEAN FALSE

@@ -51,7 +51,6 @@ subroutine out_velFrc(vel, rhs, xgrid, ygrid, zgrid, &
             ! Get cell co-ordinates from grid array
             xcell = xgrid(i)
             ycell = ygrid(j)
-            zcell = zgrid(k)
 
             ! Setup outflow profile using a sigmod function
             outprofile(LOW, IAXIS:JAXIS) = (/2/(1+exp(outletGrowthRate*(xcell-xMin)/outletBuffer)), &
@@ -68,6 +67,8 @@ subroutine out_velFrc(vel, rhs, xgrid, ygrid, zgrid, &
                                            (vel(i, j+1, k)-vel(i, j-1, k))/(2*dy)/)
 
 #if NDIM == MDIM
+            zcell = zgrid(k)
+
             outprofile(LOW, KAXIS) = 2/(1+exp(outletGrowthRate*(zcell-zMin)/outletBuffer))
             outprofile(HIGH, KAXIS) = 2/(1+exp(-outletGrowthRate*(zcell-zMax)/outletBuffer))
 

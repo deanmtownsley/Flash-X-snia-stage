@@ -8,3 +8,7 @@
 	path = source/Grid/GridMain/AMR/Paramesh4/PM4_package
 	branch = main
 	url = https://github.com/Flash-X/PARAMESH-for-Flash-X.git
+[submodule "source/physics/sourceTerms/Stir/StirMain/turbulence_generator"]
+	path = source/physics/sourceTerms/Stir/StirMain/turbulence_generator
+	branch = master
+	url = https://github.com/chfeder/turbulence_generator.git

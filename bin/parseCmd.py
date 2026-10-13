@@ -18,13 +18,13 @@ ADDL_DEF_ARGS = ["+default"]
 WITHOUT_ARGS = ["auto","1d","2d","3d","portable",
                 "makehide", "curvilinear",
                 "opt","debug","test", "index-reorder", "strictparams",
-                "fbs","help", "noclobber", "nofbs", "mconly"] # nofbs disables fixedBlockSize
+                "fbs","help", "noclobber", "nofbs", "mconly", "with-unitmods"] # nofbs disables fixedBlockSize
 # options with arguments
-WITH_ARGS = ["maxblocks","nxb","nyb","nzb","verbose","site","ostype",
+WITH_ARGS = ["maxblocks","nxb","nyb","nzb","verbose","cols","site","ostype",
              "defines", "objdir","with-unit", "unit", "with-library",
              "without-unit","with-unofficial","without-library","kill-unit","unitsfile",
              "makefile", "library", "datafiles", "parfile", "tau",
-             "gridinterpolation", "geometry", "particlemethods"]
+             "gridinterpolation", "geometry", "particlemethods", "tomlfile"]
 
 
 USAGE="""usage:  setup <problem-name> [options] [VAR=VALUE]...
@@ -39,17 +39,18 @@ USAGE="""usage:  setup <problem-name> [options] [VAR=VALUE]...
             -without-unit=<unit> -without-library=<libname>
 
    (Setup and Make Options)
-            -verbose=[DEBUG|INFO|WARN|IMPINFO|ERROR] 
+            -verbose=[DEBUG|INFO|WARN|IMPINFO|ERROR]
             [-site=<site> | -ostype=<ostype>] 
             -makefile=<extension>
             [-opt| -debug | -test ] 
             -objdir=<relative obj directory> 
             -defines=<defines> -unitsfile=<filename>
             -datafiles=<wildcard> -parfile=<filename>
-            -fbs -nofbs -tau=<makefile> -mconly
+            -tomlfile=<filename>
+            -fbs -nofbs -tau=<makefile> -mconly -with-unitmods
 
    (Misc Options)
-            -makehide -noclobber -portable -help
+            -makehide -noclobber -portable -cols=<#> -help
 
    * For GNU compatibility, options may be prefixed by -- instead of - as well
    * -unit and -library are considered equivalent to 
@@ -263,6 +264,7 @@ def parseCommandLine():
         elif arg == '--nofbs':              GVars.setupVars.set("fixedBlockSize", False)
         elif arg == '--strictparams':       GVars.strictParams = 1
         elif arg == "--mconly":             GVars.macroOnly = True
+        elif arg == "--with-unitmods":      GVars.withUnitMods = True
         # DEV 'curvilinear'
         # * originally used to have the same effect as -gridinterpolation=monotonic
         #   does now, in addition to #defining GRID_CURVILINEAR 1 in Simulation.h.
@@ -326,12 +328,26 @@ def parseCommandLine():
              val = val.lower()
              if val in GVars.withLibraries: del GVars.withLibraries[val]
              GVars.withoutLibraries[val] = 1
+        elif arg == "--tomlfile":
+             if os.path.exists(os.path.join(GVars.simulationsDir,GVars.simulationName,val)):
+                 GVars.tomlfile = os.path.join(GVars.simulationsDir,GVars.simulationName,val)
+             elif os.path.exists(val):
+                 GVars.tomlfile = val
+             else:
+                 raise SetupError("Cannot locate tomlfile for input")
         elif arg == '--verbose': # set verbosity level
              if not val: continue # no argument dont change level
              if val.upper() in vrblevels: 
                 GVars.verbose = vrblevels[val.upper()]
              else:
                 GVars.out.put("Unrecognized verbosity level [%s]" % val,globals.ERROR)
+                usage()
+        elif arg == '--cols': # set width for pretty wrapped output
+             if not val: continue # no argument, do not change width
+             if int(val) > 0:
+                GVars.wrapcol = int(val)
+             else:
+                GVars.out.put("Invalid cols [%s]" % val,globals.ERROR)
                 usage()
         elif arg == '--gridinterpolation':  # set grid interpolation
              if not val: continue  # no argument; don't change interpolation
@@ -432,6 +448,10 @@ def checkOpts():
 # finalize all the options made
 # this is called after unitList.adjustOpts()
 def finalizeOpts():
+    if GVars.wrapcol is not None:
+      if GVars.wrapcol > 0:
+        GVars.out.setWrapCol(GVars.wrapcol)
+
     if GVars.nzb == None: 	 
       if GVars.dimension > 2: 	 
         GVars.nzb = 8 	 

@@ -40,6 +40,7 @@
 !!
 !!  bcValues - the values to boundary conditions, currently not used (treated as 0)
 !!  poisfact      - scaling factor to be used in calculation, currently not used (treated as 1)
+!!  iGrad         - variable to store gradient of iSoln on face-centered data
 !!
 !!
 !! SIDE EFFECTS
@@ -55,8 +56,8 @@
 #include "Simulation.h"
 #include "constants.h"   
  
-subroutine Grid_solveLaplacian (iSoln, iSrc, iCoeff, bcTypes, bcValues, poisfact) 
-   use Timers_interface, ONLY : Timers_start, Timers_stop
+subroutine Grid_solveLaplacian (iSoln, iSrc, iCoeff, bcTypes, bcValues, poisfact, iGrad) 
+    use Timers_interface, ONLY : Timers_start, Timers_stop
     use Driver_interface, ONLY : Driver_abort
     use Grid_interface,   ONLY : GRID_PDE_BND_PERIODIC,  &
          GRID_PDE_BND_NEUMANN,   &
@@ -80,13 +81,20 @@ subroutine Grid_solveLaplacian (iSoln, iSrc, iCoeff, bcTypes, bcValues, poisfact
     integer, intent(in)    :: bcTypes(6)
     real, intent(in)       :: bcValues(2,6)
     real, intent(inout)    :: poisfact
+    integer, intent(in), optional :: iGrad
+
     integer                :: amrexPoissonBcTypes(6)
 
     integer                :: i,ilev    
     real(amrex_real)       :: err
     logical                :: nodal(1:MDIM)
 
+    if (present(iGrad)) then
+      call Driver_abort("[AmrexMultigridSolver/Grid_solveLaplacian] Configuration with iGrad not implemented")
+    end if
+
     call Timers_start("Grid_solveLaplacian")
+
     if(poisfact .ne. 1) then
       if(gr_globalMe .eq. MASTER_PE) print*,"[WARNING] [Grid_solveLaplacian] Variable poisfact &
                                                                     was set not 1. It is being ignored and set to 1!!!"

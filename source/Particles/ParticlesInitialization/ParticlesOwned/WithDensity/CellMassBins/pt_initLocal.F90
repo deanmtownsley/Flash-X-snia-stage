@@ -98,8 +98,8 @@ subroutine pt_initLocal ()
 
   nullify(solnData)
   ! loop over all local leaf blocks
-
-
+  call Grid_getTileIterator(itor, LEAF, tiling=.FALSE.)
+  
   do while(itor%isValid())
      call itor%currentTile(tileDesc)
      

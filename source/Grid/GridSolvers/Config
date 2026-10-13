@@ -1,4 +1,4 @@
 #Config file for GridSolver sub unit
 DEFAULT Multipole
 REQUIRES Grid/GridMain
-EXCLUSIVE AmrexMultigridSolver Multipole
+EXCLUSIVE HYPRE AmrexMultigridSolver Multipole

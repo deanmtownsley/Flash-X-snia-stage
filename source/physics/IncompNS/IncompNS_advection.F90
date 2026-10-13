@@ -15,8 +15,10 @@
 !!
 !!
 !!***
-subroutine IncompNS_advection(tileDesc)
-   use Grid_tile, ONLY: Grid_tile_t
+#include "constants.h"
+subroutine IncompNS_advection(solnData, facexData, faceyData, facezData, del, lo, hi)
    implicit none
-   type(Grid_tile_t), INTENT(IN) :: tileDesc
+   real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
+   real, dimension(MDIM), intent(in) :: del
+   integer, dimension(MDIM), intent(in) :: lo, hi
 end subroutine IncompNS_advection

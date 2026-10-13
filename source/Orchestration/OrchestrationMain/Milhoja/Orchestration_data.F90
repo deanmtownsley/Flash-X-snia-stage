@@ -38,6 +38,12 @@ module Orchestration_data
                or_nTilesPerPacket_4, &
                or_nTilesPerPacket_5
 
+    integer :: or_nTilesPerCpuTurn_1, &
+               or_nTilesPerCpuTurn_2, &
+               or_nTilesPerCpuTurn_3, &
+               or_nTilesPerCpuTurn_4, &
+               or_nTilesPerCpuTurn_5
+
 
 end module Orchestration_data
 

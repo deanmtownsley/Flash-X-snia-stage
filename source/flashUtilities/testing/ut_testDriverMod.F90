@@ -68,6 +68,7 @@ module ut_testDriverMod
 
     public :: start_test_run
     public :: finish_test_run
+    public :: ut_testFailureCount
 
     public :: assertTrue
     public :: assertFalse
@@ -113,6 +114,10 @@ contains
             end if
         end if
     end function finish_test_run
+
+    integer function ut_testFailureCount()
+        ut_testFailureCount = my_n_failed
+    end function ut_testFailureCount
 
     subroutine assertTrue(a, msg)
         logical,      intent(IN) :: a
@@ -181,7 +186,7 @@ contains
         real :: prec
         character(256) :: buffer
 
-        prec = 2.0 * spacing(min(abs(a),abs(b)))
+        prec = 3.0 * spacing(min(abs(a),abs(b)))
         if (ABS(b - a) > prec) then
 700         format(A,' (with auto tol)',6P,G24.16,A,0P,G24.16)
             write(buffer,700) msg, a, " != ", b

@@ -348,7 +348,7 @@ subroutine gr_fillPhysicalBC(pmf, scomp, ncomp, time, pgeom) bind(c)
 
              regionData(:, :, :, :) = 0.0
              call gr_copyFabInteriorToRegion(solnData, gds, face, axis, &
-                                             goodData, scomp, ncomp, regionData)
+                                             goodData, 1, varCount, regionData)
 
              ! Let simulation do BC fill if so desired
              applied = .FALSE.

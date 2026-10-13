@@ -41,11 +41,12 @@ subroutine gr_mpoleCollectMoments ()
                                 gr_mpoleMaxLM,                &
                                 gr_mpoleMaxQ,                 &
                                 gr_mpoleTotalNrCosineMoments, &
+                                gr_mpoleMomRI,                &
                                 gr_mpoleMomentR,              &
                                 gr_mpoleMomentI,              &
                                 gr_mpoleQDampingR,            &
                                 gr_mpoleQDampingI,            &
-                                gr_mpoleScratch
+                                gr_mpoleScratch, gr_mpoleRequest
 
   
 #include "Flashx_mpi_implicitNone.fh"
@@ -163,29 +164,17 @@ subroutine gr_mpoleCollectMoments ()
 !       moments.
 !
 !
-  allMoments = gr_mpoleMaxLM * gr_mpoleMaxQ
-
-  call MPI_AllReduce (gr_mpoleMomentR (:,1:gr_mpoleMaxQ), &
+  allMoments = gr_mpoleMaxLM * gr_mpoleMaxQ * 2
+  gr_mpoleMomRI(:,1:gr_mpoleMaxQ,1)= gr_mpoleMomentR (:,1:gr_mpoleMaxQ)
+  gr_mpoleMomRI(:,1:gr_mpoleMaxQ,2)= gr_mpoleMomentI (:,1:gr_mpoleMaxQ)
+  call MPI_IAllReduce (gr_mpoleMomRI, &
                       gr_mpoleScratch,                    &
                       allMoments,                         &
                       FLASH_REAL,                         &
                       MPI_SUM,                            &
                       gr_meshComm,                        &
+                      gr_mpoleRequest,                    &
                       error                               )
-
-  gr_mpoleMomentR (:,0) = ZERO
-  gr_mpoleMomentR (:,1:gr_mpoleMaxQ) = gr_mpoleScratch (:,1:gr_mpoleMaxQ)
-
-  call MPI_AllReduce (gr_mpoleMomentI (:,1:gr_mpoleMaxQ), &
-                      gr_mpoleScratch,                    &
-                      allMoments,                         &
-                      FLASH_REAL,                         &
-                      MPI_SUM,                            &
-                      gr_meshComm,                        &
-                      error                               )
-
-  gr_mpoleMomentI (:,1:gr_mpoleMaxQ) = gr_mpoleScratch (:,1:gr_mpoleMaxQ)
-  gr_mpoleMomentI (:,gr_mpoleMaxQ+1) = ZERO
 !
 !
 !    ...Ready!

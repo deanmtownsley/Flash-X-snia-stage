@@ -15,7 +15,7 @@
 !!
 !!*****
 
-subroutine ins_indicators(u,v,w,pres,divv,ix1,ix2,jy1,jy2,kz1,kz2,vecminaux,vecmaxaux)
+subroutine ins_indicators(u,v,w,pres,divv,omgm,ix1,ix2,jy1,jy2,kz1,kz2,vecminaux,vecmaxaux)
 
 #include "Simulation.h"
 #include "constants.h"
@@ -23,22 +23,24 @@ subroutine ins_indicators(u,v,w,pres,divv,ix1,ix2,jy1,jy2,kz1,kz2,vecminaux,vecm
 
   !--------Argument List--------!
   real, dimension(:,:,:), intent(in) :: u,v,w
-  real, dimension(:,:,:), intent(in) :: pres,divv
+  real, dimension(:,:,:), intent(in) :: pres,divv,omgm
   integer, intent(in) :: ix1,ix2,jy1,jy2,kz1,kz2
-  real, dimension(5), intent(inout) :: vecminaux, vecmaxaux
+  real, dimension(6), intent(inout) :: vecminaux, vecmaxaux
 
   !-------Local Variables--------!
-  integer, parameter :: DIV=1, UVEL=2, VVEL=3, WVEL=4, PRS=5
+  integer, parameter :: DIV=1, UVEL=2, VVEL=3, WVEL=4, PRS=5, OMG=6
 
   vecmaxaux(UVEL) = max(vecmaxaux(UVEL),maxval(u    (ix1:ix2+1, jy1:jy2  , kz1:kz2)))
   vecmaxaux(VVEL) = max(vecmaxaux(VVEL),maxval(v    (ix1:ix2  , jy1:jy2+1, kz1:kz2)))
   vecmaxaux(PRS)  = max(vecmaxaux(PRS) ,maxval(pres (ix1:ix2  , jy1:jy2  , kz1:kz2)))
   vecmaxaux(DIV)  = max(vecmaxaux(DIV) ,maxval(divv (ix1:ix2  , jy1:jy2  , kz1:kz2)))
+  vecmaxaux(OMG)  = max(vecmaxaux(OMG) ,maxval(omgm (ix1:ix2  , jy1:jy2  , kz1:kz2)))
 
   vecminaux(UVEL) = min(vecminaux(UVEL),minval(u    (ix1:ix2+1, jy1:jy2  , kz1:kz2)))
   vecminaux(VVEL) = min(vecminaux(VVEL),minval(v    (ix1:ix2  , jy1:jy2+1, kz1:kz2)))
   vecminaux(PRS)  = min(vecminaux(PRS) ,minval(pres (ix1:ix2  , jy1:jy2  , kz1:kz2)))
   vecminaux(DIV)  = min(vecminaux(DIV) ,minval(divv (ix1:ix2  , jy1:jy2  , kz1:kz2)))
+  vecminaux(OMG)  = min(vecminaux(OMG) ,minval(omgm (ix1:ix2  , jy1:jy2  , kz1:kz2)))
 
 #if NDIM == MDIM
   vecmaxaux(WVEL) = max(vecmaxaux(WVEL),maxval(w    (ix1:ix2  , jy1:jy2  , kz1:kz2+1)))
@@ -48,5 +50,4 @@ subroutine ins_indicators(u,v,w,pres,divv,ix1,ix2,jy1,jy2,kz1,kz2,vecminaux,vecm
   vecminaux(WVEL) = 0.
 #endif
 
-  return
 end subroutine ins_indicators

@@ -38,6 +38,19 @@ Module Driver_interface
    end interface
 
    interface
+      subroutine Driver_abort_GPU(errorMessage)
+         implicit none
+         character(len=*), intent(in) :: errorMessage
+      end subroutine Driver_abort_GPU
+   end interface
+
+   interface
+      subroutine Driver_checkGPUErrorCode()
+         implicit none
+      end subroutine Driver_checkGPUErrorCode
+   end interface
+
+   interface
       subroutine Driver_dbgBreak()
       end subroutine Driver_dbgBreak
    end interface

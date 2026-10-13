@@ -77,8 +77,7 @@
 !!  routine bn_pzExtr does extrapolations for any of the Bader-Deuflhard bn_bader* routines
 !!
 !!  In this nuclearBurn directory, there are additional routines
-!!  routine bn_azbar computes composition variables from the mass fractions; they are
-!!              stored in Burn_dataEOS
+!!  routine bn_azbar computes composition variables from the mass fractions
 !!  routine bn_ecapnuc computes neutron and proton electron capture rates
 !!  routine bn_sneutx computes neutrino losses
 !!  routine bn_ifermi12 does an inverse fermi integral for bn_sneutx
@@ -92,16 +91,22 @@
 
 subroutine bn_burner(tstep,temp,density,xIn,xOut,sdotRate)
 
-  use Burn_dataEOS, ONLY:  btemp, bden
   use Burn_data, ONLY: bn_algebra, bn_odeStepper, bn_useBurnTable, &
-       & xmass, ymass, xoktot, xbadtot, bion, sneut, aion
+                       bion, aion, nrat, nrattab
 
   use bnIntegrate_interface, ONLY: bn_netIntegrate
   !  This are routine names to be passed as arguments.  Cannot be included
   !   in an EXTERNAL statement if you're going to use an interface
   use bnIntegrate_interface, ONLY: bn_baderMa28, bn_baderGift, &
-       bn_rosenMa28, bn_rosenGift
-  use bnNetwork_interface, ONLY: bn_network, bn_networkSparsePointers
+                                   bn_rosenMa28, bn_rosenGift
+  use bnNetwork_interface, ONLY: bn_network, &
+                                 bn_networkSparseJakob, &
+                                 bn_networkDenseJakob, &
+                                 bn_networkSparsePointers, &
+                                 bn_networkRates, &
+                                 bn_networkTable, &
+                                 bn_networkScreen
+
   use bn_interface, ONLY: bn_azbar, bn_sneutx
 
   implicit none
@@ -111,8 +116,8 @@ subroutine bn_burner(tstep,temp,density,xIn,xOut,sdotRate)
 
   ! See notes in bnNetwork_interface on why you can't use the interface for
   !  SparseJakob/DenseJakob
-  external bn_networkSparseJakob, bn_networkDenseJakob
-!  external bn_baderMa28, bn_baderGift, bn_rosenMa28, bn_rosenGift
+  ! external bn_networkSparseJakob, bn_networkDenseJakob
+  ! external bn_baderMa28, bn_baderGift, bn_rosenMa28, bn_rosenGift
 
   ! arguments
   real, intent(IN)                       :: tstep,temp,density
@@ -124,12 +129,22 @@ subroutine bn_burner(tstep,temp,density,xIn,xOut,sdotRate)
   integer         ::  i,k,nok,nbad,kount
   integer, parameter ::  tdim=10, iprint=0, nostore=0
 
-  real            ::  stptry,stpmin,ys2(NSPECIES),                           &
-       &                 ttime(tdim),elem(NSPECIES,tdim)
+  real            ::  stptry,stpmin,ys2(NSPECIES), &
+                      ttime(tdim),elem(NSPECIES,tdim)
 
   real, parameter ::  avo  = 6.0221367e23,     ev2erg = 1.602e-12,           &
        &                  conv = ev2erg*1.0e6*avo, tol    = 1.0e-5,          &
        &                  beg = 0.0e0,             odescal = 1.0e-6
+  ! ratdum  = the raw reaction rates (unscreened) as an array
+  ! ratdum  = the screened reaction rates as an array
+  real :: ratraw(nrat), ratdum(nrat)
+  real :: xmass(NSPECIES), ymass(NSPECIES)
+  real :: scfac(nrat), rattab(nrat,nrattab), ttab(nrattab), dtab(nrat)
+
+  real :: btemp, bden
+  real :: abar, zbar, z2bar, ytot1, bye
+  real :: sneut
+  logical :: screen_init
 
   !..set the the material and network variables
   btemp = temp
@@ -139,7 +154,7 @@ subroutine bn_burner(tstep,temp,density,xIn,xOut,sdotRate)
      xmass(i) = xIn(i)
   enddo
 
-  call bn_azbar()  !! generates ymass
+  call bn_azbar(xmass, ymass, abar, zbar, z2bar, ytot1, bye)
 
   do i=1,NSPECIES
      ys2(i) = ymass(i)
@@ -149,14 +164,17 @@ subroutine bn_burner(tstep,temp,density,xIn,xOut,sdotRate)
   !..get the reaction rates from a table or formula
 
   if (bn_useBurnTable) then
-     call bn_networkTable
+     call bn_networkTable(btemp, bden, abar, zbar, z2bar, ytot1, bye, &
+                          nrat, nrattab, &
+                          rattab, ttab, dtab, ratraw)
   else
-     call bn_networkRates
+     call bn_networkRates(btemp, bden, abar, zbar, z2bar, ytot1, bye, nrat, ratraw)
   endif
   !! in most netoworks, the weak subroutine does not exist.
   !! so it is now called from Aprox19's bn_networkScreen
 !!  call bn_networkWeak(ymass)
-  call bn_networkScreen(ymass)
+  screen_init = .true.
+  call bn_networkScreen(screen_init, btemp, bden, bye, ratraw, ymass, scfac, nrat, ratdum)
 
 
   !..set the time step variables for a single point burn
@@ -168,20 +186,22 @@ subroutine bn_burner(tstep,temp,density,xIn,xOut,sdotRate)
 
      !..with ma28 bn_algebra
      if (bn_algebra .eq. 1) then
-        call bn_netIntegrate(beg,stptry,stpmin,tstep,ys2,                        &
-             &              tol,beg,nostore,                                    &
-             &              ttime,elem,tdim,NSPECIES,tdim,NSPECIES,                 &
-             &              nok,nbad,kount,odescal,iprint,                      &
-             &              bn_network,bn_networkSparseJakob,bn_networkSparsePointers,bn_baderMa28)
+        call bn_netIntegrate(btemp,beg,stptry,stpmin,tstep,ys2,      &
+                             tol,beg,nostore,                        &
+                             ttime,elem,tdim,NSPECIES,tdim,NSPECIES, &
+                             nok,nbad,kount,odescal,iprint,          &
+                             nrat, ratdum,                           &
+                             bn_network,bn_networkSparseJakob,bn_networkSparsePointers,bn_baderMa28)
         !!  last line is derivs,    jakob,   bjakob,  steper
 
         !..with gift bn_algebra
      else if (bn_algebra .eq. 2) then
-        call bn_netIntegrate(beg,stptry,stpmin,tstep,ys2,                        &
-             &              tol,beg,nostore,                                    &
-             &              ttime,elem,tdim,NSPECIES,tdim,NSPECIES,                 &
-             &              nok,nbad,kount,odescal,iprint,                      &
-             &              bn_network,bn_networkDenseJakob,bn_networkSparsePointers,bn_baderGift)
+        call bn_netIntegrate(btemp, beg,stptry,stpmin,tstep,ys2,     &
+                             tol,beg,nostore,                        &
+                             ttime,elem,tdim,NSPECIES,tdim,NSPECIES, &
+                             nok,nbad,kount,odescal,iprint,          &
+                             nrat, ratdum,                           &
+                             bn_network,bn_networkDenseJakob,bn_networkSparsePointers,bn_baderGift)
 
      end if
 
@@ -191,26 +211,28 @@ subroutine bn_burner(tstep,temp,density,xIn,xOut,sdotRate)
 
      !..with ma28 bn_algebra
      if (bn_algebra .eq. 1) then
-        call bn_netIntegrate(beg,stptry,stpmin,tstep,ys2,                        &
-             &              tol,beg,nostore,                                    &
-             &              ttime,elem,tdim,NSPECIES,tdim,NSPECIES,                 &
-             &              nok,nbad,kount,odescal,iprint,                      &
-             &              bn_network,bn_networkSparseJakob,bn_networkSparsePointers,bn_rosenMa28)
+        call bn_netIntegrate(btemp,beg,stptry,stpmin,tstep,ys2,      &
+                             tol,beg,nostore,                        &
+                             ttime,elem,tdim,NSPECIES,tdim,NSPECIES, &
+                             nok,nbad,kount,odescal,iprint,          &
+                             nrat, ratdum,                           &
+                             bn_network,bn_networkSparseJakob,bn_networkSparsePointers,bn_rosenMa28)
 
         !..with gift bn_algebra
      else if (bn_algebra .eq. 2) then
-        call bn_netIntegrate(beg,stptry,stpmin,tstep,ys2,                        &
-             &              tol,beg,nostore,                                    &
-             &              ttime,elem,tdim,NSPECIES,tdim,NSPECIES,                 &
-             &              nok,nbad,kount,odescal,iprint,                      &
-             &              bn_network,bn_networkDenseJakob,bn_networkSparsePointers,bn_rosenGift)
+        call bn_netIntegrate(btemp,beg,stptry,stpmin,tstep,ys2,      &
+                             tol,beg,nostore,                        &
+                             ttime,elem,tdim,NSPECIES,tdim,NSPECIES, &
+                             nok,nbad,kount,odescal,iprint,          &
+                             nrat, ratdum,                           &
+                             bn_network,bn_networkDenseJakob,bn_networkSparsePointers,bn_rosenGift)
 
      end if
   end if
 
 
-  xoktot  = xoktot + real(nok)
-  xbadtot = xbadtot + real(nbad)
+  ! xoktot  = xoktot + real(nok)
+  ! xbadtot = xbadtot + real(nbad)
 
 
   !..the average energy generated over the time step
@@ -221,7 +243,8 @@ subroutine bn_burner(tstep,temp,density,xIn,xOut,sdotRate)
   sdotRate = sdotRate * conv/tstep
 
   !..take into neutrino losses
-  call bn_sneutx()
+  call bn_sneutx(btemp, bden, abar, zbar, &
+                 sneut)
   sdotRate = sdotRate - sneut
 
   !..update the composition 

@@ -28,6 +28,8 @@ subroutine ImBound_mapToGrid(tileDesc, bodyInfo)
    use Driver_interface, ONLY: Driver_getNStep
    use Grid_tile, ONLY: Grid_tile_t
    use Grid_interface, ONLY: Grid_getCellCoords
+   use Stencils_interface, ONLY: Stencils_lsNormals2d, Stencils_lsNormals3d, &
+                                 Stencils_lsCurvature2d, Stencils_lsCurvature3d
 
 !-----------------------------------------------------------------------------------------
    implicit none
@@ -89,6 +91,25 @@ subroutine ImBound_mapToGrid(tileDesc, bodyInfo)
 
    end if
 
+   call Stencils_lsNormals3d(solnData(LMDA_VAR, :, :, :), &
+                             solnData(NMLX_VAR, :, :, :), &
+                             solnData(NMLY_VAR, :, :, :), &
+                             solnData(NMLZ_VAR, :, :, :), &
+                             del(IAXIS), del(JAXIS), del(KAXIS), &
+                             GRID_ILO_GC, GRID_IHI_GC, &
+                             GRID_JLO_GC, GRID_JHI_GC, &
+                             GRID_KLO_GC, GRID_KHI_GC)
+
+   call Stencils_lsCurvature3d(solnData(LCRV_VAR, :, :, :), &
+                               solnData(LMDA_VAR, :, :, :), &
+                               solnData(NMLX_VAR, :, :, :), &
+                               solnData(NMLY_VAR, :, :, :), &
+                               solnData(NMLZ_VAR, :, :, :), &
+                               del(IAXIS), del(JAXIS), del(KAXIS), &
+                               GRID_ILO_GC, GRID_IHI_GC, &
+                               GRID_JLO_GC, GRID_JHI_GC, &
+                               GRID_KLO_GC, GRID_KHI_GC)
+
 #else
    if (ib_bruteForceMapping) then
       call ib_bruteForceMap(solnData(LMDA_VAR, :, :, :), &
@@ -107,6 +128,21 @@ subroutine ImBound_mapToGrid(tileDesc, bodyInfo)
                      bodyInfo)
 
    end if
+
+   call Stencils_lsNormals2d(solnData(LMDA_VAR, :, :, :), &
+                             solnData(NMLX_VAR, :, :, :), &
+                             solnData(NMLY_VAR, :, :, :), &
+                             del(IAXIS), del(JAXIS), &
+                             GRID_ILO_GC, GRID_IHI_GC, &
+                             GRID_JLO_GC, GRID_JHI_GC)
+
+   call Stencils_lsCurvature2d(solnData(LCRV_VAR, :, :, :), &
+                               solnData(LMDA_VAR, :, :, :), &
+                               solnData(NMLX_VAR, :, :, :), &
+                               solnData(NMLY_VAR, :, :, :), &
+                               del(IAXIS), del(JAXIS), &
+                               GRID_ILO_GC, GRID_IHI_GC, &
+                               GRID_JLO_GC, GRID_JHI_GC)
 #endif
 
    ! Release pointers:

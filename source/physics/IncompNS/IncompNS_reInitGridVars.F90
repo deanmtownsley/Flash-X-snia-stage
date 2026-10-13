@@ -14,9 +14,8 @@
 !!
 !!
 !!***
-subroutine IncompNS_reInitGridVars(tileDesc)
-   use Grid_tile, ONLY: Grid_tile_t
-   implicit none
-   type(Grid_tile_t), INTENT(IN) :: tileDesc
-   return
+subroutine IncompNS_reInitGridVars(solnData, facexData, faceyData, facezData)
+  implicit none
+  real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
 end subroutine IncompNS_reInitGridVars
+

@@ -19,6 +19,8 @@
 !!
 !! bn_network(real, intent(IN)                :: tt,
 !!            real, intent(IN), dimension(:)  :: y,
+!!            real, intent(IN),               :: btemp,
+!!            real, intent(IN), dimension(:)  :: ratdum,
 !!            real, intent(OUT), dimension(:) :: dydt
 !!
 !! DESCRIPTION
@@ -33,14 +35,16 @@
 !!
 !!   tt  -- never used, so don't know what it does
 !!   y --
+!!   btemp --
+!!   ratdum --
 !!   dydt --
 !!
 !!***
 
-subroutine bn_network(tt,y,dydt)   
+subroutine bn_network(tt,y,btemp,ratdum,dydt)
 
-!! Sorry, there are just toooo freakin many of them to include by name
-  use Burn_data  
+  use Burn_data, ONLY: ihe4, ic12, io16, ine20, img24, isi28, is32, &
+                       iar36, ica40, iti44, icr48, ife52, ini56
   use bn_dataAprox13
 
   implicit none
@@ -52,8 +56,8 @@ subroutine bn_network(tt,y,dydt)
   ! branching ratios
  
 !!  declare arguments and local variables
-  real, intent(IN)  :: tt,y(*)
-  real, intent(OUT) :: dydt(*)
+  real, intent(IN)  :: tt, y(:), btemp, ratdum(:)     ! NOTE: btemp is reserved for Aprox19
+  real, intent(OUT) :: dydt(:)
 
   real             :: r1,s1,t1,u1,v1,w1,x1,y1
 

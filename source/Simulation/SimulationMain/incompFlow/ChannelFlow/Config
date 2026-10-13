@@ -3,4 +3,12 @@
 
 REQUIRES physics/IncompNS/IncompNSMain/constDens
 
+
+PARAMETER	sim_xMinRef	REAL	0.0
+PARAMETER	sim_xMaxRef	REAL	1.0
+PARAMETER	sim_yMinRef	REAL	0.0
+PARAMETER	sim_yMaxRef	REAL	1.0
+PARAMETER	sim_zMinRef	REAL	0.0
+PARAMETER	sim_zMaxRef	REAL	1.0
+
 GUARDCELLS 2

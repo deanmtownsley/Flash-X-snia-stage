@@ -53,7 +53,7 @@ PARAMETER ins_velProlongMethod INTEGER  1 [0,1,101,102]
 D   ins_pressureCorrect If true does pressure correction time
 D & splitting scheme (solve Poisson for DP) else fractional step
 D & method method (solve Poisson for P)
-PARAMETER ins_pressureCorrect  BOOLEAN  TRUE
+PARAMETER ins_pressureCorrect  BOOLEAN  FALSE
 
 D ins_intSchm Order of temporal integration scheme 1-Euler, and 2-Adams-Bashforth 
 PARAMETER ins_intSchm INTEGER 2 [1,2]
@@ -99,6 +99,9 @@ FACEVAR hvn0
 
 D hvn1_facevar RHS of momentum at timestep n-1
 FACEVAR hvn1
+
+D pgn0_facevar Pressure gradient at n
+FACEVAR pgn0
 
 D pgn1_facevar Pressure gradient at n-1
 FACEVAR pgn1

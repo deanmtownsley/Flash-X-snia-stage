@@ -17,10 +17,10 @@
 #include "Simulation.h"
 #include "constants.h"
 
-subroutine Heater_lsReInit(tileDesc, stime, blockCount)
-   use Grid_tile, ONLY: Grid_tile_t
-   implicit none
-   real, intent(in) :: stime
-   type(Grid_tile_t), intent(in) :: tileDesc
-   integer, intent(in) :: blockCount
+subroutine Heater_lsReInit(solnData, del, lo, hi, stime, lblock)
+  real, dimension(:, :, :, :)           :: solnData
+  real, intent(in)                      :: stime
+  real ,dimension(MDIM), intent(in)     :: del
+  integer, dimension(MDIM),intent(in)   :: lo, hi
+  integer, intent(in) :: lblock
 end subroutine Heater_lsReInit

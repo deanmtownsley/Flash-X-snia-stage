@@ -20,52 +20,27 @@
 #include "HeatAD.h"
 #include "Simulation.h"
 
-subroutine HeatAD_diffusion(tileDesc)
+subroutine HeatAD_diffusion(solnData, del, lo, hi)
 
    use HeatAD_data
    use Timers_interface, ONLY: Timers_start, Timers_stop
-   use Driver_interface, ONLY: Driver_getNStep
-   use Grid_tile, ONLY: Grid_tile_t
-   use Stencils_interface, ONLY: Stencils_diffusion2d, Stencils_diffusion3d
+   use Stencils_interface, ONLY: Stencils_diffusion
 
 !--------------------------------------------------------------------------------------------
    implicit none
-   include"Flashx_mpi.h"
-   type(Grid_tile_t), intent(in) :: tileDesc
-
-   real ::  del(MDIM)
-   integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
    real, pointer, dimension(:, :, :, :) :: solnData
-   real :: diffusion_coeff
-
-!---------------------------------------------------------------------------------------------
-   nullify (solnData)
+   real,dimension(MDIM),intent(IN) ::  del
+   integer, dimension(MDIM),intent(IN) :: lo, hi
 
    call Timers_start("HeatAD_diffusion")
 
    diffusion_coeff = ht_invReynolds/ht_Prandtl
 
-   call tileDesc%getDataPtr(solnData, CENTER)
-   call tileDesc%deltas(del)
-
-#if NDIM == MDIM
-   call Stencils_diffusion3d(solnData(HTN0_VAR, :, :, :), &
+   call Stencils_diffusion(solnData(HTN0_VAR, :, :, :), &
                              solnData(TEMP_VAR, :, :, :), &
-                             del(DIR_X), del(DIR_Y), del(DIR_Z), &
+                             del,
                              diffusion_coeff, &
-                             GRID_ILO, GRID_IHI, &
-                             GRID_JLO, GRID_JHI, &
-                             GRID_KLO, GRID_KHI)
-#else
-   call Stencils_diffusion2d(solnData(HTN0_VAR, :, :, :), &
-                             solnData(TEMP_VAR, :, :, :), &
-                             del(DIR_X), del(DIR_Y), &
-                             diffusion_coeff, &
-                             GRID_ILO, GRID_IHI, &
-                             GRID_JLO, GRID_JHI)
-#endif
-
-   call tileDesc%releaseDataPtr(solnData, CENTER)
+                             lo,hi)                             
 
    call Timers_stop("HeatAD_diffusion")
 

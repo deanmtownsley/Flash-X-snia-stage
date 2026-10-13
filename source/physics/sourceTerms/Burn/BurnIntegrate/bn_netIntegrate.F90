@@ -35,6 +35,8 @@
 !!                         integer(OUT) :: kount,
 !!                         real(IN)     :: odescal,
 !!                         integer(IN)  :: iprint,
+!!                         integer(IN)  :: nrat,
+!!                         real(IN)     :: ratdum(:),
 !!                         procedure(IN):: derivs,
 !!                         procedure(IN):: jakob,
 !!                         procedure(IN):: bjakob,
@@ -70,6 +72,8 @@
 !!   kount   - integer(OUT) total number of steps stored in arrays xrk and yrk
 !!   odescal - real(IN)     error scaling factor 
 !!   iprint  - integer(IN)  determines if the solution is printed as it evolves
+!!   nrat    - integer(IN)  number of reaction rates
+!!   ratdum  - real(IN)     the screened reaction rates as an array
 !!   derivs  - procedure(IN) name of the routine that contains the odes
 !!   jakob   - procedure(IN) name of the routine that contains the jacobian of the odes
 !!   bjakob  - procedure(IN) name of the routine that sets the pointers of the sparse jacobian
@@ -94,71 +98,34 @@
 
 !!---------------------------------------------------------------------------------
 
-subroutine bn_netIntegrate(start,stptry,stpmin,stopp,bc,  & 
-     &                  eps,dxsav,kmax,   & 
-     &                  xrk,yrk,xphys,yphys,xlogi,ylogi,  & 
-     &                  nok,nbad,kount,odescal,iprint,  & 
-     &                  derivs,jakob,bjakob,steper)
-   
+subroutine bn_netIntegrate(btemp,start,stptry,stpmin,stopp,bc, &
+                           eps,dxsav,kmax,                     &
+                           xrk,yrk,xphys,yphys,xlogi,ylogi,    &
+                           nok,nbad,kount,odescal,iprint,      &
+                           nrat, ratdum,                       &
+                           derivs,jakob,bjakob,steper)
+
   use Driver_interface, ONLY : Driver_abort
+  use bnNetwork_interface, ONLY: derivs_t, jakob_t, bjakob_t, steper_t, steper_state_t
 
   implicit none
 
-
-  ! For some mysterious reason, can't use the following line
-  ! use bnNetwork_interface, ONLY: derivs, jakob, bjakob
-  ! use bnIntegrate_interface, ONLY: steper.
-  ! But you CAN directly put the interfaces into the file.  Go figure.
-  ! Also note that the "use" lines have to be ABOVE implicit none, but
-  !  the direct interfaces have to be BELOW it.
-  interface   ! = bn_network
-     subroutine derivs(tt,y,dydt)   !! == bn_network
-       implicit none
-       real, intent(IN) :: tt
-       real, intent(INOUT), dimension(*)  :: y
-       real, intent(OUT), dimension(*) :: dydt
-     end subroutine derivs
-
-     subroutine jakob(tt,y,dfdy,nzo,nDummy) ! = bn_networkSparseJakob or bn_networkDenseJakob
-       implicit none                        ! See notes in bnNetwork_interface about this...
-       integer, intent(IN) :: nzo, nDummy
-       real, intent(IN)    :: tt
-       real, intent(INOUT) :: y(*)
-       real, intent(OUT)   :: dfdy(nzo,nDummy)
-     end subroutine jakob
-
-     subroutine bjakob(iloc,jloc,nzo,np)
-       implicit none
-       integer, intent(IN)  ::   iloc(*),jloc(*),np
-       integer, intent(OUT) ::   nzo
-     end subroutine bjakob
-
-     subroutine steper(y,dydx,nv,x,htry,eps,yscal,hdid,hnext, & 
-          &                       derivs,jakob,bjakob)
-       implicit none
-       external               derivs,jakob,bjakob
-       integer, intent(IN) :: nv
-       real, intent(INOUT) :: y(nv)
-       real, intent(IN)    :: dydx(nv), yscal(nv), htry, eps
-       real, intent(OUT)   :: hdid, hnext
-       real, intent(INOUT) :: x
-     end subroutine steper
-  end interface
-
   !! arguments
-  !! Note, can't give an INTENT statement with external functions
-  !!  And if you don't use the interface above, you need the following line
-  !  external                    derivs,jakob,bjakob, steper 
-
-  integer, intent(IN)  :: xphys,yphys,xlogi,ylogi
+  integer, intent(IN)  :: xphys,yphys,xlogi,ylogi,nrat
   integer, intent(IN)  :: kmax, iprint
   real, intent(IN)     :: odescal, dxsav, eps
-  real, intent(IN)     :: start, stptry, stpmin, stopp
+  real, intent(IN)     :: btemp, start, stptry, stpmin, stopp
+  real, intent(IN), dimension(nrat)     :: ratdum
   real, intent(INOUT), dimension(yphys) :: bc
 
   integer, intent(OUT) :: nok, nbad, kount
   real, intent(OUT), dimension(xphys)       :: xrk
   real, intent(OUT), dimension(yphys,xphys) :: yrk
+
+  procedure(derivs_t) :: derivs
+  procedure(jakob_t) :: jakob
+  procedure(bjakob_t) :: bjakob
+  procedure(steper_t) :: steper
 
   !! local declarations
 
@@ -168,7 +135,9 @@ subroutine bn_netIntegrate(start,stptry,stpmin,stopp,bc,  &
   real, parameter    :: zero=0.0e0
   real, parameter    :: one=1.0e0
   real, parameter    :: tiny=1.0e-15
-  real, save         :: yscal(nmax),y(nmax),dydx(nmax),x,xsav,h,hdid,hnext
+  real               :: yscal(nmax),y(nmax),dydx(nmax),x,xsav,h,hdid,hnext
+
+  type(steper_state_t) :: state
 
   !!   here are the format statements for printouts as we integrate 
 100 format(1x,i4,1pe10.2) 
@@ -202,6 +171,13 @@ subroutine bn_netIntegrate(start,stptry,stpmin,stopp,bc,  &
   enddo
   xsav = x - 2.0e0 * dxsav 
 
+  !! initialize steper state
+  state%ifirst = .true.
+  state%first = .true.
+  state%epsold = -1.0
+  state%nvold = -1
+  state%nseq = [2, 6, 10, 14, 22, 34, 50, 70]
+
   !!   take at most stpmax steps 
   do nstp=1,stpmax 
 
@@ -211,7 +187,7 @@ subroutine bn_netIntegrate(start,stptry,stpmin,stopp,bc,  &
         y(i) = max(y(i),1.0e-30) 
      enddo
      !! dummy procedure name, expands to bn_network
-     call derivs(x,y,dydx) 
+     call derivs(x,y,btemp,ratdum,dydx)
 
 
      !!   scaling vector used to monitor accuracy 
@@ -250,7 +226,7 @@ subroutine bn_netIntegrate(start,stptry,stpmin,stopp,bc,  &
      !! jakob  = bn_saprox13 (for sparse ma28 solver) or bn_daprox13 (for dense gift solver)
      !! bjakob = bn_baprox13 (really used only for ma28 solver)
      !!   
-     call steper(y,dydx,ylogi,x,h,eps,yscal,hdid,hnext, & 
+     call steper(state,y,dydx,ratdum,ylogi,x,btemp,h,eps,yscal,hdid,hnext, & 
           &             derivs,jakob,bjakob)    
      if (hdid.eq.h) then 
         nok = nok+1    

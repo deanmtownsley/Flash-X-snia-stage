@@ -23,8 +23,8 @@
 !! DESCRIPTION
 !!
 !!***
-subroutine Multiphase_reInitGridVars(tileDesc)
-   use Grid_tile, ONLY: Grid_tile_t
+#include "constants.h"
+subroutine Multiphase_reInitGridVars(solnData)
    implicit none
-   type(Grid_tile_t), intent(in) :: tileDesc
+   real, dimension(:,:,:,:), pointer :: solnData
 end subroutine Multiphase_reInitGridVars

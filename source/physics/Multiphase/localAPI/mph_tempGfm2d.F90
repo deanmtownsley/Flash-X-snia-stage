@@ -9,10 +9,11 @@
 !!  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 !!  See the License for the specific language governing permissions and
 !!  limitations under the License.
-subroutine mph_tempGfm2d(phi, nx, ny, Tcoeff, T, Tfrc, Tnl, Tng, Tsat, dx, dy, ix1, ix2, jy1, jy2)
+subroutine mph_tempGfm2d(phi, nx, ny, Tcoeff, T, Tfrc, Tnl, Tng, Tsat, dx, dy, ix1, ix2, jy1, jy2, tol)
    implicit none
    real, dimension(:, :, :), intent(inout) :: Tfrc, Tnl, Tng
    real, dimension(:, :, :), intent(in) :: phi, T, nx, ny, Tcoeff
    real, intent(in) :: Tsat, dx, dy
    integer, intent(in) :: ix1, ix2, jy1, jy2
+   real, intent(in) :: tol
 end subroutine mph_tempGfm2d

@@ -16,48 +16,69 @@
 !!
 !! @subref{Eos_fillEosData}
 !!***
-!!NOVARIANTS
+!!
 #include "Eos.h"
 #include "Eos_map.h"
 #include "constants.h"
 #include "Simulation.h"
   
 
+!!VARIANTS(GPU): Eos_fillEosData
 ! solnData depends on the ordering on unk
 !!REORDER(4): solnData
 
 
-subroutine Eos_fillEosData(range, solnData, vecB, vecE, eosData)
+subroutine Eos_fillEosData(range, lo, solnData, vecB, vecE, eosData)
 
   use Eos_data, ONLY: eos_eintSwitch, eos_smalle, eos_mapLookup
-  use Driver_interface, ONLY : Driver_abort
+
+  @M eos_DIR_routine(vector)
+
   implicit none
 
   integer, intent(in) :: vecB
   integer,intent(inout) :: vecE
   integer, dimension(LOW:HIGH,MDIM), intent(in) :: range
-  real,pointer,dimension(:,:,:,:), intent(in) :: solnData
+  integer, intent(in) :: lo(MDIM)
+  real,dimension(1:,lo(1):,lo(2):,lo(3):),intent(inout) :: solnData
   real, dimension(vecB:vecE,EOS_VARS),intent(out) :: eosData
+  integer, dimension(MDIM+1) :: lob
 
   integer :: i,j,k,n
+  integer :: ilo, ihi, jlo, jhi, klo, khi, base_n
   real :: @M eos_args, ekin
   @M eos_map_declare
   !! ---------------------------------------------------------------------------------
   ! Test calling arguments
-  
+
+
   !! get the map of eos indices to state variable indices
   @M eos_map
   @M eos_args_init
-  n = vecB-1
+  base_n = vecB-1
+  !! for readability
+  ilo = range(LOW,  IAXIS)
+  ihi = range(HIGH, IAXIS)
+  jlo = range(LOW,  JAXIS)
+  jhi = range(HIGH, JAXIS)
+  klo = range(LOW,  KAXIS)
+  khi = range(HIGH, KAXIS)
   !! DEV: If / when we add a ptr dummy argument for passing in an offset, this will be n = ptr
-  @M loop_3d(range)
+  @M eos_DIR_parallel_loop(3) &
+  @M eos_DIR_private([i, j, k, n]) &
+  @M eos_DIR_private([kineticEnergy, ekin, internalEnergy, eint]) &
+  @M eos_DIR_private([pres, dens, temp, gamc, abar, zbar, ye])
+  @M loop_3d(range,i,j,k)
   !! account for kinetic energy
-            n=n+1
+            n = base_n + &
+                ((k - klo) * (jhi - jlo + 1) * (ihi - ilo + 1)) + &
+                ((j - jlo) * (ihi - ilo + 1)) + &
+                (i - ilo) + 1
             @M eos_preprocess
             !! consolidate the data at the point into eosData
             @M eos_pack(eosData,n)
   @M loop_end_3d
-  vecE=n
+  vecE = base_n + (ihi - ilo + 1)*(jhi - jlo + 1)*(khi - klo + 1)
   return
 end subroutine Eos_fillEosData
 

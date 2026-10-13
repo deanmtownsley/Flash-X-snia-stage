@@ -153,19 +153,20 @@ ECHO = echo
 
 
 #----------------------------------------------------------------------------
-# Fake existence of iso_c_bindings module to prevent unnecessary recompilations.
-#---------------------------------------------------------------------------- 
+# Fixups can go here.
+#----------------------------------------------------------------------------
 ifeq ($(FLASHBINARY),true)
-iso_c_binding.mod :
-	touch $@
+
 ## ACCORDING TO DOWNGWOOK LEE:
 #gcc version 4.9.1 results in MPI communication errors
 #unless we compile with -O0
-### THE ERROR MESSAGE IS THE FOLLOWING:
+### THE ERROR MESSAGE IN FLASH WAS THE FOLLOWING:
 #Paramesh error : pe            1  needed full blk            2
 #> 0  but could not find it or only  found part of it in the message buffer.
 #> Contact PARAMESH developers for help.
+#
+#As a possible workaround, uncomment the following 2 lines:
+#mpi_amr_1blk_guardcell.o : %.o : %.F90
+#	$(FCOMP) $(FFLAGS) -O0 $(F90FLAGS) $(FDEFINES)  $<
 
-mpi_amr_1blk_guardcell.o : %.o : %.F90
-	$(FCOMP) $(FFLAGS) -O0 $(F90FLAGS) $(FDEFINES)  $<
 endif

@@ -1,0 +1,124 @@
+# Input file to set runtime parameters
+
+# Generates runtime parameters for
+# physics/sourceTerms/Heater/HeaterMain 
+[Heater]
+  htr_heaterName = "flow_boiling"
+  htr_numHeaters = 1
+  htr_nucSeedRadius = 0.1
+
+# This is a specialized key that is used by 
+# unit specific python script to generate 
+# additional input files (other than parfile)
+# that may required to run a simulation. In this
+# case the details under this key are used by
+# physics/sourceTerms/Heater/HeaterMain/Heater_write.py
+#
+# Other units can use this format to add their own
+# custom "[Unit.key]" values to perform more complex
+# inputs operation beyond parfile generation
+[Heater.0001]
+  dim = 1
+  xmin = -4.0
+  xmax = 4.0
+  ymin = 0.0
+  ymax = 1e-13
+  zmin = -2.5
+  zmax = 2.5
+  wallTemp = 1.0
+  advAngle = 90.0
+  rcdAngle = 45.0
+  velContact = 0.2
+  nucWaitTime = 0.4
+  numSites = 60
+
+# Runtime parameters for logging
+[Logfile]
+  run_comment = "Flow Boiling problem"
+  log_file = "INS_Flow_Boiling.log"
+
+# Runtime parameters for grid
+[Grid]
+  geometry = "cartesian"
+  xmin = -5.0
+  xmax =  5.0
+  ymin = 0.0
+  ymax = 2.5
+  xl_boundary_type = "inflow_ins"
+  xr_boundary_type = "outflow_ins"
+  yl_boundary_type = "noslip_ins"
+  yr_boundary_type = "slip_ins"
+  gr_amrexMG_composite_solve = true
+  gr_amrexMG_Tol = 1.0e-13
+  gr_amrexMG_max_iter = 200
+  nblockx = 20
+  nblocky = 5
+  nrefs = 10000000
+  lrefine_min = 1
+  lrefine_max = 1
+  flux_correct = true
+  enableMaskedGCFill = true
+
+# Runtime parameters for the IncompNS unit
+[IncompNS]
+  ins_invReynolds = 0.0042
+  ins_inflowVelScale = 1.0
+  ins_gravY = -1.0
+  ins_cflFlg = 1
+  ins_cfl = 0.05
+  ins_sigma = 0.05
+  ins_dtSpec = 0.1e-3
+  ins_pressureCorrect = false
+  ins_intSchm = 2
+  ins_advSchm = 2
+
+# Runtime parameters for the Outlet unit
+[Outlet]
+  out_buffer = 2.0
+
+# Runtime parameters for the Simulation unit
+[Simulation]
+  sim_lengthScaleMeters = 0.001
+  sim_timeScaleSeconds = 0.01
+
+# Runtime parameters for the Multiphase unit
+[Multiphase]
+  mph_rhoGas = 0.0083
+  mph_muGas = 1.0
+  mph_iPropSmear = 1.5
+  mph_invWeber = 1.0
+  mph_thcoGas = 0.25
+  mph_CpGas = 0.83
+  mph_Stefan = 0.5298
+  mph_Tsat = 0.15
+  mph_presTol = 0.1
+  mph_tempTol = 0.01
+
+# Runtime parameters for the HeatAD unit
+[HeatAD]
+  ht_Prandtl = 8.4
+
+# Runtime parameters for the Driver unit
+[Driver]
+  restart = false
+  nend = 1200000
+  tmax = 10
+  dtinit = 0.1e-3
+  dtmax = 0.4e-3
+  tstep_change_factor = 1.01
+  wall_clock_time_limit = -1
+
+# Runtime parameters for the IO unit
+[IO]
+  basenm = "INS_Flow_Boiling_"
+  checkpointFileIntervalTime = 1.0
+  plotFileIntervalTime = 0.1
+  checkpointFileNumber = 0
+  rolling_checkpoint = 2
+  plotFileNumber = 0
+  plot_var_1 = "pres"
+  plot_var_2 = "velx"
+  plot_var_3 = "vely"
+  plot_var_4 = "dfun"
+  plot_var_5 = "temp"
+  ignoreForcedPlot = true

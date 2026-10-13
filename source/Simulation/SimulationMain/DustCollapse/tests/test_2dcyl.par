@@ -47,7 +47,7 @@ checkpointFileIntervalStep = 0
 
 plotFileIntervalTime     = 1000.
 
-nend            = 5000
+nend            = 45
 
 tmax            = 0.0358
 

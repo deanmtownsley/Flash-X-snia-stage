@@ -18,6 +18,10 @@ Comparison/RisingBubble/AMReXGCFill/2d:
   setupOptions: -auto -2d -nxb=16 -nyb=16 +amrex +incomp -maxblocks=100
   parfiles: test_gcfill.par
 
+Comparison/RisingBubble/AMReXGCFill/3d:
+  setupOptions: -auto -3d -nxb=16 -nyb=16 -nzb=16 +amrex +incomp -maxblocks=200
+  parfiles: test_gcfill.par
+
 Comparison/RisingBubble/ParameshGCFill/2d:
   setupOptions: -auto -2d -nxb=16 -nyb=16 +pmvdev --index-reorder
                 -gridinterpolation=native -maxblocks=100 +incomp

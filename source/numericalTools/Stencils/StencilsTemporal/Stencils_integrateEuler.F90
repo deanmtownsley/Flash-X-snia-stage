@@ -13,32 +13,35 @@
 !!
 !!
 !!***
-subroutine Stencils_integrateEulerScalar(phi,rhs,dt,ix1,ix2,jy1,jy2,kz1,kz2,iSource)
+#include "constants.h"
+
+subroutine Stencils_integrateEulerScalar(phi,rhs,dt,lo,hi,iSource)
     implicit none
     real, dimension(:,:,:), intent(inout):: phi
     real, dimension(:,:,:), intent(in) :: rhs
     real, intent(in) :: dt
-    integer, intent(in) :: ix1,ix2,jy1,jy2,kz1,kz2
+    integer,dimension(MDIM), intent(in) :: lo, hi
     real, intent(in) :: iSource
 
-    phi(ix1:ix2,jy1:jy2,kz1:kz2) = phi(ix1:ix2,jy1:jy2,kz1:kz2) + &
-                                dt*rhs(ix1:ix2,jy1:jy2,kz1:kz2) + &
-                                dt*iSource
-
+    phi(lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)) = &
+           phi(lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)) + &
+           dt*rhs(lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)) + &
+           dt*iSource
+    
     return
 end subroutine Stencils_integrateEulerScalar
 
-subroutine Stencils_integrateEulerArray(phi,rhs,dt,ix1,ix2,jy1,jy2,kz1,kz2,iSource)
+subroutine Stencils_integrateEulerArray(phi,rhs,dt,lo, hi,iSource)
     implicit none
     real, dimension(:,:,:), intent(inout):: phi
     real, dimension(:,:,:), intent(in) :: rhs
     real, intent(in) :: dt
-    integer, intent(in) :: ix1,ix2,jy1,jy2,kz1,kz2
+    integer, dimension(MDIM), intent(in) :: lo, hi
     real, dimension(:,:,:), intent(in) :: iSource
 
-    phi(ix1:ix2,jy1:jy2,kz1:kz2) = phi(ix1:ix2,jy1:jy2,kz1:kz2) + &
-                                dt*rhs(ix1:ix2,jy1:jy2,kz1:kz2) + &
-                                dt*iSource(ix1:ix2,jy1:jy2,kz1:kz2)
-
+    phi(lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)) = &
+                   phi(lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)) + &
+                   dt*rhs(lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS)) + &
+                   dt*iSource(lo(IAXIS):hi(IAXIS),lo(JAXIS):hi(JAXIS),lo(KAXIS):hi(KAXIS))
     return
 end subroutine Stencils_integrateEulerArray

@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --mem-per-cpu 900
+#SBATCH --mem-per-cpu 4096
 #SBATCH -n 2
 #SBATCH --cpus-per-task 4
 #SBATCH -o stdeo.txt
@@ -16,6 +16,7 @@ module load openmpi/mlnx/gcc/64/4.1.5rc2
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
+# update to mesasdk and mesa actually used
 export MESASDK_ROOT=/grps2/dmtownsley/common/mesa/mesasdk-23.7.3
 source ${MESASDK_ROOT}/bin/mesasdk_init.sh
 

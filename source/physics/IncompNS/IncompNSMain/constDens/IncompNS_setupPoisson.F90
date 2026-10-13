@@ -14,48 +14,32 @@
 !!
 !!
 !!***
+!!REORDER(4): face[xyz]Data
 !!REORDER(4): solnData
 
 #include "Simulation.h"
 #include "constants.h"
 #include "IncompNS.h"
 
-subroutine IncompNS_setupPoisson(tileDesc, dt)
+subroutine IncompNS_setupPoisson(solnData, facexData, faceyData, facezData, del,lo, hi, dt)
 
-   use Grid_tile, ONLY: Grid_tile_t
    use ins_interface, ONLY: ins_setupPoissonRhs_constdens
    use Timers_interface, ONLY: Timers_start, Timers_stop
-   use Driver_interface, ONLY: Driver_getNStep
    use IncompNS_data
 
    implicit none
-   include "Flashx_mpi.h"
-   !---Argument List-------
    real, INTENT(IN) :: dt
-   type(Grid_tile_t), INTENT(IN) :: tileDesc
+   real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
+   real,dimension(MDIM),intent(IN) :: del
+   integer, dimension(MDIM) :: lo, hi
 
-!------------------------------------------------------------------------------------------
-   integer, dimension(2, MDIM) :: blkLimits, blkLimitsGC
-   real, pointer, dimension(:, :, :, :) :: solnData
-   real del(MDIM)
-   integer :: NStep
-!------------------------------------------------------------------------------------------
-   nullify (solnData)
 
    call Timers_start("IncompNS_setupPoisson")
-
-   !---POISSON RHS:-------------------------------------------------------------------------------------
-   blkLimits = tileDesc%limits
-   blkLimitsGC = tileDesc%blkLimitsGC
-
-   call tileDesc%deltas(del)
-   call tileDesc%getDataPtr(solnData, CENTER)
 
    ! Poisson RHS source vector
    call ins_setupPoissonRhs_constdens(solnData(DUST_VAR, :, :, :), dt)
 
    ! Release pointers:
-   call tileDesc%releaseDataPtr(solnData, CENTER)
 
    call Timers_stop("IncompNS_setupPoisson")
 

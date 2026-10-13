@@ -39,15 +39,16 @@
 !!   before bn_networkScreen.  So Aprox19 network simply calls it immediately from here.
 !!
 !!***
-subroutine bn_networkScreen(y)
+subroutine bn_networkScreen(btemp, bden, bye, ratraw, y, scfac, nrat, ratdum)
    
 #include "Simulation.h"
 
   use bn_interface, ONLY:   bn_screen4
 
-  ! nothing seems to be passed with eos_common.fh
-  !      use Burn_dataEOS
-  use Burn_data
+  use Burn_data, ONLY: zion, aion, ih1, ihe3, ihe4, &
+                       ic12, in14, io16, ine20, img24, &
+                       isi28, is32, iar36, ica40, icr48, &
+                       ife52
   use bn_dataAprox19
 
   implicit none
@@ -58,20 +59,30 @@ subroutine bn_networkScreen(y)
   !..right hand sides and jacobian matrix elements
 
   !!  declare
-  real, intent(IN) :: y(NSPECIES)
+  integer, intent(IN) :: nrat
+  real, intent(IN) :: btemp, bden, bye, y(NSPECIES)
+  real, intent(IN OUT) :: scfac(nrat), ratraw(nrat), ratdum(nrat)
 
   !! local declarations
-  integer          i,j,k,jscr,screen_init,screen_on
-  parameter        (screen_on = 1)
-  real             sc1a,sc2a,sc3a,                   &
-       &                 abar,zbar,z2bar,ytot1,zbarxx,z2barxx
-  real :: entropy, dst, dsd
+  integer       :: i,j,k,jscr,screen_init
+  integer, parameter  :: screen_on = 1
+  real          :: sc1a,sc2a,sc3a, &
+                   abar,zbar,z2bar,ytot1,zbarxx,z2barxx
 
-  !..initialize
-  data             screen_init/1/
+  real :: zs13(nrat), zs13inv(nrat), zhat(nrat), zhat2(nrat), lzav(nrat), aznut(nrat)
+  real :: btemp_old, den_old, zbarr_old, abarr_old
+
+
+  screen_init = 1
+
+  ! Initialize old values
+  btemp_old  = -1.0e0
+  den_old    = -1.0e0
+  zbarr_old  = -1.0e0
+  abarr_old  = -1.0e0
 
 !! Call routine that is usually missing from bn_burner call
-  call bn_networkWeak(y)
+  call bn_networkWeak(btemp, bden, bye, nrat, ratraw, ratdum, y)
 
 
   !..if screening is off
@@ -102,8 +113,11 @@ subroutine bn_networkScreen(y)
   !..pp
   jscr = 1
   call bn_screen4(zbar,abar,z2bar,                          &
-       &             zion(ih1),aion(ih1),zion(ih1),aion(ih1),  &
-       &             jscr,screen_init,sc1a)
+                  zion(ih1),aion(ih1),zion(ih1),aion(ih1),  &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(irpp)   = ratraw(irpp) * sc1a
   scfac(irpp)    = sc1a
@@ -111,8 +125,11 @@ subroutine bn_networkScreen(y)
   !..he3 + he3
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                             &
-       &             zion(ihe3),aion(ihe3),zion(ihe3),aion(ihe3), &
-       &             jscr,screen_init,sc1a)
+                  zion(ihe3),aion(ihe3),zion(ihe3),aion(ihe3), &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(ir33)   = ratraw(ir33) * sc1a
   scfac(ir33)    = sc1a
@@ -120,8 +137,11 @@ subroutine bn_networkScreen(y)
   !..he3 + he4
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                              &
-       &             zion(ihe3),aion(ihe3),zion(ihe4),aion(ihe4),  &
-       &             jscr,screen_init,sc1a)
+                  zion(ihe3),aion(ihe3),zion(ihe4),aion(ihe4),  &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(ir34)   = ratraw(ir34) * sc1a
   scfac(ir34)    = sc1a
@@ -130,8 +150,11 @@ subroutine bn_networkScreen(y)
   !..c12 + p 
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                              &
-       &             zion(ic12),aion(ic12),zion(ih1),aion(ih1),    &
-       &             jscr,screen_init,sc1a)
+                  zion(ic12),aion(ic12),zion(ih1),aion(ih1),    &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(ircpg)  = ratraw(ircpg) * sc1a
   scfac(ircpg)   = sc1a
@@ -140,8 +163,11 @@ subroutine bn_networkScreen(y)
   !..n14 + p 
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                              &
-       &             zion(in14),aion(in14),zion(ih1),aion(ih1),    &
-       &             jscr,screen_init,sc1a)
+                  zion(in14),aion(in14),zion(ih1),aion(ih1),    &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(irnpg)  = ratraw(irnpg) * sc1a
   scfac(irnpg)   = sc1a
@@ -150,8 +176,11 @@ subroutine bn_networkScreen(y)
   !..o16 + p reactions
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                             &
-       &             zion(io16),aion(io16),zion(ih1),aion(ih1),   &
-       &             jscr,screen_init,sc1a)
+                  zion(io16),aion(io16),zion(ih1),aion(ih1),   &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(iropg)  = ratraw(iropg)
   scfac(iropg)   = 1.0e0
@@ -160,13 +189,19 @@ subroutine bn_networkScreen(y)
   !..the always fun triple alpha
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                             &
-       &             zion(ihe4),aion(ihe4),zion(ihe4),aion(ihe4), &
-       &             jscr,screen_init,sc1a)
+                  zion(ihe4),aion(ihe4),zion(ihe4),aion(ihe4), &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                             &
-       &             zion(ihe4),aion(ihe4),4.0e0,8.0e0,           &
-       &             jscr,screen_init,sc2a)
+                  zion(ihe4),aion(ihe4),4.0e0,8.0e0,           &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc2a)
 
   sc3a          = sc1a * sc2a         
 
@@ -180,8 +215,11 @@ subroutine bn_networkScreen(y)
   !..n14 + alpha 
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                             &
-       &             zion(in14),aion(in14),zion(ihe4),aion(ihe4), &
-       &             jscr,screen_init,sc1a)
+                  zion(in14),aion(in14),zion(ihe4),aion(ihe4), &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(irnag)  = ratraw(irnag) * sc1a
   scfac(irnag)   = sc1a
@@ -190,8 +228,11 @@ subroutine bn_networkScreen(y)
   !..c12 + alpha 
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                             &
-       &             zion(ic12),aion(ic12),zion(ihe4),aion(ihe4), &
-       &             jscr,screen_init,sc1a)
+                  zion(ic12),aion(ic12),zion(ihe4),aion(ihe4), &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(ircag)  = ratraw(ircag) * sc1a
   scfac(ircag)   = sc1a
@@ -203,8 +244,11 @@ subroutine bn_networkScreen(y)
   !..c12 + c12
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                             &
-       &             zion(ic12),aion(ic12),zion(ic12),aion(ic12), &
-       &             jscr,screen_init,sc1a)
+                  zion(ic12),aion(ic12),zion(ic12),aion(ic12), &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(ir1212) = ratraw(ir1212) * sc1a
   scfac(ir1212)  = sc1a
@@ -213,8 +257,11 @@ subroutine bn_networkScreen(y)
   !..c12 + o16
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                             &
-       &             zion(ic12),aion(ic12),zion(io16),aion(io16), &
-       &             jscr,screen_init,sc1a)
+                  zion(ic12),aion(ic12),zion(io16),aion(io16), &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(ir1216) = ratraw(ir1216) * sc1a
   scfac(ir1216)  = sc1a
@@ -223,8 +270,11 @@ subroutine bn_networkScreen(y)
   !..c12 + o16
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                             &
-       &             zion(io16),aion(io16),zion(io16),aion(io16), &
-       &             jscr,screen_init,sc1a)
+                  zion(io16),aion(io16),zion(io16),aion(io16), &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(ir1616) = ratraw(ir1616) * sc1a
   scfac(ir1616)  = sc1a
@@ -233,8 +283,11 @@ subroutine bn_networkScreen(y)
   !..o16 + alpha 
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                             &
-       &             zion(io16),aion(io16),zion(ihe4),aion(ihe4), &
-       &             jscr,screen_init,sc1a)
+                  zion(io16),aion(io16),zion(ihe4),aion(ihe4), &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(iroag)  = ratraw(iroag) * sc1a
   scfac(iroag)   = sc1a
@@ -246,8 +299,11 @@ subroutine bn_networkScreen(y)
   !..ne20 + alpha 
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                               &
-       &             zion(ine20),aion(ine20),zion(ihe4),aion(ihe4), &
-       &             jscr,screen_init,sc1a)
+                  zion(ine20),aion(ine20),zion(ihe4),aion(ihe4), &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(irneag) = ratraw(irneag) * sc1a
   scfac(irneag)  = sc1a
@@ -259,8 +315,11 @@ subroutine bn_networkScreen(y)
   !..mg24 to si28 
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                               &
-       &             zion(img24),aion(img24),zion(ihe4),aion(ihe4), &
-       &             jscr,screen_init,sc1a)
+                  zion(img24),aion(img24),zion(ihe4),aion(ihe4), &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(irmgag) = ratraw(irmgag) * sc1a
   scfac(irmgag)  = sc1a
@@ -274,8 +333,11 @@ subroutine bn_networkScreen(y)
 
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                             &
-       &             13.0e0,27.0e0,zion(ih1),aion(ih1),           &
-       &             jscr,screen_init,sc1a)
+                  13.0e0,27.0e0,zion(ih1),aion(ih1),           &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(iralpa) = ratraw(iralpa) * sc1a
   scfac(iralpa)  = sc1a
@@ -290,8 +352,11 @@ subroutine bn_networkScreen(y)
   !..si28 to s32
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                               &
-       &             zion(isi28),aion(isi28),zion(ihe4),aion(ihe4), &
-       &             jscr,screen_init,sc1a)
+                  zion(isi28),aion(isi28),zion(ihe4),aion(ihe4), &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(irsiag) = ratraw(irsiag) * sc1a
   scfac(irsiag)  = sc1a
@@ -304,8 +369,11 @@ subroutine bn_networkScreen(y)
 
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                             &
-       &             15.0e0,31.0e0,zion(ih1),aion(ih1),           &
-       &             jscr,screen_init,sc1a)
+                  15.0e0,31.0e0,zion(ih1),aion(ih1),           &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(irppa)  = ratraw(irppa) * sc1a
   scfac(irppa)   = sc1a
@@ -320,8 +388,11 @@ subroutine bn_networkScreen(y)
   !..s32 to ar36
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                             &
-       &             zion(is32),aion(is32),zion(ihe4),aion(ihe4), &
-       &             jscr,screen_init,sc1a)
+                  zion(is32),aion(is32),zion(ihe4),aion(ihe4), &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(irsag)  = ratraw(irsag) * sc1a
   scfac(irsag)   = sc1a
@@ -335,8 +406,11 @@ subroutine bn_networkScreen(y)
 
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                             &
-       &             17.0e0,35.0e0,zion(ih1),aion(ih1),           &
-       &             jscr,screen_init,sc1a)
+                  17.0e0,35.0e0,zion(ih1),aion(ih1),           &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(irclpa) = ratraw(irclpa) * sc1a
   scfac(irclpa)  = sc1a 
@@ -351,8 +425,11 @@ subroutine bn_networkScreen(y)
   !..ar36 to ca40
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                               &
-       &             zion(iar36),aion(iar36),zion(ihe4),aion(ihe4), &
-       &             jscr,screen_init,sc1a)
+                  zion(iar36),aion(iar36),zion(ihe4),aion(ihe4), &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(irarag) = ratraw(irarag) * sc1a
   scfac(irarag)  = sc1a
@@ -365,8 +442,11 @@ subroutine bn_networkScreen(y)
 
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                             &
-       &             19.0e0,39.0e0,zion(ih1),aion(ih1),           &
-       &             jscr,screen_init,sc1a)
+                  19.0e0,39.0e0,zion(ih1),aion(ih1),           &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(irkpa)  = ratraw(irkpa) * sc1a
   scfac(irkpa)   = sc1a
@@ -381,8 +461,11 @@ subroutine bn_networkScreen(y)
   !..ca40 to ti44
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                               &
-       &             zion(ica40),aion(ica40),zion(ihe4),aion(ihe4), &
-       &             jscr,screen_init,sc1a)
+                  zion(ica40),aion(ica40),zion(ihe4),aion(ihe4), &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(ircaag) = ratraw(ircaag) * sc1a
   scfac(ircaag)  = sc1a
@@ -395,8 +478,11 @@ subroutine bn_networkScreen(y)
 
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                             &
-       &             21.0e0,43.0e0,zion(ih1),aion(ih1),           &
-       &             jscr,screen_init,sc1a)
+                  21.0e0,43.0e0,zion(ih1),aion(ih1),           &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(irscpa) = ratraw(irscpa) * sc1a
   scfac(irscpa)  = sc1a
@@ -411,8 +497,11 @@ subroutine bn_networkScreen(y)
   !..ti44 to cr48
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                               &
-       &             zion(icr48),aion(icr48),zion(ihe4),aion(ihe4), &
-       &             jscr,screen_init,sc1a)
+                  zion(icr48),aion(icr48),zion(ihe4),aion(ihe4), &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(irtiag) = ratraw(irtiag) * sc1a
   scfac(irtiag)  = sc1a
@@ -425,8 +514,11 @@ subroutine bn_networkScreen(y)
 
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                             &
-       &             23.0e0,47.0e0,zion(ih1),aion(ih1),           &
-       &             jscr,screen_init,sc1a)
+                  23.0e0,47.0e0,zion(ih1),aion(ih1),           &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(irvpa)  = ratraw(irvpa) * sc1a
   scfac(irvpa)   = sc1a
@@ -441,8 +533,11 @@ subroutine bn_networkScreen(y)
   !..cr48 to fe52
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                               &
-       &             zion(icr48),aion(icr48),zion(ihe4),aion(ihe4), &
-       &             jscr,screen_init,sc1a)
+                  zion(icr48),aion(icr48),zion(ihe4),aion(ihe4), &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(ircrag) = ratraw(ircrag) * sc1a
   scfac(ircrag)  = sc1a
@@ -455,8 +550,11 @@ subroutine bn_networkScreen(y)
 
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                             &
-       &             25.0e0,51.0e0,zion(ih1),aion(ih1),           &
-       &             jscr,screen_init,sc1a)
+                  25.0e0,51.0e0,zion(ih1),aion(ih1),           &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(irmnpa) = ratraw(irmnpa) * sc1a
   scfac(irmnpa)  = sc1a
@@ -471,8 +569,11 @@ subroutine bn_networkScreen(y)
   !..fe52 to ni56
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                               &
-       &             zion(ife52),aion(ife52),zion(ihe4),aion(ihe4), &
-       &             jscr,screen_init,sc1a)
+                  zion(ife52),aion(ife52),zion(ihe4),aion(ihe4), &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(irfeag) = ratraw(irfeag) * sc1a
   scfac(irfeag)  = sc1a
@@ -485,8 +586,11 @@ subroutine bn_networkScreen(y)
 
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                             &
-       &             27.0e0,55.0e0,zion(ih1),aion(ih1),           &
-       &             jscr,screen_init,sc1a)
+                  27.0e0,55.0e0,zion(ih1),aion(ih1),           &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(ircopa) = ratraw(ircopa) * sc1a
   scfac(ircopa)  = sc1a
@@ -501,8 +605,11 @@ subroutine bn_networkScreen(y)
   !..fe54
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                             &
-       &             zion(ife52),aion(ife52),zion(ih1),aion(ih1), &
-       &             jscr,screen_init,sc1a)
+                  zion(ife52),aion(ife52),zion(ih1),aion(ih1), &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(irfepg) = ratraw(irfepg)
   scfac(irfepg)  = 1.0e0
@@ -539,8 +646,11 @@ subroutine bn_networkScreen(y)
 
   jscr = jscr + 1
   call bn_screen4(zbar,abar,z2bar,                             &
-       &             1.0e0,2.0e0,zion(ih1),aion(ih1),             &
-       &             jscr,screen_init,sc1a)
+                  1.0e0,2.0e0,zion(ih1),aion(ih1),             &
+                  jscr,screen_init, &
+                  btemp, bden, zs13, zs13inv, zhat, zhat2, lzav, aznut, &
+                  btemp_old, den_old, zbarr_old, abarr_old, &
+                  sc1a)
 
   ratdum(irdpg)  = ratraw(irdpg) * sc1a
   scfac(irdpg)   = sc1a

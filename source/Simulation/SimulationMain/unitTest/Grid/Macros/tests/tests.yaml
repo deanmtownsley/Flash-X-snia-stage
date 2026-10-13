@@ -1,0 +1,7 @@
+UnitTest/Grid/AMR/3dCyl/Macros:
+  setupOptions: -auto -3d +cylindrical +pm4dev +noio
+  parfiles: test_cyl.par
+
+UnitTest/Grid/AMR/3dSph/Macros:
+  setupOptions: -auto -3d +spherical +pm4dev +noio
+  parfiles: test_sph.par

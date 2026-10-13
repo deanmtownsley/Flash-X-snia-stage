@@ -22,6 +22,7 @@
 !!                         integer(IN) :: bcTypes(6),
 !!                         real(IN)    :: bcValues(2,6),
 !!                         real(INOUT) :: poisfact)
+!!                         integer(IN), optional :: iGrad
 !!
 !! DESCRIPTION
 !!
@@ -43,6 +44,7 @@
 !!           !DEV: requested bcTypes ignored, always uses GRID_PDE_BND_NEUMANN
 !!  bcValues - the values to boundary conditions, currently not used (treated as 0)
 !!  poisfact      - scaling factor to be used in calculation
+!!  iGrad  - variable to store gradient of iSoln on face-centered data
 !!
 !! NOTES
 !!
@@ -83,7 +85,7 @@
 !!   
 !!***
 
-subroutine Grid_solvePoisson (iSoln, iSrc, bcTypes, bcValues, poisfact)
+subroutine Grid_solvePoisson (iSoln, iSrc, bcTypes, bcValues, poisfact, iGrad)
 
   use Grid_data,        ONLY : gr_meshMe, gr_meshcomm
   use Timers_interface, ONLY : Timers_start, Timers_stop
@@ -116,7 +118,8 @@ subroutine Grid_solvePoisson (iSoln, iSrc, bcTypes, bcValues, poisfact)
   integer, intent(in)    :: bcTypes(6)
   real, intent(in)       :: bcValues(2,6)
   real, intent(inout)    :: poisfact !DEV: NOT intent(IN) because some implementation actually changes it? - KW  
-  
+  integer, intent(in), optional :: iGrad  
+
   logical :: mask(NUNK_VARS), savedUseFloor
 
   type(Grid_tile_t) :: tileDesc
@@ -128,9 +131,12 @@ subroutine Grid_solvePoisson (iSoln, iSrc, bcTypes, bcValues, poisfact)
   real :: ET
  
 !!$    character(len=32) :: matfile
-  
-  call Timers_start("Grid_solvePoisson")    
+ 
+  if (present(iGrad)) then
+     call Driver_abort("[HYPRE/Grid_solvePoisson] Configuration with iGrad not implemented")
+  endif
 
+  call Timers_start("Grid_solvePoisson")    
 
   blockType  = LEAF
   call Grid_getNumBlksFromType(blockType,blockCount)

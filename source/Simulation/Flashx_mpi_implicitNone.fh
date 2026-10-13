@@ -2,6 +2,8 @@
 
    use mpi_f08
    implicit none
+   TYPE(MPI_Datatype), parameter :: FLASH_DOUBLE = MPI_DOUBLE_PRECISION
+   TYPE(MPI_Datatype), parameter :: FLASH_2DOUBLE = MPI_2DOUBLE_PRECISION
    TYPE(MPI_Datatype), parameter :: FLASH_REAL = MPI_DOUBLE_PRECISION
    TYPE(MPI_Datatype), parameter :: FLASH_2REAL = MPI_2DOUBLE_PRECISION
    TYPE(MPI_Datatype), parameter :: FLASH_INTEGER = MPI_INTEGER
@@ -14,6 +16,8 @@
 
    use mpi
    implicit none
+   integer, parameter :: FLASH_DOUBLE = MPI_DOUBLE_PRECISION
+   integer, parameter :: FLASH_2DOUBLE = MPI_2DOUBLE_PRECISION
    integer, parameter :: FLASH_REAL = MPI_DOUBLE_PRECISION
    integer, parameter :: FLASH_2REAL = MPI_2DOUBLE_PRECISION
    integer, parameter :: FLASH_INTEGER = MPI_INTEGER

@@ -7,6 +7,11 @@ PARAMETER useHeater BOOLEAN TRUE
 
 PPDEFINE HEATER_MAIN
 
+USESETUPVARS HeaterFluxBC
+IF HeaterFluxBC
+    PPDEFINE HEATER_MAIN_FLUXBC
+ENDIF
+
 D htr_nucSeedRadius for re-nucleation
 PARAMETER htr_nucSeedRadius  REAL     0.1
 
@@ -22,4 +27,4 @@ PARAMETER htr_showInfo BOOLEAN FALSE
 D htr_annQueries Number of queries for approximate nearest neighbor search
 PARAMETER htr_annQueries INTEGER 3
 
-PPDEFINE HTR_MAX_NUMSITES 50
+PPDEFINE HTR_MAX_NUMSITES 150

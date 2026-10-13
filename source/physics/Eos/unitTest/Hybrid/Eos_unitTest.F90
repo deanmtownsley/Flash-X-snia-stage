@@ -115,8 +115,8 @@ subroutine Eos_unitTest(fileUnit, perfect)
    mode_fmt   = "(i6,':  Running test for mode:    ',a9,'    In: ',a4,',',a4,'    Out: ',a4,',',a4)" !&
 
    set_fmt    = "(i6,':  Setting ',a4,' = ',a4)"              !&
-   init_fmt   = "(i6,':  Initialized ',a4,1x,a3': ',es24.15)" !&
-   result_fmt = "(i6,':  Resulting ',a4,1x,a3': ',es24.15)"   !&
+   init_fmt   = "(i6,':  Initialized ',a4,1x,a3,': ',es24.15)" !&
+   result_fmt = "(i6,':  Resulting ',a4,1x,a3,': ',es24.15)"   !&
 
    status_fmt = "(i6,':  Result for test for ',a9,':  ',a4)"   !&
    err_fmt    = "(i6,':  Maximum error in ',a4,': ',es24.15)"  !&
@@ -252,10 +252,11 @@ contains
             call itor%currentTile(tileDesc)
 
             blkLimits = tileDesc%limits
+            blkLimitsGC = tileDesc%blkLimitsGC
 
             call tileDesc%getDataPtr(solnData, CENTER)
 
-            call Eos_multiDim(mode, blkLimits, solnData)
+            call Eos_multiDim(mode, blkLimits,blkLimitsGC(LOW,:), solnData)
 
             call tileDesc%releaseDataPtr(solnData, CENTER)
 
@@ -400,10 +401,11 @@ contains
          call itor%currentTile(tileDesc)
 
          blkLimits = tileDesc%limits
+         blkLimitsGC = tileDesc%blkLimitsGC
 
          call tileDesc%getDataPtr(solnData, CENTER)
 
-         call Eos_multiDim(mode, blkLimits, solnData)
+         call Eos_multiDim(mode, blkLimits,blkLimitsGC(LOW,:), solnData)
 
          call tileDesc%releaseDataPtr(solnData, CENTER)
 

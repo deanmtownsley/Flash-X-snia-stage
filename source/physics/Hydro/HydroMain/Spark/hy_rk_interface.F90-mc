@@ -169,4 +169,6 @@ module hy_rk_interface
      end subroutine hy_rk_saveFluxBuf
    end interface
 
+   @M hy_rk_interface_GPU
+
 end module hy_rk_interface

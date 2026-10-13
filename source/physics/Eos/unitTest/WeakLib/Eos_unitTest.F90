@@ -127,6 +127,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
   real :: presErr1, presErr2
   real :: tempErr1, tempErr2
   real :: eintErr1, eintErr2
+  integer, dimension(MDIM) :: lo
 
   nullify(solnData)
 
@@ -156,7 +157,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
      call Grid_getBlkType(blockId,nodeType)
      call tileDesc%getDataPtr(solnData, CENTER)
      blkLimits = tileDesc%limits
-
+     lo = tileDesc%blkLimitsGC(LOW,:)
      !! In Simulation_initBlock,
      !! temperature is initialized in CTMP_VAR and pressure is
      !! initialized in CPRS_VAR. We don't change these variables
@@ -181,7 +182,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
      end if 
 
      solnData(TEMP_VAR,ib:ie,jb:je,kb:ke)=solnData(CTMP_VAR,ib:ie,jb:je,kb:ke)
-     call Eos_multiDim(eos_testTempMode,blkLimits,solnData)
+     call Eos_multiDim(eos_testTempMode,blkLimits,lo,solnData)
 
      call tileDesc%releaseDataPtr(solnData, CENTER)
      call itor%next()
@@ -255,7 +256,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
      !  Zero output variables
      !  solnData(TEMP_VAR,ib:ie,jb:je,kb:ke)=0  ! don't zero TEMP or eos_helm cannot converge in MODE_DENS_EI
      solnData(PRES_VAR,:,:,:)=0 
-     call Eos_multiDim(eos_testEintMode,blkLimits,solnData)
+     call Eos_multiDim(eos_testEintMode,blkLimits,lo,solnData)
   
      call tileDesc%releaseDataPtr(solnData, CENTER)
      call itor%next()
@@ -339,7 +340,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
      !solnData(PRES_VAR,ib:ie,jb:je,kb:ke)=solnData(OPRS_VAR,ib:ie,jb:je,kb:ke)
      !solnData(TEMP_VAR,ib:ie,jb:je,kb:ke)=solnData(CTMP_VAR,ib:ie,jb:je,kb:ke)
      solnData(EINT_VAR,ib:ie,jb:je,kb:ke)=0.0
-     call Eos_multiDim(eos_testPresMode,blkLimits,solnData)
+     call Eos_multiDim(eos_testPresMode,blkLimits,lo,solnData)
 
      call tileDesc%releaseDataPtr(solnData, CENTER)
      call itor%next()
@@ -419,7 +420,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
      solnData(PRES_VAR,ib:ie,jb:je,kb:ke)=solnData(OPRS_VAR,ib:ie,jb:je,kb:ke)
      solnData(TEMP_VAR,ib:ie,jb:je,kb:ke)=solnData(CTMP_VAR,ib:ie,jb:je,kb:ke)
      solnData(EINT_VAR,ib:ie,jb:je,kb:ke)=0.0
-     call Eos_multiDim(MODE_DENS_PRES,blkLimits,solnData)
+     call Eos_multiDim(MODE_DENS_PRES,blkLimits,lo,solnData)
 
      call tileDesc%releaseDataPtr(solnData, CENTER)
      call itor%next()
@@ -452,7 +453,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
      !! zero output values to make sure they're being calculated
      solnData(PRES_VAR,ib:ie,jb:je,kb:ke)=0.0
      !solnData(TEMP_VAR,ib:ie,jb:je,kb:ke)=solnData(CTMP_VAR,ib:ie,jb:je,kb:ke)
-     call Eos_multiDim(MODE_DENS_EI,blkLimits,solnData)
+     call Eos_multiDim(MODE_DENS_EI,blkLimits,lo,solnData)
   
      call tileDesc%releaseDataPtr(solnData, CENTER)
      call itor%next()
@@ -506,7 +507,7 @@ subroutine Eos_unitTest(fileUnit, perfect)
 
      solnData(EINT_VAR,ib:ie,jb:je,kb:ke)=0.0
      solnData(PRES_VAR,ib:ie,jb:je,kb:ke)=0.0
-     call Eos_multiDim(MODE_DENS_TEMP,blkLimits,solnData)
+     call Eos_multiDim(MODE_DENS_TEMP,blkLimits,lo,solnData)
      call tileDesc%releaseDataPtr(solnData, CENTER)
      call itor%next()
   end do

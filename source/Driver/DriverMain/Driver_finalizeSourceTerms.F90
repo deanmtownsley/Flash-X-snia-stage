@@ -34,8 +34,9 @@
 
 subroutine Driver_finalizeSourceTerms( restart )
 
-  use Burn_interface, ONLY:  Burn_finalize
-  use RadTrans_interface, ONLY : RadTrans_finalize
+  use Burn_interface, ONLY: Burn_finalize
+  use RadTrans_interface, ONLY: RadTrans_finalize
+  use Stir_interface, ONLY: Stir_finalize
 
   implicit none
 
@@ -43,5 +44,6 @@ subroutine Driver_finalizeSourceTerms( restart )
 
   call Burn_finalize()
   call RadTrans_finalize()
+  call Stir_finalize()
 
 end subroutine Driver_finalizeSourceTerms

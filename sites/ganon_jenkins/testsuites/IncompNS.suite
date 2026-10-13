@@ -51,3 +51,7 @@ incompFlow/RisingBubble -t "Comparison/RisingBubble/ParameshGCFill/2d" -np 3 -cb
 #                     incompressible flow simulations
 incompFlow/DeformingBubble -t "Composite/DeformingBubble/2d/AMReX" -np 4 -cbase 0000-00-00 -rbase 0000-00-00
 incompFlow/DeformingBubble -t "Composite/DeformingBubble/2d/Paramesh" -np 4 -cbase 0000-00-00 -rbase 0000-00-00
+
+# adhruv 09/18/2024 - Adding flow boiling tests to improve coverage
+#
+incompFlow/FlowBoiling -t "Comparison/incompFlow/FlowBoiling/2d/AMReX" -np 4 -cbase 0000-00-00

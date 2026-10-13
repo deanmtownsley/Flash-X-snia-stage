@@ -104,53 +104,58 @@ Module IncompNS_interface
    end interface
 
    interface
-      subroutine IncompNS_predictor(tileDesc, dt)
-         use Grid_tile, ONLY: Grid_tile_t
-         implicit none
-         type(Grid_tile_t), INTENT(IN) :: tileDesc
-         real, INTENT(IN) :: dt
+      subroutine IncompNS_predictor(solnData, facexData, faceyData, facezData, del, lo, hi, dt)
+        implicit none
+        real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
+        real, dimension(MDIM), intent(in) :: del
+        integer,dimension(MDIM), intent(in) :: lo,hi
+        real, INTENT(IN) :: dt
       end subroutine IncompNS_predictor
    end interface
 
    interface
-      subroutine IncompNS_setupPoisson(tileDesc, dt)
-         use Grid_tile, ONLY: Grid_tile_t
-         implicit none
-         type(Grid_tile_t), INTENT(IN) :: tileDesc
-         real, INTENT(IN) :: dt
+      subroutine IncompNS_setupPoisson(solnData, facexData, faceyData, facezData, del, lo, hi, dt)
+        implicit none
+        real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
+        real, dimension(MDIM), intent(in) :: del
+        integer,dimension(MDIM), intent(in) :: lo,hi
+        real, INTENT(IN) :: dt
       end subroutine IncompNS_setupPoisson
    end interface
 
    interface
-      subroutine IncompNS_corrector(tileDesc, dt)
-         use Grid_tile, ONLY: Grid_tile_t
-         implicit none
-         type(Grid_tile_t), INTENT(IN) :: tileDesc
-         real, INTENT(IN) :: dt
+      subroutine IncompNS_corrector(solnData, facexData, faceyData, facezData, del, lo, hi, dt)
+        implicit none
+        real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
+        real, dimension(MDIM), intent(in) :: del
+        integer,dimension(MDIM), intent(in) :: lo,hi
+        real, INTENT(IN) :: dt
       end subroutine IncompNS_corrector
    end interface
 
    interface
-      subroutine IncompNS_divergence(tileDesc)
-         use Grid_tile, ONLY: Grid_tile_t
-         implicit none
-         type(Grid_tile_t), INTENT(IN) :: tileDesc
+      subroutine IncompNS_divergence(solnData, facexData, faceyData, facezData, del, lo, hi)
+        real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
+        integer, dimension(MDIM) :: lo, hi
+        real,dimension(MDIM),intent(IN) :: del
       end subroutine IncompNS_divergence
    end interface
 
    interface
-      subroutine IncompNS_advection(tileDesc)
-         use Grid_tile, ONLY: Grid_tile_t
+      subroutine IncompNS_advection(solnData, facexData, faceyData, facezData, del, lo, hi)
          implicit none
-         type(Grid_tile_t), INTENT(IN) :: tileDesc
+         real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
+         real, dimension(MDIM), intent(in) :: del
+         integer,dimension(MDIM), intent(in) :: lo,hi
       end subroutine IncompNS_advection
    end interface
 
    interface
-      subroutine IncompNS_diffusion(tileDesc)
-         use Grid_tile, ONLY: Grid_tile_t
+      subroutine IncompNS_diffusion(solnData, facexData, faceyData, facezData, del, lo, hi)
          implicit none
-         type(Grid_tile_t), INTENT(IN) :: tileDesc
+         real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
+         real, dimension(MDIM), intent(in) :: del
+         integer,dimension(MDIM), intent(in) :: lo,hi
       end subroutine IncompNS_diffusion
    end interface
 
@@ -161,30 +166,24 @@ Module IncompNS_interface
    end interface
 
    interface
-      subroutine IncompNS_reInitGridVars(tileDesc)
-         use Grid_tile, ONLY: Grid_tile_t
-         implicit none
-         type(Grid_tile_t), INTENT(IN) :: tileDesc
+      subroutine IncompNS_reInitGridVars(solnData, facexData, faceyData, facezData)
+        real, pointer, dimension(:, :, :, :) :: solnData, facexData, faceyData, facezData
       end subroutine IncompNS_reInitGridVars
    end interface
-
+      
    interface
-      subroutine IncompNS_fluxSet(tileDesc, fluxBufX, fluxBufY, fluxBufZ, lo)
+      subroutine IncompNS_fluxSet(tileDesc)
          use Grid_tile, ONLY: Grid_tile_t
          implicit none
          type(Grid_tile_t), INTENT(IN) :: tileDesc
-         integer, intent(in) :: lo(3)
-         real, intent(out), dimension(1:, lo(1):, lo(2):, lo(3):) :: fluxBufX, fluxBufY, fluxBufZ
       end subroutine IncompNS_fluxSet
    end interface
 
    interface
-      subroutine IncompNS_fluxUpdate(tileDesc, fluxBufX, fluxBufY, fluxBufZ, lo)
+      subroutine IncompNS_fluxUpdate(tileDesc)
          use Grid_tile, ONLY: Grid_tile_t
          implicit none
          type(Grid_tile_t), INTENT(IN) :: tileDesc
-         integer, intent(in) :: lo(3)
-         real, intent(in), dimension(1:, lo(1):, lo(2):, lo(3):) :: fluxBufX, fluxBufY, fluxBufZ
       end subroutine IncompNS_fluxUpdate
    end interface
 

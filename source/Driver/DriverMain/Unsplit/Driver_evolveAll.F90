@@ -63,7 +63,7 @@ subroutine Driver_evolveAll()
                                   dr_useSTSforDiffusion,                 &
                                   dr_tstepChangeFactor,                  &
                                   dr_allowDtSTSDominate,dr_meshComm
-  use Driver_interface,    ONLY : Driver_sourceTerms, Driver_computeDt, &
+  use Driver_interface,    ONLY : Driver_computeDt, &
                                   Driver_superTimeStep, &
                                   Driver_logMemoryUsage, &
                                   Driver_driftUnk, &
@@ -107,7 +107,7 @@ subroutine Driver_evolveAll()
   real    :: dt_diffuse_temp
   real    :: dtNewTemp
   logical :: useSTS_local
-  integer :: nstepTotalSTS_local 
+  integer :: nstepTotalSTS_local
 
   integer, parameter :: driftUnk_flags = DRIFT_NO_PARENTS
 #ifdef DEBUG_GRID_GCMASK
@@ -183,10 +183,10 @@ subroutine Driver_evolveAll()
      
      if (.not. useSTS_local) then
         call IO_output(dr_simTime, &
-             dr_dt, dr_nstep+1, dr_nbegin, endRunPl, PLOTFILE_ONLY)
+             dr_dt, dr_nstep+1, dr_nbegin, endRunPl, PLOTFILE_AND_PARTICLEFILE)
      else
         call IO_output(dr_simTime, &
-             dr_dtSTS, dr_nstep+1, dr_nbegin, endRunPl, PLOTFILE_ONLY)
+             dr_dtSTS, dr_nstep+1, dr_nbegin, endRunPl, PLOTFILE_AND_PARTICLEFILE)
      endif
 
      call Timers_stop("IO_output")

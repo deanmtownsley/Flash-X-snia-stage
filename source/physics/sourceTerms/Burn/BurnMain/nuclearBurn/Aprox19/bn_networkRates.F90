@@ -59,13 +59,16 @@
 !!  and all the heavy nuclei rates are from sew76
 !!
 !!***
-subroutine bn_networkRates
+subroutine bn_networkRates(btemp, bden, abar, zbar, z2bar, ytot1, bye, nrat, ratraw)
    
-  use Burn_dataEOS
-  use Burn_data
   use bn_dataAprox19
 
   implicit none
+
+  integer, intent(IN) :: nrat
+  real, intent(IN) :: btemp, bden
+  real, intent(IN) :: abar, zbar, z2bar, ytot1, bye
+  real, dimension(nrat), intent(OUT) :: ratraw
 
   !..declare  
   integer          i
