@@ -29,6 +29,7 @@
 #include "Simulation.h"
 #include "constants.h"
 #include "Eos.h"
+#include "Eos_helm.h"
 
 subroutine eos_helmSpeciesInit()
 
