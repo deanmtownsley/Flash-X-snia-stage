@@ -6,9 +6,7 @@
 !!
 !! SYNOPSIS
 !!
-!!  call Flame_step ( integer(in)                       :: num_blocks,
-!!                    integer(in),dimension(num_blocks) :: blockList(:),
-!!                    real(in)                          :: dt )
+!!  call Flame_step ( real(in) :: dt )
 !!
 !! DESCRIPTION
 !!
@@ -25,8 +23,6 @@
 !!
 !! ARGUMENTS
 !!
-!!   num_blocks - number of blocks.
-!!    blockList - the block list.
 !!           dt - the time step.
 !!
 !! SEE ALSO
@@ -39,11 +35,9 @@
 !
 ! Dean Townsley 2008
 !
-subroutine Flame_step( num_blocks, blockList, dt  )    
+subroutine Flame_step( dt )    
        
   implicit none
-  integer, INTENT(in)                        :: num_blocks
-  integer, INTENT(in), DIMENSION(num_blocks) :: blockList
   real,    INTENT(in)                        :: dt
 
   return

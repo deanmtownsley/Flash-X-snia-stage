@@ -1,0 +1,4 @@
+# Config file for physics/materialProperties/Conductivity/ConductivityAniso
+
+REQUIRES physics/materialProperties/Conductivity/ConductivityMain
+

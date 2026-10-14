@@ -74,7 +74,7 @@ subroutine fl_fsTFIGamma(GammaFit, up_over_s, de_over_dl)
   do while (testf > small_f)
      b = b*10.0
      if (b > large_k) &
-        call Driver_abortFlash("fl_fsTFIGamma: Upper limit of integrand reached")
+        call Driver_abort("fl_fsTFIGamma: Upper limit of integrand reached")
      testf = fl_fsTFIFunc(b)
   enddo
 
@@ -84,7 +84,7 @@ subroutine fl_fsTFIGamma(GammaFit, up_over_s, de_over_dl)
            neval,ier,limit,lenw,last,iwork,work)
 
   if (ier.gt.0)  &
-     call Driver_abortFlash("fl_fsTFIGamma: Some problem with the integrator")
+     call Driver_abort("fl_fsTFIGamma: Some problem with the integrator")
 
   GammaFit = sqrt(result)
 

@@ -42,7 +42,7 @@ subroutine fl_fsTFIFlameSpeedBlock(solnData, s, ds, dx, compLimits, &
                                    quench_limit)
 
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 
   use Flame_interface, ONLY : Flame_getWidth
   use Turb_interface, ONLY : Turb_getFilterScale

@@ -108,11 +108,12 @@ subroutine eos_helmSpecies(mode, @M eos_args, massFrac, derivs)
   !  if you are working with electron abundance mass scalars, then you don't
   !  necessarily have to have mass fractions.
 
-  if(eos_useMultiSpecies) then 
-     if(.not.present(massFrac)) then
-        call Driver_abort ("[Eos] Helmholtz with species needs mass fractions")
-     end if
-  end if
+!JM - we don't need this for the SNIa problem because we use electron fractions
+  ! if(eos_useMultiSpecies) then 
+  !    if(.not.present(massFrac)) then
+  !       call Driver_abort("[Eos] Helmholtz with species needs mass fractions")
+  !    end if
+  ! end if
 
   ! These integers are indexes into the lowest location in UNK that contain the appropriate variable
 
@@ -122,7 +123,8 @@ subroutine eos_helmSpecies(mode, @M eos_args, massFrac, derivs)
 
   tempRow    = temp
   denRow     = dens
-  ! Note in Eos.F90, we assume the user knows what he's doing.  Eos_multiDim does not.
+
+  ! Note in Eos.F90, we assume the user knows what they are doing.  Eos_multiDim does not.
   if(eos_doYe) then
      abarRow    = abar
      zbarRow    = zbar

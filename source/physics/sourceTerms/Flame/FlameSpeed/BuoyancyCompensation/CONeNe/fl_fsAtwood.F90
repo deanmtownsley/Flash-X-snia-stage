@@ -13,9 +13,9 @@ subroutine fl_fsAtwood(solnData, atwood, dens_u, calcLimits)
                               fl_fsAtwoodTabMinXc12, fl_fsAtwoodTabMaxXc12,   &
                               fl_fsAtwoodTabDXc12, fl_fsAtwoodTabXc12Num,     &
                               fl_fsAtwoodTabA
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
   implicit none
 
   real, dimension(:,:,:,:), pointer :: solnData

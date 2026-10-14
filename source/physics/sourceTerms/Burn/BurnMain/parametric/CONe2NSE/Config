@@ -1,0 +1,45 @@
+
+REQUESTS Simulation/SimulationComposition
+REQUIRES physics/Eos/EosMain/Helmholtz/ExternalAbarZbar
+REQUIRES physics/materialProperties/NSE
+
+MASS_SCALAR ci
+MASS_SCALAR nei
+
+MASS_SCALAR phfa
+MASS_SCALAR phaq
+MASS_SCALAR phqn
+
+MASS_SCALAR ye
+MASS_SCALAR dyqn
+MASS_SCALAR dqqn
+
+
+
+PARAMETER bn_thermalReact           	BOOLEAN      true
+
+D bn_autoDDT   Automatically detects when to transition from deflagration
+D & to detonation based on conditions near the flame.  If bn_thermalReact
+D & is false it will be set to true when simulation gets close to
+D & detonation conditions.  Standard convention is to have bn_thermalReact
+D & false until the approximately the detonation time to reduce the chances
+D & of spurious detonations.
+PARAMETER bn_autoDDT               BOOLEAN      false
+
+PARAMETER bn_detIgnFile            BOOLEAN      false
+PARAMETER bn_detIgnFileName        STRING       "detpoints.dat"
+
+PARAMETER pbIgnRho                 REAL         1.0e7
+PARAMETER pbIgnRhoCalib            REAL         0.0e0
+PARAMETER pbIgnRhoFact             REAL         0.999
+PARAMETER pbIgnPhfa                REAL         0.1
+PARAMETER pbIgnDist                REAL         32.e5
+PARAMETER pbIgnRad                 REAL         12.e5
+PARAMETER pbIgnSep                 REAL         64.e5
+PARAMETER pbIgnNumMax              INTEGER      100
+
+PARAMETER bn_thermalReactInFlameThreshold  REAL  0.1
+D bn_thermalReactInFlameThreshold  threshold for checking proximity of thermal
+D &  burning to activate burning "inside" the flame front.   Thermal reactions
+D &  within the flame front are only enabled if phi_fa - flam > this threshold
+D &  somewhere within about one flame width of the cell
