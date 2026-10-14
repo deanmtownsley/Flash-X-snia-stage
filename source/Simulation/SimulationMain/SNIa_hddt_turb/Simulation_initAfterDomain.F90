@@ -38,7 +38,7 @@ subroutine Simulation_initAfterDomain()
   implicit none
 
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 #include "mpif.h"
 
   !----------------------------------

@@ -31,7 +31,7 @@
 
 
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 subroutine Turb_getFilterScale(dx, de)
 
   use Turb_data, only : turb_stepSize

@@ -4,7 +4,7 @@
 ! Note that some of these are allocatable, and are allocated by Simulation_init()
 
 module Simulation_data
-#include "Flash.h"
+#include "Simulation.h"
 #include "constants.h"
 #include "Eos.h"
 

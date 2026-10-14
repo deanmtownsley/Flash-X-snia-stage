@@ -44,7 +44,7 @@
 !!
 !!***
 
-#include "Flash.h"
+#include "Simulation.h"
 #include "constants.h"
 subroutine Turb_curlMag(curl, velX, velY, velZ, h, bid)
 

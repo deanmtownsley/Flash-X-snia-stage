@@ -28,7 +28,7 @@ subroutine gr_markRefineDerefine(iref,refine_cutoff,derefine_cutoff,refine_filte
   implicit none
 
   include 'mpif.h'
-#include "Flash.h"
+#include "Simulation.h"
 #include "constants.h"  
 
   integer, intent(IN) :: iref

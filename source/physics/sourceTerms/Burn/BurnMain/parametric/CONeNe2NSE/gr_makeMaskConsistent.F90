@@ -74,7 +74,7 @@ subroutine gr_makeMaskConsistent(gridDataStruct,eosMode,needEos)
   implicit none
 
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 
   integer,intent(IN) :: gridDataStruct
   integer,intent(IN) :: eosMode

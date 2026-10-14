@@ -8,7 +8,7 @@ subroutine bn_paraAllIgnite( ignition_conditions, det_num )
 
  include 'mpif.h'
 #include "constants.h"  
-#include "Flash.h"
+#include "Simulation.h"
 
   integer, intent(in) :: det_num
   logical, allocatable, dimension(:), intent(inout) :: ignition_conditions

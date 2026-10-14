@@ -23,7 +23,7 @@
 !!***
 
 
-#include "Flash.h"
+#include "Simulation.h"
 subroutine Turb_init()
 
   use Driver_interface, only : Driver_abortFlash

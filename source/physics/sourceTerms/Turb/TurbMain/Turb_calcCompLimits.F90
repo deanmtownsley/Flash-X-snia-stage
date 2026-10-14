@@ -33,7 +33,7 @@
 !!***
 
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 subroutine Turb_calcCompLimits(blkLimits, compLimits, local_stepSize)
 
   use Turb_data, only : turb_stepSize, turb_fillGC

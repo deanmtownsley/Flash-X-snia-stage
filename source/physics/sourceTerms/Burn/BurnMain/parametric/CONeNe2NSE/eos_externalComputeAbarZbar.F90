@@ -12,7 +12,7 @@ subroutine eos_externalComputeAbarZbar(solnScalars, abarData, zbarData)
   implicit none
 
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 
   real, intent(in), dimension(:,:)  :: solnScalars
   real, intent(out), dimension(:)                      :: abarData, zbarData

@@ -34,7 +34,7 @@ subroutine IO_writeIntegralQuantities (isFirst, simTime)
 
 #include "Flash_mpi.h"
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
   
   real, intent(in) :: simTime
 

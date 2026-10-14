@@ -57,7 +57,7 @@ subroutine Grid_markRefineDerefine()
 
 #include "Flash_mpi.h"
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 
   real :: ref_cut,deref_cut,ref_filter
   integer       :: l,i,iref

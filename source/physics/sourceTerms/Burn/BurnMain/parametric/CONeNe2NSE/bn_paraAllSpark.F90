@@ -20,7 +20,7 @@ subroutine bn_paraAllSpark( ignition_coords, det_num, &
 
  include 'mpif.h'
 #include "constants.h"  
-#include "Flash.h"
+#include "Simulation.h"
 
   real, allocatable, dimension(:), intent(inout) :: ignition_coords
   integer, intent(inout) :: det_num

@@ -31,7 +31,7 @@
 !!
 !!***
 
-#include "Flash.h"
+#include "Simulation.h"
 #include "constants.h"
 subroutine Turb_calc(num_blocks, blockList)    
 

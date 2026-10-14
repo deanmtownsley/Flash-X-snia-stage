@@ -19,7 +19,7 @@ subroutine bn_paraSpark(x, y, z, dens, pres, phfa, flame, c12, ne22, &
   implicit none
 
 #include "constants.h"  
-#include "Flash.h"
+#include "Simulation.h"
   
   real, intent(in)     :: x, y, z, dens, pres, phfa, flame, c12, ne22
   real, intent(out)    :: detX, detY, detZ

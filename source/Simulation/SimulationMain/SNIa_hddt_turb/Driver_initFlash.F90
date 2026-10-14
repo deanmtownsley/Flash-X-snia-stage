@@ -71,7 +71,7 @@ subroutine Driver_initFlash()
   implicit none       
   
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 
   integer :: blockCount
   integer :: blockList(MAXBLOCKS)

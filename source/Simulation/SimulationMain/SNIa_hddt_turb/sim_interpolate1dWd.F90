@@ -22,7 +22,7 @@ subroutine sim_interpolate1dWd( radius, dr, dens, temp, xc12, xne20, xne22, fluf
 
   implicit none
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 #include "Eos.h"
 
   real, intent(in) :: radius, dr

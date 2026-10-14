@@ -29,7 +29,7 @@ subroutine Simulation_init()
   implicit none
 
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 #include "Eos.h"
 
   character(len=256) :: initialWDFileName

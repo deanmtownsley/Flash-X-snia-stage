@@ -28,8 +28,9 @@ subroutine Burn ( blockCount, blockList, dt )
   implicit none
 
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 #include "Eos.h"
+#include "Eos_helm.h"
 
   integer, INTENT(in)                        :: blockCount
   integer, INTENT(in), DIMENSION(blockCount) :: blockList
@@ -455,8 +456,8 @@ subroutine Burn ( blockCount, blockList, dt )
         shock(:,:,:) = 0
      endif
 
-#ifdef SHK_VAR
-     solnData(SHK_VAR,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),   &
+#ifdef SHOK_VAR
+     solnData(SHOK_VAR,blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),   &
                       blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS),   &
                       blkLimits(LOW,KAXIS):blkLimits(HIGH,KAXIS)) = &
                 shock(blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS),   &

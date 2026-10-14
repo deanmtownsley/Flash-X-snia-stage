@@ -39,7 +39,7 @@
 !!***
 
 
-#include "Flash.h"
+#include "Simulation.h"
 #include "constants.h"
 subroutine Turb_laplacian(lapl, scalar, h, bid)
 
