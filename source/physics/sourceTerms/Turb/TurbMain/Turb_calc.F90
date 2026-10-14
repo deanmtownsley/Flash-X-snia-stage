@@ -41,7 +41,7 @@ subroutine Turb_calc(num_blocks, blockList)
         Grid_getMaxRefinement, &
         Grid_getBlkRefineLevel
   use Turb_interface, only : Turb_laplacian, Turb_curlMag
-  use Driver_interface, only : Driver_abortFlash
+  use Driver_interface, only : Driver_abort
   use Timers_interface, only : Timers_start, Timers_stop
        
   implicit none
@@ -110,9 +110,9 @@ subroutine Turb_calc(num_blocks, blockList)
         sizeK=blkLimitsGC(HIGH,KAXIS)-blkLimitsGC(LOW,KAXIS)+1
 
         allocate(velComp(sizeI,sizeJ,sizeK),STAT=istat)
-        if (istat /= 0) call Driver_abortFlash("Cannot allocate velComp in Turb_calc")
+        if (istat /= 0) call Driver_abort("Cannot allocate velComp in Turb_calc")
         allocate(lapl(sizeI,sizeJ,sizeK), STAT=istat)
-        if (istat /= 0) call Driver_abortFlash("Cannot allocate lapl in Turb_calc")
+        if (istat /= 0) call Driver_abort("Cannot allocate lapl in Turb_calc")
         lapl(:,:,:) = 0.e0
 
         velComp( blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS), &
@@ -213,13 +213,13 @@ subroutine Turb_calc(num_blocks, blockList)
         sizeK=blkLimitsGC(HIGH,KAXIS)-blkLimitsGC(LOW,KAXIS)+1
 
         allocate(laplX(sizeI,sizeJ,sizeK), STAT=istat)
-        if (istat /= 0) call Driver_abortFlash("Cannot allocate laplX in Flame_step")
+        if (istat /= 0) call Driver_abort("Cannot allocate laplX in Flame_step")
         allocate(laplY(sizeI,sizeJ,sizeK), STAT=istat)
-        if (istat /= 0) call Driver_abortFlash("Cannot allocate laplY in Flame_step")
+        if (istat /= 0) call Driver_abort("Cannot allocate laplY in Flame_step")
         allocate(laplZ(sizeI,sizeJ,sizeK), STAT=istat)
-        if (istat /= 0) call Driver_abortFlash("Cannot allocate laplZ in Flame_step")
+        if (istat /= 0) call Driver_abort("Cannot allocate laplZ in Flame_step")
         allocate(curl(sizeI,sizeJ,sizeK),STAT=istat)
-        if (istat /= 0) call Driver_abortFlash("Cannot allocate curl in Flame_step")
+        if (istat /= 0) call Driver_abort("Cannot allocate curl in Flame_step")
         curl(:,:,:) = 0.e0
 
         laplX( blkLimitsGC(LOW,IAXIS):blkLimitsGC(HIGH,IAXIS),  &

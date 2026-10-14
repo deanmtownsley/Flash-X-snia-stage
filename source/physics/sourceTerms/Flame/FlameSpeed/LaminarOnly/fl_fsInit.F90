@@ -4,7 +4,7 @@
 subroutine fl_fsInit
 
   use fl_fsData
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   implicit none
 

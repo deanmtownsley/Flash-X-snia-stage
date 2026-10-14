@@ -8,7 +8,7 @@ subroutine Burn_init()
 
   use Burn_data
 
-  use Driver_interface, ONLY : Driver_abortFlash, Driver_getMype
+  use Driver_interface, ONLY : Driver_abort, Driver_getMype
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use Logfile_interface, ONLY : Logfile_stampMessage
   use PhysicalConstants_interface, ONLY:  PhysicalConstants_get
@@ -58,7 +58,7 @@ subroutine Burn_init()
   call RuntimeParameters_get("bn_autoDDT", bn_autoDDT)
 
   if (detIgnFile .and. bn_autoDDT) then
-     call Driver_abortFlash("Cannot detonate manually and automatically!")
+     call Driver_abort("Cannot detonate manually and automatically!")
   endif
 
   !  read detonation ignition points from file
@@ -66,21 +66,21 @@ subroutine Burn_init()
 
      call Logfile_stampMessage('[Burn/parametric init] Reading detonation ignition points from file')
      open(unit=infile_unit,file=bn_detIgnFileName,status='OLD',iostat=istat)
-     if (istat /= 0) call Driver_abortFlash("Unable to open detonation ignition points file")
+     if (istat /= 0) call Driver_abort("Unable to open detonation ignition points file")
 
      ! eat header
      read(infile_unit,*)
      read(infile_unit,*) pbIgnNum
      allocate(pbIgnTime(pbIgnNum),STAT=istat)
-        if (istat /= 0) call Driver_abortFlash("Cannot allocate pbIgnTime in paraburn init")
+        if (istat /= 0) call Driver_abort("Cannot allocate pbIgnTime in paraburn init")
      allocate(pbIgnX(pbIgnNum),STAT=istat)
-        if (istat /= 0) call Driver_abortFlash("Cannot allocate pbIgnX in paraburn init")
+        if (istat /= 0) call Driver_abort("Cannot allocate pbIgnX in paraburn init")
      allocate(pbIgnY(pbIgnNum),STAT=istat)
-        if (istat /= 0) call Driver_abortFlash("Cannot allocate pbIgnY in paraburn init")
+        if (istat /= 0) call Driver_abort("Cannot allocate pbIgnY in paraburn init")
      allocate(pbIgnZ(pbIgnNum),STAT=istat)
-        if (istat /= 0) call Driver_abortFlash("Cannot allocate pbIgnZ in paraburn init")
+        if (istat /= 0) call Driver_abort("Cannot allocate pbIgnZ in paraburn init")
      allocate(pbIgnR(pbIgnNum),STAT=istat)
-        if (istat /= 0) call Driver_abortFlash("Cannot allocate pbIgnR in paraburn init")
+        if (istat /= 0) call Driver_abort("Cannot allocate pbIgnR in paraburn init")
      do i = 1, pbIgnNum
         read(infile_unit,*) pbIgnTime(i), pbIgnX(i), pbIgnY(i), pbIgnZ(i), pbIgnR(i)
      enddo
@@ -106,7 +106,7 @@ subroutine Burn_init()
      pbIgnRho = exp( log(pbIgnRho) - calib )
      call RuntimeParameters_get("pbIgnRhoFact", pbIgnRhoFact)
      if (pbIgnRhoFact >= 1.0)  &
-        call Driver_abortFlash("pbIgnRhoFact must be less than 1")
+        call Driver_abort("pbIgnRhoFact must be less than 1")
      pbIgnRhoFact = 10.e0**( pbIgnRhoFact * log10(pbIgnRho) ) 
      call RuntimeParameters_get("pbIgnPhfa", pbIgnPhfa)
      call RuntimeParameters_get("pbIgnDist", pbIgnDist)
@@ -117,19 +117,19 @@ subroutine Burn_init()
      ! allocate global arrays for detonation points
      pbIgnNum = 0
      allocate(pbIgnTime(pbIgnNumMax),stat=istat)
-        if (istat/=0) call Driver_abortFlash("Cannot allocate pbIgnTime in paraburn init")
+        if (istat/=0) call Driver_abort("Cannot allocate pbIgnTime in paraburn init")
      allocate(pbIgnX(pbIgnNumMax),stat=istat)
-        if (istat/=0) call Driver_abortFlash("Cannot allocate pbIgnX in paraburn init")
+        if (istat/=0) call Driver_abort("Cannot allocate pbIgnX in paraburn init")
      allocate(pbIgnY(pbIgnNumMax),stat=istat)
-        if (istat/=0) call Driver_abortFlash("Cannot allocate pbIgnY in paraburn init")
+        if (istat/=0) call Driver_abort("Cannot allocate pbIgnY in paraburn init")
      allocate(pbIgnZ(pbIgnNumMax),stat=istat)
-        if (istat/=0) call Driver_abortFlash("Cannot allocate pbIgnZ in paraburn init")
+        if (istat/=0) call Driver_abort("Cannot allocate pbIgnZ in paraburn init")
 
      if (restart) then
         
         call Logfile_stampMessage('[Burn/parametric init] Reading previous detonation ignition points (if any) from file')
         open(unit=infile_unit,file=bn_detIgnFileName,status='unknown',iostat=istat)
-        if (istat /= 0) call Driver_abortFlash("Unable to open detonation ignition points file")
+        if (istat /= 0) call Driver_abort("Unable to open detonation ignition points file")
 
         istat = 0
         do i = 1, pbIgnNumMax
@@ -141,11 +141,11 @@ subroutine Burn_init()
         enddo
 
         if (istat > 0) then
-           call Driver_abortFlash("Unable to read detonation ignition points file")
+           call Driver_abort("Unable to read detonation ignition points file")
         else if (istat < 0) then !EOF reached
            pbIgnNum = i - 1
         else
-           call Driver_abortFlash("pbIgnNumMax is too small to read in previous detonation ignition points")
+           call Driver_abort("pbIgnNumMax is too small to read in previous detonation ignition points")
         endif
 
         close(unit=infile_unit)

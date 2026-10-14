@@ -36,7 +36,7 @@ subroutine fl_flameSpeed(solnData, flamespeed, blockID, nlayers)
   
   use fl_fsData, ONLY : fl_fsUseConstFlameSpeed, fl_fsConstFlameSpeed, &
          fl_fsConstFlameWidth, fl_fsUseTFI
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use Grid_interface, ONLY : Grid_getBlkIndexLimits, Grid_getDeltas
   use fl_fsLaminarInterface, ONLY : fl_fsLaminarFlameSpeedBlock
   use fl_fsTFIInterface, ONLY : fl_fsTFIFlameSpeedBlock
@@ -79,7 +79,7 @@ subroutine fl_flameSpeed(solnData, flamespeed, blockID, nlayers)
   sizeY=blkLimitsGC(HIGH,JAXIS)-blkLimitsGC(LOW,JAXIS)+1
   sizeZ=blkLimitsGC(HIGH,KAXIS)-blkLimitsGC(LOW,KAXIS)+1
   allocate(flamewidth(sizeX,sizeY,sizeZ),STAT=istat)
-  if (istat /= 0) call Driver_abortFlash("Cannot allocate flamewidth in fl_flameSpeed")
+  if (istat /= 0) call Driver_abort("Cannot allocate flamewidth in fl_flameSpeed")
 #endif
 
   ! make an array of limits over which computation is being performed
@@ -113,7 +113,7 @@ subroutine fl_flameSpeed(solnData, flamespeed, blockID, nlayers)
 
 #ifndef FIXEDBLOCKSIZE
   allocate(dens(sizeX,sizeY,sizeZ),STAT=istat)
-  if (istat /= 0) call Driver_abortFlash("Cannot allocate dens in fl_flameSpeed")
+  if (istat /= 0) call Driver_abort("Cannot allocate dens in fl_flameSpeed")
 #endif
 
   ! this returns an estimate of unburned density at this pressure

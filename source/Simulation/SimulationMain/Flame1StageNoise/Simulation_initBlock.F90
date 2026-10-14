@@ -138,7 +138,6 @@ subroutine Simulation_initBlock(solnData,tileDesc)
                  eosData(:) = sim_eosData_u(:)
                  eosData(EOS_ABAR) = 1.0/yi
                  eosData(EOS_ZBAR) = ye*eosData(EOS_ABAR)
-
                  ! put this in pressure equilibrium with unburned material
                  call Flame_rhJump(sim_eosData_u, eosData, flam*fl_effDeltae, 0.0, MODE_DENS_TEMP)
 

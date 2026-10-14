@@ -129,7 +129,7 @@ subroutine Simulation_initBlock(blockID)
               rshell = 0.0
 
               if (sim_ignMpole .and. sim_ignSin)  &
-                 call Driver_abortFlash("Simulation_initBlock: multipole and sinusoidal ignition are exclusive")
+                 call Driver_abort("Simulation_initBlock: multipole and sinusoidal ignition are exclusive")
 
               if (sim_ignMpole) then
                  if (NDIM == 2) then

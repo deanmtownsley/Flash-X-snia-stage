@@ -27,7 +27,7 @@ subroutine fl_fsAtwoodInitTable()
                               fl_fsAtwoodTabA
   use Flame_interface, ONLY : Flame_rhJump
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use bn_paraInterface, ONLY : bn_paraFuelAshProperties
 
   implicit none
@@ -69,7 +69,7 @@ subroutine fl_fsAtwoodInitTable()
 
 
   allocate(fl_fsAtwoodTabA(fl_fsAtwoodTabLdensNum+1,fl_fsAtwoodTabXc12Num+1),stat=istat)
-    if (istat /= 0) call Driver_abortFlash("Cannot allocate AtwoodTabA in fl_fsAtwoodInitTable")
+    if (istat /= 0) call Driver_abort("Cannot allocate AtwoodTabA in fl_fsAtwoodInitTable")
 
 
   do j = 1, fl_fsAtwoodTabXc12Num+1

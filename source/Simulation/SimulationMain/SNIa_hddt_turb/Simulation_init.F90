@@ -91,7 +91,7 @@ subroutine Simulation_init()
 
   call Logfile_stampMessage('[Simulation_init] Reading initial 1-d WD profile')
   open(unit=2,file=initialWDFileName,status='OLD',iostat=istat)
-  if (istat /= 0) call Driver_abortFlash('Unable to open initial WD profile')
+  if (istat /= 0) call Driver_abort('Unable to open initial WD profile')
 
   ! eat header
   read(2,*)
@@ -100,16 +100,16 @@ subroutine Simulation_init()
 !  write(*,*)'no pts in model =',sim_wd_npnts
 
   allocate(sim_wd_dens_tab(sim_wd_npnts),STAT=istat)
-    if (istat /= 0) call Driver_abortFlash("Cannot allocate space for inital WD")
+    if (istat /= 0) call Driver_abort("Cannot allocate space for inital WD")
   allocate(sim_wd_temp_tab(sim_wd_npnts),STAT=istat)
-    if (istat /= 0) call Driver_abortFlash("Cannot allocate space for inital WD")
+    if (istat /= 0) call Driver_abort("Cannot allocate space for inital WD")
   allocate(sim_wd_c12_tab(sim_wd_npnts),STAT=istat)
-    if (istat /= 0) call Driver_abortFlash("Cannot allocate space for inital WD")
+    if (istat /= 0) call Driver_abort("Cannot allocate space for inital WD")
 !don: add ne20
   allocate(sim_wd_ne20_tab(sim_wd_npnts),STAT=istat)
-    if (istat /= 0) call Driver_abortFlash("Cannot allocate space for inital WD")
+    if (istat /= 0) call Driver_abort("Cannot allocate space for inital WD")
   allocate(sim_wd_ne22_tab(sim_wd_npnts),STAT=istat)
-    if (istat /= 0) call Driver_abortFlash("Cannot allocate space for inital WD")
+    if (istat /= 0) call Driver_abort("Cannot allocate space for inital WD")
   radius = 0.0
   do i = 1, sim_wd_npnts
      lastradius = radius
@@ -136,18 +136,18 @@ subroutine Simulation_init()
   if (sim_ignMPole) then
      ! set up coefficients of multipole contributions
      ! check some things first to catch mistakes
-     if (NDIM < 2) call Driver_abortFlash("[Simulation_init] multipole ignition not sensible in 1-dimension")
+     if (NDIM < 2) call Driver_abort("[Simulation_init] multipole ignition not sensible in 1-dimension")
      call Grid_getGeometry(sim_geom)
 
      if (NDIM == 2) then
         if (sim_geom .ne. CYLINDRICAL) &
-           call Driver_abortFlash("[Simulation_init] multipole ignition assumes cylindrical geometry in 2D")
+           call Driver_abort("[Simulation_init] multipole ignition assumes cylindrical geometry in 2D")
         ! in 2D the ignition condition must be symmetric
         sim_ignMPoleSym = .true.
      endif
 
      if ( (NDIM == 3) .and. (sim_geom .ne. CARTESIAN) ) &
-        call Driver_abortFlash("[Simulation_init] multipole ignition assumes cartesian geometry in 3D")
+        call Driver_abort("[Simulation_init] multipole ignition assumes cartesian geometry in 3D")
 
      ! the j-index is for m values ordered 0,-1,1,-2,2...
      jstart = 0
@@ -158,10 +158,10 @@ subroutine Simulation_init()
      endif
 
      allocate(mp_A(sim_ignMpoleMinL:sim_ignMpoleMaxL,jstart:jend), stat=istat)
-     if (istat/=0) call Driver_abortFlash("Unable to allocate mp_A in Simulation_init")
+     if (istat/=0) call Driver_abort("Unable to allocate mp_A in Simulation_init")
      allocate(mp_delta(sim_ignMpoleMinL:sim_ignMpoleMaxL,jstart:jend), &
            stat=istat)
-     if (istat/=0) call Driver_abortFlash("Unable to allocate mp_delta in Simulation_init")
+     if (istat/=0) call Driver_abort("Unable to allocate mp_delta in Simulation_init")
 
      try = 0
      accept = .false.

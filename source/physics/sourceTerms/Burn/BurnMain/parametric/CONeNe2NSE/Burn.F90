@@ -125,7 +125,7 @@ subroutine Burn ( blockCount, blockList, dt )
      ! initialize
      ignition_num = 0
      allocate(ignition_coords(NDIM*pbIgnNumMax),stat=istat)
-     if (istat/=0) call Driver_abortFlash("Unable to allocate ignition_coords")
+     if (istat/=0) call Driver_abort("Unable to allocate ignition_coords")
   
      ! store the number of ignition points in index zero
      do n = 1, blockCount
@@ -224,7 +224,7 @@ subroutine Burn ( blockCount, blockList, dt )
                        ! need to create more space
                        else !! ( ignition_num < pbIgnNumMax )
 
-                         call Driver_abortFlash("Not enough space to store all ignition points")
+                         call Driver_abort("Not enough space to store all ignition points")
 
                        endif !! ( ignition_num < pbIgnNumMax )
 
@@ -256,11 +256,11 @@ subroutine Burn ( blockCount, blockList, dt )
 
      ! allocate space for det coords
 !     allocate(det_xCoord(pbIgnNumMax),stat=istat)
-!     if (istat/=0) call Driver_abortFlash("Unable to allocate det_xCoord")
+!     if (istat/=0) call Driver_abort("Unable to allocate det_xCoord")
 !     allocate(det_yCoord(pbIgnNumMax),stat=istat)
-!     if (istat/=0) call Driver_abortFlash("Unable to allocate det_yCoord")
+!     if (istat/=0) call Driver_abort("Unable to allocate det_yCoord")
 !     allocate(det_zCoord(pbIgnNumMax),stat=istat)
-!     if (istat/=0) call Driver_abortFlash("Unable to allocate det_zCoord")
+!     if (istat/=0) call Driver_abort("Unable to allocate det_zCoord")
 
      ! communicate detonation points and consolidate
      ! this means only det points which are not near each other and
@@ -282,7 +282,7 @@ subroutine Burn ( blockCount, blockList, dt )
 
         allocate(ignition_conditions(det_num),stat=istat)
         if (istat/=0)  &
-           call Driver_abortFlash("Unable to allocate ignition_conditions")
+           call Driver_abort("Unable to allocate ignition_conditions")
         ignition_conditions(:) = .true.
  
         det_search:  do l = 1, det_num
@@ -389,7 +389,7 @@ subroutine Burn ( blockCount, blockList, dt )
 #endif
                     open (burn_lun, file=bn_detIgnFileName, &
                           position='append', iostat=istat)
-                    if (istat/=0) call Driver_abortFlash("Unable to open detonation ignition points file")
+                    if (istat/=0) call Driver_abort("Unable to open detonation ignition points file")
 
                     write (burn_lun,*) time, detX, detY, detZ
 
@@ -413,7 +413,7 @@ subroutine Burn ( blockCount, blockList, dt )
               endif
            enddo
         else
-           call Driver_abortFlash("Not enough space to save detonation points")
+           call Driver_abort("Not enough space to save detonation points")
         endif
 
      endif

@@ -3,7 +3,7 @@
 
 subroutine fl_fsLaminarFlameSpeedBlock(solnData, s, dens, calcLimits, ds)
 
-  use Driver_interface, ONLY: Driver_abortFlash
+  use Driver_interface, ONLY: Driver_abort
   use fl_fsLaminarInterface, ONLY: fl_fsConeInterp, fl_fsUnburnDens
 
   implicit none

@@ -86,7 +86,7 @@ subroutine fl_flameSpeed( solnData, flamespeed, blockID, nlayers)
   sizeJ=blkLimitsGC(HIGH,JAXIS)-blkLimitsGC(LOW,JAXIS)+1
   sizeK=blkLimitsGC(HIGH,KAXIS)-blkLimitsGC(LOW,KAXIS)+1
   allocate(flamewidth(sizeI,sizeJ,sizeK),STAT=istat)
-  if (istat /= 0) call Driver_abortFlash("Cannot allocate flamewidth in fl_flameSpeed")
+  if (istat /= 0) call Driver_abort("Cannot allocate flamewidth in fl_flameSpeed")
 #endif
 
   flamespeed( compLimits(LOW,IAXIS):compLimits(HIGH,IAXIS), &

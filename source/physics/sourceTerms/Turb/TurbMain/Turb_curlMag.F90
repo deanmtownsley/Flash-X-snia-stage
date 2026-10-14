@@ -50,7 +50,7 @@ subroutine Turb_curlMag(curl, velX, velY, velZ, h, bid)
 
   use Grid_interface, only : Grid_getGeometry, Grid_getBlkIndexLimits, &
                              Grid_getDeltas, Grid_getCellCoords
-  use Driver_interface, only : Driver_abortFlash
+  use Driver_interface, only : Driver_abort
   implicit none
   real, dimension(:,:,:), intent(out) :: curl
   real, dimension(:,:,:), intent(in) :: velX, velY, velZ
@@ -76,7 +76,7 @@ subroutine Turb_curlMag(curl, velX, velY, velZ, h, bid)
 
   h2 = 2*h
 
-  if (h2 > NGUARD) call Driver_abortFlash("Step size in Turb_curlMag is too large for the number of guard cells")
+  if (h2 > NGUARD) call Driver_abort("Step size in Turb_curlMag is too large for the number of guard cells")
 
   three_dim = (NDIM == 3)
 
@@ -133,7 +133,7 @@ subroutine Turb_curlMag(curl, velX, velY, velZ, h, bid)
         inv_12_dtheta = 1.0/12.0/deltas(KAXIS)
 
         allocate(inv_r(blkLimitsGC(HIGH,IAXIS)),STAT=istat)
-        if (istat/=0) call Driver_abortFlash("Unable to allocate inv_r in Turb_fsCurl")
+        if (istat/=0) call Driver_abort("Unable to allocate inv_r in Turb_fsCurl")
         call Grid_getCellCoords(IAXIS, bid, CENTER, .true., inv_r, blkLimitsGC(HIGH,IAXIS))
         inv_r(blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)) = &
                  1.0/inv_r(blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS))
@@ -181,16 +181,16 @@ subroutine Turb_curlMag(curl, velX, velY, velZ, h, bid)
      inv_12_dtheta = 1.0/12.0/deltas(JAXIS)
 
      allocate(inv_r(blkLimitsGC(HIGH,IAXIS)),STAT=istat)
-     if (istat/=0) call Driver_abortFlash("Unable to allocate inv_r in Turb_fsCurl")
+     if (istat/=0) call Driver_abort("Unable to allocate inv_r in Turb_fsCurl")
      call Grid_getCellCoords(IAXIS, bid, CENTER, .true., inv_r, blkLimitsGC(HIGH,IAXIS))
      inv_r(blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS)) = &
                    1.0/inv_r(blkLimits(LOW,IAXIS):blkLimits(HIGH,IAXIS))
      if (three_dim) then
         inv_12_dphi = 1.0/12.0/deltas(KAXIS)
         allocate(ctan(blkLimitsGC(HIGH,JAXIS)),STAT=istat)
-        if (istat/=0) call Driver_abortFlash("Unable to allocate ctan in Turb_fsCurl")
+        if (istat/=0) call Driver_abort("Unable to allocate ctan in Turb_fsCurl")
         allocate(inv_sin(blkLimitsGC(HIGH,JAXIS)),STAT=istat)
-        if (istat/=0) call Driver_abortFlash("Unable to allocate inv_sin in Turb_fsCurl")
+        if (istat/=0) call Driver_abort("Unable to allocate inv_sin in Turb_fsCurl")
         call Grid_getCellCoords(JAXIS, bid, CENTER, .true., ctan, blkLimitsGC(HIGH,JAXIS))
         inv_sin(blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)) = &
                   1.0/sin(ctan(blkLimits(LOW,JAXIS):blkLimits(HIGH,JAXIS)))

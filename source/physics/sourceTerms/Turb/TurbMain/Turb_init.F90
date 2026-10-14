@@ -26,7 +26,7 @@
 #include "Simulation.h"
 subroutine Turb_init()
 
-  use Driver_interface, only : Driver_abortFlash
+  use Driver_interface, only : Driver_abort
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
   use Turb_data
 
@@ -38,7 +38,7 @@ subroutine Turb_init()
   call RuntimeParameters_get("turb_c2", turb_c2)
 
   if (2*turb_stepSize > NGUARD) &
-     call Driver_abortFlash("stencil size of turb operator > number of guard cells")
+     call Driver_abort("stencil size of turb operator > number of guard cells")
 
   ! check if both operators can be performed without guard cell filling
   turb_fillGC = (4*turb_stepSize > NGUARD)

@@ -26,6 +26,7 @@ subroutine NSE_init()
   real    :: rtemp1, rtemp2, rtemp3, rtemp4, rtemp5
   real    :: rtemp6, rtemp7, rtemp8, rtemp9
 
+  call Logfile_stampMessage('[NSE_init] started')
 
   ! get table names
 

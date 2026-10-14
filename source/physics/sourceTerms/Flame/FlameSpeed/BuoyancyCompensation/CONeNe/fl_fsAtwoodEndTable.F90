@@ -4,14 +4,14 @@
 subroutine fl_fsAtwoodEndTable()
 
   use fl_fsAtwoodData, ONLY : fl_fsAtwoodTabA
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
   integer :: istat
 
   deallocate(fl_fsAtwoodTabA,stat=istat)
-     if (istat /= 0) call Driver_abortFlash("Cannot deallocate AtwoodTabA in fl_fsAtwoodEndTable")
+     if (istat /= 0) call Driver_abort("Cannot deallocate AtwoodTabA in fl_fsAtwoodEndTable")
 
   return
 end subroutine

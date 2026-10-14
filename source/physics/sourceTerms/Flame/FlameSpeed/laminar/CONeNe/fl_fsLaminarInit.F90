@@ -14,7 +14,7 @@ subroutine fl_fsLaminarInit()
                             lda, lna, lca, &
                             c12ib, ne22ib, ldenb, stab, dstab
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
 
   implicit none
 
@@ -27,7 +27,7 @@ subroutine fl_fsLaminarInit()
   call RuntimeParameters_get("fl_fsCONeTableName",tablename)
 
   open (unit=21,file=tablename,status='unknown',iostat=istat)
-  if (istat /= 0) call Driver_abortFlash("Unable to open Ne22 Flame Table in fl_fsConeInitTable")
+  if (istat /= 0) call Driver_abort("Unable to open Ne22 Flame Table in fl_fsConeInitTable")
 
   read(21,*) nc12it
   read(21,*) nne22it
@@ -51,15 +51,15 @@ subroutine fl_fsLaminarInit()
 
 
   allocate(c12ib(klt:kut),stat=istat)
-  if (istat /= 0) call Driver_abortFlash("Cannot allocate c12ib in fl_fsConeInitTable")
+  if (istat /= 0) call Driver_abort("Cannot allocate c12ib in fl_fsConeInitTable")
   allocate(ne22ib(jlt:jut),stat=istat)
-  if (istat /= 0) call Driver_abortFlash("Cannot allocate ne22ib in fl_fsConeInitTable")
+  if (istat /= 0) call Driver_abort("Cannot allocate ne22ib in fl_fsConeInitTable")
   allocate(ldenb(ilt:iut),stat=istat)
-  if (istat /= 0) call Driver_abortFlash("Cannot allocate ldenb in fl_fsConeInitTable")
+  if (istat /= 0) call Driver_abort("Cannot allocate ldenb in fl_fsConeInitTable")
   allocate(stab(ilt:iut,jlt:jut,klt:kut),stat=istat)
-  if (istat /= 0) call Driver_abortFlash("Cannot allocate stab in fl_fsConeInitTable")
+  if (istat /= 0) call Driver_abort("Cannot allocate stab in fl_fsConeInitTable")
   allocate(dstab(ilt:iut,jlt:jut,klt:kut),stat=istat)
-  if (istat /= 0) call Driver_abortFlash("Cannot allocate dstab in fl_fsConeInitTable")
+  if (istat /= 0) call Driver_abort("Cannot allocate dstab in fl_fsConeInitTable")
 
 !! read the table 
 !! assume X12 spans to 1

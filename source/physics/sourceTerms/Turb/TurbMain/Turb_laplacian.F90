@@ -46,7 +46,7 @@ subroutine Turb_laplacian(lapl, scalar, h, bid)
   use Turb_interface, only : Turb_calcCompLimits
   use Grid_interface, only : Grid_getGeometry, Grid_getBlkIndexLimits, &
                              Grid_getDeltas, Grid_getCellCoords
-  use Driver_interface, only : Driver_abortFlash
+  use Driver_interface, only : Driver_abort
   implicit none
   real, dimension(:,:,:), intent(out) :: lapl
   real, dimension(:,:,:), intent(in) :: scalar
@@ -109,7 +109,7 @@ subroutine Turb_laplacian(lapl, scalar, h, bid)
      inv_12_dr2 = inv_12_dr/deltas(IAXIS)
 
      allocate(inv_r(blkLimitsGC(HIGH,IAXIS)),STAT=istat)
-     if (istat/=0) call Driver_abortFlash("Unable to allocate inv_r in Turb_laplacian")
+     if (istat/=0) call Driver_abort("Unable to allocate inv_r in Turb_laplacian")
      call Grid_getCellCoords(IAXIS, bid, CENTER, .true., inv_r, blkLimitsGC(HIGH,IAXIS))
      inv_r(compLimits(LOW,IAXIS):compLimits(HIGH,IAXIS)) = &
               1.0/inv_r(compLimits(LOW,IAXIS):compLimits(HIGH,IAXIS))
@@ -118,7 +118,7 @@ subroutine Turb_laplacian(lapl, scalar, h, bid)
      if (NDIM == 3) then
         inv_12_dtheta2 = 1.0/12.0/deltas(KAXIS)**2
         allocate(inv_r2(blkLimitsGC(HIGH,IAXIS)),STAT=istat)
-        if (istat/=0) call Driver_abortFlash("Unable to allocate inv_r2 in Turb_laplacian")
+        if (istat/=0) call Driver_abort("Unable to allocate inv_r2 in Turb_laplacian")
         inv_r2(compLimits(LOW,IAXIS):compLimits(HIGH,IAXIS)) = &
                   inv_r(compLimits(LOW,IAXIS):compLimits(HIGH,IAXIS))**2
      endif
@@ -158,9 +158,9 @@ subroutine Turb_laplacian(lapl, scalar, h, bid)
      inv_12_dr2 = inv_12_dr/deltas(IAXIS)
 
      allocate(inv_r2(blkLimitsGC(HIGH,IAXIS)),STAT=istat)
-     if (istat/=0) call Driver_abortFlash("Unable to allocate inv_r2 in Turb_laplacian")
+     if (istat/=0) call Driver_abort("Unable to allocate inv_r2 in Turb_laplacian")
      allocate(two_over_r(blkLimitsGC(HIGH,IAXIS)),STAT=istat)
-     if (istat/=0) call Driver_abortFlash("Unable to allocate two_over_r in Turb_laplacian")
+     if (istat/=0) call Driver_abort("Unable to allocate two_over_r in Turb_laplacian")
      call Grid_getCellCoords(IAXIS, bid, CENTER, .true., inv_r2, blkLimitsGC(HIGH,IAXIS))
      two_over_r(compLimits(LOW,IAXIS):compLimits(HIGH,IAXIS)) = &
                    2.0/inv_r2(compLimits(LOW,IAXIS):compLimits(HIGH,IAXIS))
@@ -171,7 +171,7 @@ subroutine Turb_laplacian(lapl, scalar, h, bid)
         inv_12_dtheta = 1.0/12.0/deltas(JAXIS)
         inv_12_dtheta2 = inv_12_dtheta/deltas(JAXIS)
         allocate(ctan(blkLimitsGC(HIGH,JAXIS)),STAT=istat)
-        if (istat/=0) call Driver_abortFlash("Unable to allocate ctan in Turb_laplacian")
+        if (istat/=0) call Driver_abort("Unable to allocate ctan in Turb_laplacian")
         call Grid_getCellCoords(IAXIS, bid, CENTER, .true., ctan, blkLimitsGC(HIGH,IAXIS))
         ctan(compLimits(LOW,JAXIS):compLimits(HIGH,JAXIS)) = &
                 1.0/tan(ctan(compLimits(LOW,JAXIS):compLimits(HIGH,JAXIS)))
@@ -180,7 +180,7 @@ subroutine Turb_laplacian(lapl, scalar, h, bid)
      if (NDIM == 3) then
         inv_12_dphi2 = 1.0/12.0/deltas(KAXIS)**2
         allocate(inv_sin2(blkLimitsGC(HIGH,JAXIS)),STAT=istat)
-        if (istat/=0) call Driver_abortFlash("Unable to allocate inv_sin2 in Turb_laplacian")
+        if (istat/=0) call Driver_abort("Unable to allocate inv_sin2 in Turb_laplacian")
         inv_sin2(compLimits(LOW,JAXIS):compLimits(HIGH,JAXIS)) = &
                     1.0+ctan(compLimits(LOW,JAXIS):compLimits(HIGH,JAXIS))**2
      endif

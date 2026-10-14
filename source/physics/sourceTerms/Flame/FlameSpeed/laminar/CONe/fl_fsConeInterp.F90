@@ -20,7 +20,7 @@
 !  convention i --> log(rho), j --> X22, k --> X12
 subroutine fl_fsConeInterp(c12i,ne22i,den,s,ds)
 
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   use fl_fsConeData, ONLY : ilt, iut, jlt, jut, klt, kut, &
                             nc12it, nne22it, nldent, lca, lna, lda, &
                             c12ib, ne22ib, ldenb, stab, dstab

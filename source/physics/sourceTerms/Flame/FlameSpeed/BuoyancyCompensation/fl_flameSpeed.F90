@@ -48,7 +48,7 @@ subroutine fl_flameSpeed(solnData, flamespeed, blockID, nlayers)
        fl_fsGcdFlameSuppressCosTheta, fl_fsBuoyCompSuppress, &
        fl_fsBuoyCompSuppressTime, fl_fsBuoyCompSuppressCosTheta, &
        fl_fsGeom, fl_fsMDelta
-  use Driver_interface, ONLY : Driver_abortFlash, Driver_getSimTime
+  use Driver_interface, ONLY : Driver_abort, Driver_getSimTime
   use Grid_interface, ONLY : Grid_getBlkIndexLimits, Grid_getCellCoords, &
        Grid_getDeltas
   use fl_fsAtwoodInterface, ONLY : fl_fsAtwood
@@ -104,7 +104,7 @@ subroutine fl_flameSpeed(solnData, flamespeed, blockID, nlayers)
   compLimits(HIGH,KAXIS) = blkLimits(HIGH,KAXIS)+K3D*nlayers
 
   allocate(flamewidth(sizeI,sizeJ,sizeK),STAT=istat)
-  if (istat /= 0) call Driver_abortFlash("Cannot allocate flamewidth in fl_flameSpeed")
+  if (istat /= 0) call Driver_abort("Cannot allocate flamewidth in fl_flameSpeed")
 
   ! allow jumpout with constant flame speed with TFI
   if (fl_fsUseConstFlameSpeed) then
@@ -128,14 +128,14 @@ subroutine fl_flameSpeed(solnData, flamespeed, blockID, nlayers)
   call Driver_getSimTime(time)
 
   allocate(atwood(sizeI,sizeJ,sizeK),STAT=istat)
-  if (istat /= 0) call Driver_abortFlash("Cannot allocate atwood in fl_flameSpeed")
+  if (istat /= 0) call Driver_abort("Cannot allocate atwood in fl_flameSpeed")
   allocate(dens(sizeI,sizeJ,sizeK),STAT=istat)
-  if (istat /= 0) call Driver_abortFlash("Cannot allocate dens in fl_flameSpeed")
+  if (istat /= 0) call Driver_abort("Cannot allocate dens in fl_flameSpeed")
   allocate(gvec(NDIM,sizeI,sizeJ,sizeK), stat=istat)
-  if (istat/=0) call Driver_abortFlash("Failed to allocate gvec in fl_flameSpeed")
+  if (istat/=0) call Driver_abort("Failed to allocate gvec in fl_flameSpeed")
   if (fl_fsUseTFI) then
      allocate(quench_limit(sizeI,sizeJ,sizeK),STAT=istat)
-     if (istat /= 0) call Driver_abortFlash("Cannot allocate quench_limit in fl_flameSpeed")
+     if (istat /= 0) call Driver_abort("Cannot allocate quench_limit in fl_flameSpeed")
   endif
   
   ! get necessary coordinates depending on options and geometry
@@ -143,23 +143,23 @@ subroutine fl_flameSpeed(solnData, flamespeed, blockID, nlayers)
      select case (fl_fsGeom)
      case (CARTESIAN)
         allocate(iCoord(sizeI),STAT=istat)
-        if (istat /= 0) call Driver_abortFlash("Cannot allocate iCoord in fl_flameSpeed")
+        if (istat /= 0) call Driver_abort("Cannot allocate iCoord in fl_flameSpeed")
         allocate(jCoord(sizeJ),STAT=istat)
-        if (istat /= 0) call Driver_abortFlash("Cannot allocate jCoord in fl_flameSpeed")
+        if (istat /= 0) call Driver_abort("Cannot allocate jCoord in fl_flameSpeed")
         allocate(kCoord(sizeK),STAT=istat)
-        if (istat /= 0) call Driver_abortFlash("Cannot allocate kCoord in fl_flameSpeed")
+        if (istat /= 0) call Driver_abort("Cannot allocate kCoord in fl_flameSpeed")
         call Grid_getCellCoords(IAXIS,blockID,CENTER,.true.,iCoord,sizeI)
         call Grid_getCellCoords(JAXIS,blockID,CENTER,.true.,jCoord,sizeJ)
         call Grid_getCellCoords(KAXIS,blockID,CENTER,.true.,kCoord,sizeK)
      case (CYLINDRICAL)
         allocate(iCoord(sizeI),STAT=istat)
-        if (istat /= 0) call Driver_abortFlash("Cannot allocate iCoord in fl_flameSpeed")
+        if (istat /= 0) call Driver_abort("Cannot allocate iCoord in fl_flameSpeed")
         allocate(jCoord(sizeJ),STAT=istat)
-        if (istat /= 0) call Driver_abortFlash("Cannot allocate jCoord in fl_flameSpeed")
+        if (istat /= 0) call Driver_abort("Cannot allocate jCoord in fl_flameSpeed")
         call Grid_getCellCoords(IAXIS,blockID,CENTER,.true.,iCoord,sizeI)
         call Grid_getCellCoords(JAXIS,blockID,CENTER,.true.,jCoord,sizeJ)
      case default
-        call Driver_abortFlash("bad geometry for angle-based suppression")
+        call Driver_abort("bad geometry for angle-based suppression")
      end select
   endif
 
@@ -194,7 +194,7 @@ subroutine fl_flameSpeed(solnData, flamespeed, blockID, nlayers)
               case (CYLINDRICAL)
                  costheta = jCoord(j)/sqrt(iCoord(i)**2+jCoord(k)**2)
               case default
-                 call Driver_abortFlash("bad geometry for angle-based suppression")
+                 call Driver_abort("bad geometry for angle-based suppression")
               end select
            endif
 

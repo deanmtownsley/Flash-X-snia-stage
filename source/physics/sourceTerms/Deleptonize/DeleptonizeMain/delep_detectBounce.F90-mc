@@ -72,7 +72,7 @@ subroutine delep_detectBounce (dotiling, dt,time)
   threadBlockList = .true.
 
 #ifdef ST_THREAD_WITHIN_BLOCK
-  call Driver_abortFlash("Cannot include both threading strategies")
+  call Driver_abort("Cannot include both threading strategies")
 #endif
 
 #else
