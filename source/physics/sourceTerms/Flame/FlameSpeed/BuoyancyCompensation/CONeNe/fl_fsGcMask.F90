@@ -3,7 +3,7 @@
 ! Dean Townsley 2008
 !
 
-#include "Flash.h"
+#include "Simulation.h"
 subroutine fl_fsGcMask(fl_gcMask,fl_gcDoEos)
 
   use fl_fsTFIInterface, ONLY : fl_fsTFIGcMask

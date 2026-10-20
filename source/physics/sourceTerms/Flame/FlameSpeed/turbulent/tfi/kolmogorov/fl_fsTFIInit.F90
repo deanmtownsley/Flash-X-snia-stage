@@ -8,11 +8,11 @@ subroutine fl_fsTFIInit
   use fl_fsData, ONLY : fl_fsUseTFI
   use Turb_data, ONLY : turb_useTurb
   use RuntimeParameters_interface, ONLY : RuntimeParameters_get
-  use Driver_interface, ONLY : Driver_abortFlash
+  use Driver_interface, ONLY : Driver_abort
   implicit none
 
   if (fl_fsUseTFI .and. (.not. turb_useTurb) ) &
-     call Driver_abortFlash("fl_fsUseTFI requires turb_useTurb")
+     call Driver_abort("fl_fsUseTFI requires turb_useTurb")
 
   call RuntimeParameters_get("fl_fsTFIViscosity", fl_fsTFIViscosity)
   call RuntimeParameters_get("fl_fsTFIBeta", fl_fsTFIBeta)

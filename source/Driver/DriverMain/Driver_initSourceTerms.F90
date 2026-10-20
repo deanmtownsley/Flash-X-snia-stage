@@ -34,8 +34,10 @@
 subroutine Driver_initSourceTerms(restart)
 
     use Burn_interface, ONLY: Burn_init
+    use Flame_interface, ONLY : Flame_init
     use RadTrans_interface, ONLY: RadTrans_init
     use Deleptonize_interface, ONLY: Deleptonize_init
+    use Turb_interface, ONLY: Turb_init
     use Stir_interface, ONLY: Stir_init
 
     implicit none
@@ -43,8 +45,10 @@ subroutine Driver_initSourceTerms(restart)
     logical, intent(in) :: restart
 
     call Burn_init()
+    call Flame_init()
     call RadTrans_init()
     call Deleptonize_init()
+    call Turb_init()
     call Stir_init(restart)
-
+    
 end subroutine Driver_initSourceTerms

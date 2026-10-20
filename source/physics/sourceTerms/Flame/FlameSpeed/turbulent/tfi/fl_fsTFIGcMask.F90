@@ -26,7 +26,7 @@
 !!***
 
 
-#include "Flash.h"
+#include "Simulation.h"
 subroutine fl_fsTFIGcMask(fl_gcMask,fl_gcDoEos)
 
   implicit none

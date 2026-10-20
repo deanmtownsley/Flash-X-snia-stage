@@ -29,12 +29,12 @@
 
 subroutine fl_fsUnburnDensBlock(solnData, dens, calcLimits)
 
-  use Driver_interface, ONLY: Driver_abortFlash
+  use Driver_interface, ONLY: Driver_abort
   use fl_fsLaminarInterface, ONLY: fl_fsConeInterp, fl_fsUnburnDens
 
   implicit none
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 
   real,dimension(:,:,:,:),pointer :: solnData
   real,dimension(:,:,:),intent(OUT) :: dens

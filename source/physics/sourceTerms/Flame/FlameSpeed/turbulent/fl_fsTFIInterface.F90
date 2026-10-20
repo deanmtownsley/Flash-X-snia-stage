@@ -2,7 +2,7 @@
 ! Aaron Jackson 2010
 
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 
 module fl_fsTFIInterface
 

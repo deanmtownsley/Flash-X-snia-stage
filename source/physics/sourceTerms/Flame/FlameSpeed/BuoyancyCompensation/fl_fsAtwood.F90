@@ -35,7 +35,7 @@
 subroutine fl_fsAtwood(solnData, atwood, dens_u, cl)
 
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
   implicit none
 
   real, dimension(:,:,:,:), pointer :: solnData

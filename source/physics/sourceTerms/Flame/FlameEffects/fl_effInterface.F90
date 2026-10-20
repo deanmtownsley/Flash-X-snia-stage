@@ -19,12 +19,13 @@ module fl_effInterface
   end interface
 
   interface fl_effects
-     subroutine fl_effects( solnData, flamdot, dt, blockID)
+     subroutine fl_effects( solnData, flamdot, dt, tileDesc)
+        use Grid_tile, ONLY : Grid_tile_t
         implicit none
         real, dimension(:,:,:,:), POINTER_INTENT_IN :: solnData
         real, dimension(:,:,:), intent(in)  :: flamdot
         real, intent(in) :: dt
-        integer, intent(in) :: blockID
+        type(Grid_tile_t), intent(in) :: tileDesc
                 ! Applies ancillary effects of the flame (e.g. energy release,
                 ! composition change) by updating variables in the block passed
                 ! via solnData

@@ -1,0 +1,9 @@
+# Config file for the Conductivity Unit
+
+DEFAULT ConductivityMain
+
+# localAPI comes earlier while linking so can be overriden easily
+CHILDORDER localAPI
+
+D	  useConductivity flags whether the conductivity material property is being used
+PARAMETER useConductivity BOOLEAN CONSTANT FALSE

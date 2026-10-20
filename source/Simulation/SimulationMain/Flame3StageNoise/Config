@@ -1,0 +1,82 @@
+# configuration file for the three stage flame test (with noise metrics)
+
+REQUIRES Driver
+REQUIRES physics/Hydro
+REQUIRES physics/sourceTerms/Flame/FlameEffects/BurnParametric
+
+IF withParticles
+   PARTICLETYPE passive INITMETHOD lattice MAPMETHOD weighted ADVMETHOD rungekutta
+   REQUIRES Particles/ParticlesMain
+   REQUIRES Particles/ParticlesInitialization/Lattice
+   REQUIRES Particles/ParticlesMapping/meshWeighting/CIC
+   REQUESTS IO/IOMain/
+   REQUESTS IO/IOParticles
+ENDIF
+
+# override defaults
+PARAMETER useBurn      BOOLEAN true
+
+D rho_ambient Density of unburned material
+D t_ambient   Temperature of unburned material
+PARAMETER rho_ambient  REAL    2.e9
+PARAMETER t_ambient    REAL    5.0e7
+
+D ignite Determines if simulation begins with a flame front in it
+D frac_perturb Size of burned region, scaled to domain size (generally x extent)
+PARAMETER ignite       BOOLEAN FALSE
+PARAMETER frac_perturb REAL    .5
+
+D pseudo_1d If true a planar flame front is created, otherwise a spherical one is
+D & planar configuration is as follows based on other parameters
+D &         y ^          .
+D &           |    \     .
+D &           |     \    .
+D &           |      \ t .
+D &      yctr +       +  .  fuel
+D &           |        \ .   
+D &           | ash     \
+D &           |          \
+D &           +-------+--------------------------> x
+D &                   |
+D &               frac_ptrb * x extent
+D xctr_perturb Planar: unused
+D &            Spherical: x coordinate of center of spherical burned region
+D yctr_perturb Planar: pivot point of planar interface (see diagram with pseudo_1d)
+D &            Spherical: y coordinate of center of spherical burned region
+D zctr_perturb Planar: unused
+D &            Spherical: z coordinate of center of spherical burned region
+D theta angle between surface normal to planar flame surface and x axis (see diagram with pseudo_1d)
+
+PARAMETER pseudo_1d    BOOLEAN FALSE
+PARAMETER xctr_perturb REAL    1.e-4
+PARAMETER yctr_perturb REAL    1.e-4
+PARAMETER zctr_perturb REAL    1.e-4
+PARAMETER theta        REAL    0.
+
+D c_frac Initial fraction of carbon in unburned material
+D ne_frac Initial fraction of ne22 in unburned material
+PARAMETER c_frac       REAL    0.5
+PARAMETER ne_frac      REAL    0.0
+
+# if this variable is present, flame speed unit will save the local
+# calculated flame speed to it
+VARIABLE fspd
+
+
+PARTICLEPROP    dens            REAL
+PARTICLEMAP     TO dens         FROM VARIABLE dens
+PARTICLEPROP    temp            REAL
+PARTICLEMAP     TO temp         FROM VARIABLE temp
+PARTICLEPROP    pres            REAL
+PARTICLEMAP     TO pres         FROM VARIABLE pres
+PARTICLEPROP    flam            REAL
+PARTICLEMAP     TO flam         FROM MASS_SCALAR FLAM
+PARTICLEPROP    phfa            REAL
+PARTICLEMAP     TO phfa         FROM MASS_SCALAR phfa
+PARTICLEPROP    phaq            REAL
+PARTICLEMAP     TO phaq         FROM MASS_SCALAR phaq
+PARTICLEPROP    phqn            REAL
+PARTICLEMAP     TO phqn         FROM MASS_SCALAR phqn
+PARTICLEPROP    ye              REAL
+PARTICLEMAP     TO ye           FROM MASS_SCALAR ye
+

@@ -43,7 +43,7 @@
 subroutine fl_fsTFIFlameSpeedBlock(solnData, s, ds, dx, compLimits, &
                                    quench_limit)
 
-#include "Flash.h"
+#include "Simulation.h"
 #include "constants.h"
 
   implicit none

@@ -9,7 +9,7 @@
 !!  call fl_effects(real, dimension(:,:,:,:),POINTER_INTENT_IN  :: solndata,
 !!                  real,dimension(:,:,:)(in) :: flamdot,
 !!                  real(in) :: dt,
-!!                  integer(in) :: blockid)
+!!                  Grid_tile_t(in) :: tileDesc)
 !!
 !! DESCRIPTION
 !!
@@ -23,42 +23,46 @@
 !!
 !!   dt : 
 !!
-!!   blockid : ID of block in current processor
+!!   tileDesc :
 !!
 !!
 !!
 !!***
 
 
-subroutine fl_effects( solnData, flamdot, dt, blockID)
+subroutine fl_effects( solnData, flamdot, dt, tileDesc)
 
   use fl_effData, only : fl_effDeltae
   use Timers_interface, only : Timers_start, Timers_stop
   use Grid_interface, only : Grid_getBlkIndexLimits
-  use Eos_interface, only : Eos_wrapped
+  use Eos_interface, only : Eos_multiDim
+  use Grid_tile, only: Grid_tile_t
   implicit none
 
 #include "constants.h"
-#include "Flash.h"
+#include "Simulation.h"
 #include "FortranLangFeatures.fh"
 #include "Eos.h"
     
   real, dimension(:,:,:,:),POINTER_INTENT_IN  :: solnData
-  real,dimension(:,:,:), intent(in)     :: flamdot
+  real,dimension(:,:,:), intent(in), allocatable     :: flamdot
   real,intent(in)                       :: dt
-  integer, intent(in)                   :: blockID
+  type(Grid_tile_t), intent(in)         :: tileDesc
 
   integer                    :: i, j, k
   real                       :: qdot
-  integer,dimension(LOW:HIGH,MDIM) :: blkLimits, blkLimitsGC
+  integer,dimension(LOW:HIGH,MDIM) :: tileLimits
 
+  tileLimits=tileDesc%limits
 
-  call Grid_getBlkIndexLimits(blockID, blkLimits, blkLimitsGC)
+  !JM print *, 'flam bounds inside fl_effects:'
+  !JM print *, 'LBOUND(flamdot):', LBOUND(flamdot) !JM
+  !JM print *, 'UBOUND(flamdot):', UBOUND(flamdot) !JM
 
   ! update interior cells
-  do k = blkLimits(LOW,KAXIS), blkLimits(HIGH,KAXIS)
-     do j = blkLimits(LOW,JAXIS), blkLimits(HIGH,JAXIS)
-        do i = blkLimits(LOW,IAXIS), blkLimits(HIGH,IAXIS)
+  do k = tileLimits(LOW,KAXIS), tileLimits(HIGH,KAXIS)
+     do j = tileLimits(LOW,JAXIS), tileLimits(HIGH,JAXIS)
+        do i = tileLimits(LOW,IAXIS), tileLimits(HIGH,IAXIS)
               
            qdot = flamdot(i,j,k) * fl_effDeltae
            solnData(ENER_VAR,i,j,k) = solnData(ENER_VAR,i,j,k) + qdot*dt
@@ -72,7 +76,8 @@ subroutine fl_effects( solnData, flamdot, dt, blockID)
      
   ! We changed internal energy so need to update other quantities
   call Timers_start("eos")
-  call Eos_wrapped(MODE_DENS_EI,blkLimits,blockID)
+  call Eos_multiDim(MODE_DENS_EI,tileLimits,tileDesc%grownLimits(LOW,:),solnData)
+  !call Eos_wrapped(MODE_DENS_EI,blkLimits,blockID)
   call Timers_stop("eos")
      
   return

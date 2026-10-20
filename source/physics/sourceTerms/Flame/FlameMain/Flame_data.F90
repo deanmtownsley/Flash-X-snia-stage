@@ -1,6 +1,6 @@
 !  Dean Townsley 2008
 
-#include "Flash.h"
+#include "Simulation.h"
 Module Flame_data
 
   implicit none
